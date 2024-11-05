@@ -1,4 +1,6 @@
 import Hello from "./components/Hello.tsx";
+import Projekt from "./components/Projekt.tsx";
+import Car from "./components/Car.tsx";
 
 function App() {
 
@@ -8,6 +10,8 @@ function App() {
           CampusGo
       </h1>
         <Hello />
+        <Projekt />
+        <Car model={"BMW"}/>
     </>
   )
 }
