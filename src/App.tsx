@@ -1,4 +1,6 @@
 import Hello from "./components/Hello.tsx";
+import Prikol from "./components/Prikol.tsx";
+import Bild from "./components/Bild.tsx";
 
 function App() {
 
@@ -8,6 +10,8 @@ function App() {
           CampusGo
       </h1>
         <Hello />
+        <Prikol />
+        <Bild image={"https://img.goodfon.com/wallpaper/nbig/9/9e/krasivyy-krasivaya-koshka-kot.webp"}/>
     </>
   )
 }
