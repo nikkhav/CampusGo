@@ -2,7 +2,7 @@ const Home = () => {
   return (
     <div>
       <h2 className="text-6xl text-center mt-32 wide-font">
-        <span className="half-highlight">Nachhaltig</span> fahren und <br />
+        Nachhaltig fahren und <br />
         Zeit sparen
       </h2>
       <p className="text-2xl text-center font-inter font-light mt-12">

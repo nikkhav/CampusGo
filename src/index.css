@@ -11,35 +11,3 @@ body {
 .wide-font {
     letter-spacing: 0.3rem;
 }
-
-.half-highlight {
-    position: relative;
-    line-height: 1;
-    overflow: hidden;
-    z-index: 1;
-}
-
-.half-highlight::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 30%;
-    border-radius: 0.1rem;
-    transform: scaleX(0);
-    transform-origin: left center;
-    z-index: -1;
-    animation: highlightAnimation 2s forwards;
-    /*background-color: #ffff00;*/
-    background-color: #87CA9C;
-}
-
-@keyframes highlightAnimation {
-    0% {
-        transform: scaleX(0);
-    }
-    100% {
-        transform: scaleX(1);
-    }
-}
