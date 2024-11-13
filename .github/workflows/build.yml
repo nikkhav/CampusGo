@@ -24,10 +24,10 @@ jobs:
         with:
           node-version: '16'  # Ensure this matches your project requirements
 
-      # Step 3: Install dependencies
+      # Step 3: Install dependencies using Yarn
       - name: Install dependencies
-        run: npm install
+        run: yarn install
 
       # Step 4: Run build
       - name: Run build
-        run: npm run build
+        run: yarn run build
