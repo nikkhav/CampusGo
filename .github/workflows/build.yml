@@ -22,7 +22,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'  # Ensure this matches your project requirements
+          node-version: '20.x'  # Ensure this matches your project requirements
 
       # Step 3: Install dependencies using Yarn
       - name: Install dependencies
