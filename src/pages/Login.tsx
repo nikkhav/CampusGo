@@ -1,30 +1,22 @@
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
+import {ArrowLeft} from "lucide-react";
 
 const Login = () => {
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <li>
-                <Link to="/home">
-                    <div className="absolute top-20 left-40">
-                        <button className="flex items-center p-2 rounded-full hover:bg-gray-200 focus:outline-none">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="w-10 h-10 text-gray-800"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M15 19l-7-7 7-7"
-                                />
-                            </svg>
-                        </button>
-                    </div>
-                </Link>
-            </li>
+
+            <Link to="/">
+                <div className="absolute top-20 left-40">
+                    <button className="flex items-center p-2 rounded-full hover:bg-gray-200 focus:outline-none">
+                        <ArrowLeft />
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M15 19l-7-7 7-7"
+                        />
+                    </button>
+                </div>
+            </Link>
 
             <div className="flex items-center justify-center min-h-screen bg-gray-100">
                 <div className="w-full max-w-sm p-6 bg-white rounded-3xl shadow-md">
@@ -69,7 +61,8 @@ const Login = () => {
                 </div>
             </div>
         </div>
-    );
+    )
+        ;
 };
 
 export default Login;
