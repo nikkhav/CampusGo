@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import dummy_avatar from "@/assets/dummy-avatar.png";
 
 export default function Header() {
   return (
@@ -10,18 +11,25 @@ export default function Header() {
             </div>
             <ul className="flex space-x-6">
               <li>
-                <Link to="/plane-deine-reise" className="text-gray-600 hover:text-gray-900">Plane deine Reise</Link>
+                <Link to="/plane-deine-reise" className="text-gray-600 hover:text-gray-900">Fahrt finden</Link>
               </li>
               <li>
                 <Link to="/fahrt-verfolgen" className="text-gray-600 hover:text-gray-900">Fahrt verfolgen</Link>
               </li>
               <li>
-                <Link to="/service" className="text-gray-600 hover:text-gray-900">Service</Link>
-              </li>
-              <li>
                 <Link to="/hilfe-kontakt" className="text-gray-600 hover:text-gray-900">Hilfe & Kontakt</Link>
               </li>
             </ul>
+            <div className="flex">
+              <Link to={"/"}>
+                Fahrt hinzufügen
+              </Link>
+            <div className="flex flex-col items-center">
+
+              <img src={dummy_avatar} alt="team member"
+                   className="w-20 h-20 rounded-full border-2 border-green-600"/>
+            </div>
+            </div>
           </nav>
         </div>
       </header>
