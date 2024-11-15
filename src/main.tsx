@@ -4,7 +4,7 @@ import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/Home.tsx";
 import FindRide from "@/pages/FindRide.tsx";
-import Login from "@/pages/Login.tsx";
+import Auth from "@/pages/Auth.tsx";
 
 const router = createBrowserRouter([
   {
@@ -16,8 +16,8 @@ const router = createBrowserRouter([
     element: <FindRide />,
   },
   {
-    path: "/auth/login",
-    element: <Login />,
+    path: "/auth",
+    element: <Auth />,
   },
 ]);
 

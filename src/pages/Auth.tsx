@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import login_bg from "@/assets/login-bg.webp";
 
-const Login = () => {
+const Auth = () => {
   return (
     <div
       className="relative flex items-center justify-center min-h-screen bg-gray-100"
@@ -16,7 +16,7 @@ const Login = () => {
 
       <Link to="/">
         <div className="absolute top-20 left-40 z-10">
-          <button className="flex items-center p-2 rounded-full hover:bg-gray-200 focus:outline-none">
+          <button className="flex items-center p-2 rounded-full bg-gray-100 hover:bg-gray-200 focus:outline-none">
             <ArrowLeft />
           </button>
         </div>
@@ -66,4 +66,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Auth;
