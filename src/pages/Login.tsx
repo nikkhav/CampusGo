@@ -22,7 +22,7 @@ const Login = () => {
         </div>
       </Link>
 
-      <div className="relative w-full max-w-sm p-6 bg-white bg-opacity-90 rounded-3xl shadow-md z-10">
+      <div className="relative w-full max-w-sm p-6 bg-white rounded-3xl shadow-md z-10">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold text-green-600">CampusGo</h2>
         </div>
