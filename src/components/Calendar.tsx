@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayPicker } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import { de } from "date-fns/locale";
 
 export interface CalendarProps {
   className?: string;
@@ -20,6 +21,12 @@ const Calendar: React.FC<CalendarProps> = ({
   initialFocus = false,
   ...props
 }) => {
+  const disablePastDates = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
+  };
+
   return (
     <DayPicker
       mode="single"
@@ -27,7 +34,9 @@ const Calendar: React.FC<CalendarProps> = ({
       onSelect={onSelect}
       showOutsideDays={showOutsideDays}
       initialFocus={initialFocus}
+      locale={de}
       className={cn("p-3", className)}
+      disabled={disablePastDates} // Запрет выбора прошедших дат
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
