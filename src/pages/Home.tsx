@@ -62,7 +62,7 @@ const Home = () => {
 
         <div className="mt-10">
           <PillLabel text="Über uns" />
-          <div className="flex flex-row justify-between items-center mt-10">
+          <div className="flex flex-row justify-between items-center">
             <div className="flex flex-col w-5/12">
               <h3 className="border-b-4 border-b-green-600 text-2xl font-semibold mt-5">
                 Our story

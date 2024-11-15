@@ -7,14 +7,14 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <nav className="flex items-center justify-between py-5">
           <div className="flex-shrink-0">
-            <Link to="/" className="text-xl font-semibold text-gray-800">
-              Logo
+            <Link to="/" className="text-xl font-semibold text-green-700">
+              CampusGo
             </Link>
           </div>
           <ul className="flex space-x-6">
             <li>
               <Link
-                to="/plane-deine-reise"
+                to="/find-ride"
                 className="text-gray-600 hover:text-gray-900"
               >
                 Fahrt finden
