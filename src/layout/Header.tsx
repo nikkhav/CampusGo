@@ -38,11 +38,15 @@ export default function Header() {
             </li>
           </ul>
           <div className="flex flex-col items-center">
-            <img
-              src={dummy_avatar}
-              alt="team member"
-              className="w-16 h-16 rounded-full border-2 border-green-600"
-            />
+            <li>
+              <Link to="/auth/login">
+                <img
+                    src={dummy_avatar}
+                    alt="team member"
+                    className="w-16 h-16 rounded-full border-2 border-green-600"
+                />
+              </Link>
+            </li>
           </div>
         </nav>
       </div>
