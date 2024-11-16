@@ -4,17 +4,54 @@ import PillLabel from "@/components/PillLabel.tsx";
 import CheckmarkLabel from "@/components/CheckmarkLabel.tsx";
 import home_story from "@/assets/home-story.jpg";
 import home_ideology from "@/assets/home-ideology.jpg";
-
+import auto_icon from "@/assets/icons/auto-icon.svg";
+import smile_icon from "@/assets/icons/smile-icon.svg";
+import filter_icon from "@/assets/icons/filter-icon.svg";
+import path_icon from "@/assets/icons/path-icon.svg";
 import mariia from "@/assets/avatars/Mariia.webp";
 import eduard from "@/assets/avatars/Eduard.webp";
 import nikita from "@/assets/avatars/Nikita.webp";
 import sasha from "@/assets/avatars/Sasha.webp";
+
+const features = [
+  [
+    {
+      icon: auto_icon,
+      text: "Erstellung und Suche von Mitfahrangeboten",
+    },
+    {
+      icon: smile_icon,
+      text: "Intuitive und benutzerfreundliche Bedienung",
+    },
+  ],
+  [
+    {
+      icon: filter_icon,
+      text: "Filtermöglichkeiten nach Pendelzeiten und Routen",
+    },
+    {
+      icon: path_icon,
+      text: "Integration von Orten und Haltestellen sowie barrierefreier Zugang für alle Nutzergruppen",
+    },
+  ],
+];
 
 interface TeamMemberProps {
   name: string;
   course: string;
   image: string;
 }
+
+const FeatureItem = ({ icon, text }: { icon: string; text: string }) => {
+  return (
+    <div className="flex items-center gap-4 mt-7 first:mt-0">
+      <div className="w-16 h-16 rounded-full border-4 border-green-600 flex items-center justify-center  shrink-0">
+        <img src={icon} alt="icon" className="w-10 h-10 object-contain" />
+      </div>
+      <p>{text}</p>
+    </div>
+  );
+};
 
 const TeamMember = ({ name, course, image }: TeamMemberProps) => {
   return (
@@ -106,51 +143,13 @@ const Home = () => {
           Key Features of CampusGo
         </h3>
         <div className="flex justify-between w-full mt-12">
-          <div className="flex flex-col w-5/12">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full border-4 border-green-500 flex items-center justify-center bg-gray-200">
-                <img
-                  src="https://via.placeholder.com/24"
-                  alt="icon"
-                  className="w-10 h-10"
-                />
-              </div>
-              <p>Erstellung und Suche von Mitfahrangeboten</p>
+          {features.map((feature, index) => (
+            <div key={index} className="flex flex-col w-5/12">
+              {feature.map((item, index) => (
+                <FeatureItem key={index} icon={item.icon} text={item.text} />
+              ))}
             </div>
-            <div className="flex items-center gap-4 mt-7">
-              <div className="w-16 h-16 rounded-full border-4 border-green-500 flex items-center justify-center bg-gray-200">
-                <img
-                  src="https://via.placeholder.com/24"
-                  alt="icon"
-                  className="w-10 h-10"
-                />
-              </div>
-              <p>Intuitive und benutzerfreundliche Bedienung</p>
-            </div>
-          </div>
-
-          <div className="flex flex-col w-5/12">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full border-4 border-green-500 flex items-center justify-center bg-gray-200">
-                <img
-                  src="https://via.placeholder.com/24"
-                  alt="icon"
-                  className="w-10 h-10"
-                />
-              </div>
-              <p>Filtermöglichkeiten nach Pendelzeiten und Routen</p>
-            </div>
-            <div className="flex items-center gap-4 mt-7">
-              <div className="w-16 h-16 rounded-full border-4 border-green-500 flex items-center justify-center bg-gray-200">
-                <img
-                  src="https://via.placeholder.com/24"
-                  alt="icon"
-                  className="w-10 h-10"
-                />
-              </div>
-              <p>Filtermöglichkeiten nach Pendelzeiten und Routen</p>
-            </div>
-          </div>
+          ))}
         </div>
 
         <h3 className="text-4xl text-center mt-20 underline decoration-green-600">
