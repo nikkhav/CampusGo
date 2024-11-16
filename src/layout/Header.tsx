@@ -29,7 +29,7 @@ export default function Header() {
             </Link>
           </div>
           <div className="flex flex-col items-center">
-            <Link to="/auth">
+            <Link to="/login">
               <img
                 src={dummy_avatar}
                 alt="Profilbild"

@@ -170,9 +170,7 @@ const Home = () => {
           </div>
           <div className="w-1/3 flex flex-col items-center">
             <h5 className="text-2xl font-semibold">
-              Integration in
-              <br />
-              die UBT-App
+              Integration in die UBT-App
             </h5>
             <p className="mt-3 text-gray-700">
               Langfristig soll CampusGo in die bestehende Infrastruktur der

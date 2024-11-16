@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import login_bg from "@/assets/login-bg.webp";
 
-const Auth = () => {
+const Login = () => {
   return (
     <div
       className="relative flex items-center justify-center min-h-screen bg-gray-100"
@@ -23,15 +23,15 @@ const Auth = () => {
       </Link>
 
       <div className="relative w-full max-w-sm p-6 bg-white rounded-3xl shadow-md z-10">
-        <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-green-600">CampusGo</h2>
-        </div>
+        <h2 className="text-2xl text-center font-bold text-green-600">
+          CampusGo
+        </h2>
 
-        <h1 className="text-center text-3xl font-semibold text-gray-900 mb-4">
-          Einloggen oder registrieren
+        <h1 className="text-center text-3xl font-semibold text-gray-900 mt-4">
+          Einloggen
         </h1>
 
-        <div className="mb-4">
+        <div className="mt-5">
           <label htmlFor="email" className="sr-only">
             E-mail Adresse
           </label>
@@ -43,19 +43,31 @@ const Auth = () => {
           />
         </div>
 
-        <div className="mb-4 text-left">
+        <div className="mt-5">
+          <label htmlFor="password" className="sr-only">
+            Passwort
+          </label>
+          <input
+            type="password"
+            id="password"
+            placeholder="Passwort"
+            className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600"
+          />
+        </div>
+
+        <div className="mt-2 text-left">
           <Link to="/" className="text-sm text-gray-500 hover:text-gray-700">
             Login-Daten vergessen
           </Link>
         </div>
 
-        <button className="w-full py-3 text-white bg-green-600 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
+        <button className="mt-4 w-full py-3 text-white bg-green-600 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
           Anmelden
         </button>
 
         <div className="text-center mt-5">
           <Link
-            to="/"
+            to="/register"
             className="text-sm font-medium text-gray-700 hover:text-gray-900"
           >
             Jetzt registrieren
@@ -66,4 +78,4 @@ const Auth = () => {
   );
 };
 
-export default Auth;
+export default Login;

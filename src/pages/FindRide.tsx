@@ -106,10 +106,10 @@ const FindRide = () => {
           </div>
         </div>
         <div className="w-8/12">
-          <div className="flex justify-around items-center mb-4">
-            <p className="text-sm text-gray-500">Do., 17 Nov.</p>
-            <p className="text-sm text-gray-500 underline">Fr., 18 Nov.</p>
-            <p className="text-sm text-gray-500">Sa., 19 Nov.</p>
+          <div className="flex justify-around items-center mb-4 text-lg font-bold">
+            <p>Do., 17 Nov.</p>
+            <p>Fr., 18 Nov.</p>
+            <p className="border-b-2 border-b-green-600">Sa., 19 Nov.</p>
           </div>
           {destinations.map((destination, index) => (
             <DestinationCard
