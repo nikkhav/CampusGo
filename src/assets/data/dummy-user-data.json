@@ -1,0 +1,35 @@
+{
+  "publicProfile": {
+    "firstName": "Max",
+    "lastName": "Mustermann",
+    "status": "Aktiv",
+    "verification": [
+      "Ausweisdokument bestätigen",
+      "Führerschein bestätigen",
+      "E-Mail-Adresse bestätigen",
+      "Telefonnummer bestätigen"
+    ],
+    "vehicles": [
+      {
+        "make": "Volkswagen",
+        "model": "Golf",
+        "color": "Blau"
+      }
+    ],
+    "preferences": [
+      "Haustiere willkommen 🐾",
+      "Flexible Stopps 🛑",
+      "Klimabewusster Fahrer 🌱"
+    ],
+    "languages": ["DE", "EN"]
+  },
+  "accountSettings": {
+    "personalDetails": {
+      "firstName": "Max",
+      "lastName": "Mustermann",
+      "birthDate": "1985-05-20",
+      "email": "max.mustermann@example.com",
+      "phone": "+49 171 2345678"
+    }
+  }
+}

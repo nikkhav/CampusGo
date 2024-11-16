@@ -6,6 +6,8 @@ import Home from "./pages/Home.tsx";
 import FindRide from "@/pages/FindRide.tsx";
 import Login from "@/pages/Login.tsx";
 import Register from "@/pages/Register.tsx";
+import Profile from "@/pages/Profile.tsx";
+import NotFound from "@/pages/NotFound.tsx";
 
 const router = createBrowserRouter([
   {
@@ -23,7 +25,15 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
-  }
+  },
+  {
+    path: "/profile",
+    element: <Profile />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
+  },
 ]);
 
 createRoot(document.getElementById("root")!).render(
