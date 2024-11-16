@@ -159,9 +159,11 @@ const Home = () => {
 
         <div className="flex justify-evenly text-center mt-10">
           <div className="w-1/3 flex flex-col items-center">
-            <h5 className="text-2xl font-semibold">
-              Förderung von Fahrgemeinschaften
-            </h5>
+            <div className="h-14 flex items-center">
+              <h5 className="text-2xl font-semibold">
+                Förderung von Fahrgemeinschaften
+              </h5>
+            </div>
             <p className="mt-3 text-gray-700">
               Die App ermöglicht es Nutzer, gemeinsame Fahrten zu organisieren
               und dadurch die Verkehrsbelastung zu reduzieren und CO₂-Emissionen
@@ -169,11 +171,11 @@ const Home = () => {
             </p>
           </div>
           <div className="w-1/3 flex flex-col items-center">
-            <h5 className="text-2xl font-semibold">
-              Integration in die {/*TODO: Break only on small screens*/}
-              {/*<br className="hidden lg:block" />*/}
-              UBT-App
-            </h5>
+            <div className="h-14 flex items-center">
+              <h5 className="text-2xl font-semibold">
+                Integration die UBT-App
+              </h5>
+            </div>
             <p className="mt-3 text-gray-700">
               Langfristig soll CampusGo in die bestehende Infrastruktur der
               Universität integriert werden, um den Nutzer maximalen Komfort zu
@@ -181,9 +183,11 @@ const Home = () => {
             </p>
           </div>
           <div className="w-1/3 flex flex-col items-center">
-            <h5 className="text-2xl font-semibold">
-              Entwicklung neuer Mobilitätslösungen
-            </h5>
+            <div className="h-14 flex items-center">
+              <h5 className="text-2xl font-semibold ">
+                Entwicklung neuer Mobilitätslösungen
+              </h5>
+            </div>
             <p className="mt-3 text-gray-700">
               Wir möchten ein Vorbild für nachhaltige Mobilität in der Region
               sein und innovative Ansätze fördern
