@@ -62,9 +62,9 @@ const Home = () => {
 
         <div className="mt-10">
           <PillLabel text="Über uns" />
-          <div className="flex flex-row justify-between items-center">
+          <div className="flex flex-row justify-between mt-10">
             <div className="flex flex-col w-5/12">
-              <h3 className="border-b-4 border-b-green-600 text-2xl font-semibold mt-5">
+              <h3 className="border-b-4 border-b-green-600 text-2xl font-semibold">
                 Our story
               </h3>
               <p className="font-light mt-3 text-gray-700">
@@ -83,9 +83,9 @@ const Home = () => {
               <img src={home_story} alt="Home Story" />
             </div>
           </div>
-          <div className="flex flex-row-reverse justify-between items-center mt-20">
+          <div className="flex flex-row-reverse justify-between  mt-20">
             <div className="flex flex-col w-5/12">
-              <h3 className="border-b-4 border-b-green-600 text-2xl font-semibold mt-5">
+              <h3 className="border-b-4 border-b-green-600 text-2xl font-semibold">
                 Ideologie und Ziele
               </h3>
               <p className="font-light mt-3 text-gray-700">
@@ -170,7 +170,9 @@ const Home = () => {
           </div>
           <div className="w-1/3 flex flex-col items-center">
             <h5 className="text-2xl font-semibold">
-              Integration in die UBT-App
+              Integration in die {/*TODO: Break only on small screens*/}
+              {/*<br className="hidden lg:block" />*/}
+              UBT-App
             </h5>
             <p className="mt-3 text-gray-700">
               Langfristig soll CampusGo in die bestehende Infrastruktur der
