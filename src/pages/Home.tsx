@@ -158,7 +158,7 @@ const Home = () => {
         </h3>
 
         <div className="flex justify-evenly text-center mt-10">
-          <div className="w-1/3 flex flex-col items-center">
+          <div className="w-1/3 flex flex-col items-center mx-3">
             <div className="h-14 flex items-center">
               <h5 className="text-2xl font-semibold">
                 Förderung von Fahrgemeinschaften
@@ -170,7 +170,7 @@ const Home = () => {
               einzusparen
             </p>
           </div>
-          <div className="w-1/3 flex flex-col items-center">
+          <div className="w-1/3 flex flex-col items-center mx-3">
             <div className="h-14 flex items-center">
               <h5 className="text-2xl font-semibold">
                 Integration die UBT-App
@@ -182,7 +182,7 @@ const Home = () => {
               bieten
             </p>
           </div>
-          <div className="w-1/3 flex flex-col items-center">
+          <div className="w-1/3 flex flex-col items-center mx-3">
             <div className="h-14 flex items-center">
               <h5 className="text-2xl font-semibold ">
                 Entwicklung neuer Mobilitätslösungen

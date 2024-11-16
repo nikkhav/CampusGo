@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import dummy_avatar from "@/assets/avatars/Eduard.webp";
+import logo from "@/assets/logo.png";
 
 export default function Header() {
   return (
@@ -8,7 +9,7 @@ export default function Header() {
         <nav className="flex items-center justify-between py-5">
           <div className="flex-shrink-0">
             <Link to="/" className="text-xl font-semibold text-green-700">
-              CampusGo
+              <img src={logo} alt="CampusGo Logo" className="w-20" />
             </Link>
           </div>
           <div className="flex space-x-6">
