@@ -10,6 +10,7 @@ import Profile from "@/pages/Profile.tsx";
 import NotFound from "@/pages/NotFound.tsx";
 import OfferRide from "@/pages/OfferRide.tsx";
 import NewPass from "@/pages/NewPass.tsx";
+import Logout from "@/pages/Logout.tsx";
 
 const router = createBrowserRouter([
   {
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
   {
     path: "/new-pass",
     element: <NewPass />,
+  },
+  {
+    path: "/logout",
+    element: <Logout />,
   },
   {
     path: "*",
