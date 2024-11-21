@@ -15,12 +15,13 @@
     "Antwortet Schnell 📱"
   ],
   "ride-bad-passenger": [
-    "Unpünktlichkeit ⏳",
+    "Unpünktlichkeit ⏰",
     "Unangenehme Gespräche 🤐",
     "Schlechte Kommunikation 📵",
     "Verschmutzung im Auto 🤢",
     "Unfreundlichkeit 😡",
-    "Respektloses Verhalten ❌"
+    "Respektloses Verhalten ❌",
+    "Unzuverlässigkeit 🤷"
   ],
   "ride-good-driver": [
     "Geselligkeit 👫",
