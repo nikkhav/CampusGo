@@ -9,9 +9,7 @@ import Register from "@/pages/Register.tsx";
 import Profile from "@/pages/Profile.tsx";
 import NotFound from "@/pages/NotFound.tsx";
 import OfferRide from "@/pages/OfferRide.tsx";
-import NewPass from "@/pages/NewPass.tsx";
-import Logout from "@/pages/Logout.tsx";
-import CloseAcc from "@/pages/CloseAcc.tsx";
+import NewPassword from "@/pages/NewPassword.tsx";
 
 const router = createBrowserRouter([
   {
@@ -39,16 +37,8 @@ const router = createBrowserRouter([
     element: <Profile />,
   },
   {
-    path: "/new-pass",
-    element: <NewPass />,
-  },
-  {
-    path: "/logout",
-    element: <Logout />,
-  },
-  {
-    path: "/close-account",
-    element: <CloseAcc />,
+    path: "/new-password",
+    element: <NewPassword />,
   },
   {
     path: "*",

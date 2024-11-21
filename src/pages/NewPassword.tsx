@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import login_bg from "@/assets/login-bg.webp";
+import newpass_bg from "@/assets/newpass-bg.webp";
 import logo from "@/assets/logo.png";
 
-const Login = () => {
+const NewPassword = () => {
   const [formData, setFormData] = useState({
     email: "",
-    password: "",
+    old_password: "",
+    new_password: "",
   });
 
   const [error, setError] = useState("");
@@ -21,20 +22,22 @@ const Login = () => {
     e.preventDefault();
     setError("");
 
-    if (!formData.email || !formData.password) {
-      setError("Bitte geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein.");
+    if (!formData.email || !formData.old_password || !formData.new_password) {
+      setError(
+        "Bitte geben Sie Ihre E-Mail-Adresse, Ihr altes und neues Passwort ein.",
+      );
       return;
     }
 
-    console.log("Login data submitted:", formData);
-    alert("Login erfolgreich!"); // Temporary success message
+    console.log("Pass change data submitted:", formData);
+    alert("Erfolgreiche Passwortänderung!"); // Temporary success message
   };
 
   return (
     <div
       className="relative flex items-center justify-center min-h-screen bg-gray-100"
       style={{
-        backgroundImage: `url(${login_bg})`,
+        backgroundImage: `url(${newpass_bg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -51,71 +54,62 @@ const Login = () => {
         <img src={logo} alt="CampusGo Logo" className="w-20 mx-auto" />
 
         <h2 className="text-2xl text-center font-semibold text-gray-900 mt-4">
-          Einloggen
+          Passwort ändern
         </h2>
 
         <form onSubmit={handleSubmit}>
           <div className="mt-5">
             <label htmlFor="email" className="sr-only">
-              E-mail Adresse
+              E-Mail Adresse
             </label>
             <input
               type="email"
               id="email"
-              placeholder="E-mail Adresse"
+              placeholder="E-Mail Adresse"
               value={formData.email}
               onChange={handleChange}
               className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600"
             />
           </div>
-
           <div className="mt-5">
-            <label htmlFor="password" className="sr-only">
-              Passwort
+            <label htmlFor="old_password" className="sr-only">
+              Altes Passwort
             </label>
             <input
               type="password"
-              id="password"
-              placeholder="Passwort"
-              value={formData.password}
+              id="old_password"
+              placeholder="Altes Passwort"
+              value={formData.old_password}
               onChange={handleChange}
               className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600"
             />
-            <div className="text-right mt-2">
-              <Link
-                to="/new-password"
-                className="text-sm font-medium text-green-600 hover:text-green-700"
-              >
-                Passwort vergessen?
-              </Link>
-            </div>
           </div>
-
+          <div className="mt-5">
+            <label htmlFor="new_password" className="sr-only">
+              Neues Passwort
+            </label>
+            <input
+              type="password"
+              id="new_password"
+              placeholder="Neues Passwort"
+              value={formData.new_password}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600"
+            />
+          </div>
           {error && (
             <p className="mt-3 text-sm text-red-600 text-center">{error}</p>
           )}
-
           <button
             type="submit"
             className="mt-4 w-full py-3 text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50"
           >
-            Anmelden
+            Änderung bestätigen
           </button>
         </form>
-
-        <p className="text-center mt-4 text-sm text-gray-500">oder</p>
-
-        <div className="text-center mt-4">
-          <Link
-            to="/register"
-            className="text-sm font-medium text-gray-700 hover:text-gray-900"
-          >
-            Jetzt registrieren
-          </Link>
-        </div>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default NewPassword;

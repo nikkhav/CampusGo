@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import Layout from "@/layout/Layout.tsx";
+import Modal from "@/components/Modal";
 import { UserData, PublicProfileData, AccountSettingsData } from "@/types.ts";
 import dummy_user from "@/assets/data/dummy-user-data.json";
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState<"public" | "account">("public");
   const [data, setData] = useState<UserData | null>(null);
+  const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     // Simulate fetching data
@@ -15,6 +18,16 @@ const Profile = () => {
     };
     fetchData();
   }, []);
+
+  const handleLogout = () => {
+    console.log("Logged out");
+    setLogoutModalOpen(false);
+  };
+
+  const handleDeleteAccount = () => {
+    console.log("Account deleted");
+    setDeleteModalOpen(false);
+  };
 
   if (!data) {
     return <div className="text-center mt-20">Loading...</div>;
@@ -50,9 +63,71 @@ const Profile = () => {
           {activeTab === "public" ? (
             <PublicProfile data={data.publicProfile} />
           ) : (
-            <AccountSettings data={data.accountSettings} />
+            <AccountSettings
+              data={data.accountSettings}
+              onLogout={() => setLogoutModalOpen(true)}
+              onDeleteAccount={() => setDeleteModalOpen(true)}
+            />
           )}
         </div>
+
+        {/* Logout Confirmation Modal */}
+        <Modal
+          isOpen={isLogoutModalOpen}
+          onClose={() => setLogoutModalOpen(false)}
+          title="Logout Confirmation"
+          footer={
+            <div className="flex justify-between w-5/12 mx-auto">
+              <button
+                onClick={() => setLogoutModalOpen(false)}
+                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              >
+                Logout
+              </button>
+            </div>
+          }
+        >
+          <p className="text-gray-700 text-center">
+            Are you sure you want to log out?
+            <br />
+            This action will end your session.
+          </p>
+        </Modal>
+
+        {/* Delete Account Confirmation Modal */}
+        <Modal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          title="Delete Account Confirmation"
+          footer={
+            <div className="flex justify-between w-5/12 mx-auto">
+              <button
+                onClick={() => setDeleteModalOpen(false)}
+                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          }
+        >
+          <p className="text-gray-700 text-center">
+            Are you sure you want to delete your account?
+            <br />
+            This action is irreversible.
+          </p>
+        </Modal>
       </div>
     </Layout>
   );
@@ -80,7 +155,7 @@ const PublicProfile = ({ data }: { data: PublicProfileData }) => {
         <ul className="mt-4 space-y-3 text-gray-700">
           {data.verification.map((item, index) => (
             <li key={index} className="flex items-center gap-2 text-green-600">
-              <span>+</span> {item}
+              <span>✔</span> {item}
             </li>
           ))}
         </ul>
@@ -131,7 +206,15 @@ const PublicProfile = ({ data }: { data: PublicProfileData }) => {
   );
 };
 
-const AccountSettings = ({ data }: { data: AccountSettingsData }) => {
+const AccountSettings = ({
+  data,
+  onLogout,
+  onDeleteAccount,
+}: {
+  data: AccountSettingsData;
+  onLogout: () => void;
+  onDeleteAccount: () => void;
+}) => {
   return (
     <div className="flex flex-col lg:flex-row justify-between gap-10">
       <div className="lg:w-1/2 bg-white rounded-lg shadow-md p-6">
@@ -188,8 +271,13 @@ const AccountSettings = ({ data }: { data: AccountSettingsData }) => {
           </ul>
         </div>
         <div className="flex justify-end gap-4 mt-10">
-          <button className="text-green-600 hover:underline">Ausloggen</button>
-          <button className="text-red-600 hover:underline">
+          <button onClick={onLogout} className="text-green-600 hover:underline">
+            Ausloggen
+          </button>
+          <button
+            onClick={onDeleteAccount}
+            className="text-red-600 hover:underline"
+          >
             Konto schließen
           </button>
         </div>
