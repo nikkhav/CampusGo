@@ -6,8 +6,8 @@ import logo from "@/assets/logo.png";
 
 const NewPass = () => {
     const [formData, setFormData] = useState({
-        email: "",
-        password: "",
+        old_password: "",
+        new_password: "",
     });
 
     const [error, setError] = useState("");
@@ -21,7 +21,7 @@ const NewPass = () => {
         e.preventDefault();
         setError("");
 
-        if (!formData.email || !formData.password) {
+        if (!formData.old_password || !formData.new_password) {
             setError("Bitte geben Sie Ihr altes und neues Passwort ein.");
             return;
         }
@@ -55,28 +55,28 @@ const NewPass = () => {
 
                 <form onSubmit={handleSubmit}>
                     <div className="mt-5">
-                        <label htmlFor="password" className="sr-only">
+                        <label htmlFor="old_password" className="sr-only">
                             Altes Passwort
                         </label>
                         <input
                             type="password"
-                            id="password"
+                            id="old_password"
                             placeholder="Altes Passwort"
-                            value={formData.password}
+                            value={formData.old_password}
                             onChange={handleChange}
                             className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600"
                         />
                     </div>
 
                     <div className="mt-5">
-                        <label htmlFor="password" className="sr-only">
+                        <label htmlFor="new_password" className="sr-only">
                             Neues Passwort
                         </label>
                         <input
                             type="password"
-                            id="password"
+                            id="new_password"
                             placeholder="Neues Passwort"
-                            value={formData.password}
+                            value={formData.new_password}
                             onChange={handleChange}
                             className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600"
                         />
