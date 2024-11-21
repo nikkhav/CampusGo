@@ -6,7 +6,6 @@ import logo from "@/assets/logo.png";
 const CloseAcc = () => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setError("");
     };
 
     return (
