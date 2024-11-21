@@ -32,6 +32,7 @@ const OfferRide = () => {
         </p>
         <div className="mt-10 border rounded-xl shadow-lg bg-white p-8">
           {/* Stepper */}
+          {/* Stepper */}
           <div className="flex justify-between items-center mb-8">
             <div className="flex flex-col items-center">
               <div
@@ -43,7 +44,11 @@ const OfferRide = () => {
               </div>
               <p className="mt-2 font-medium text-gray-800">Details</p>
             </div>
-            <div className="flex-1 h-1 bg-gray-300 mx-4"></div>
+            <div
+              className={`flex-1 h-1 mx-4 ${
+                currentStep >= 2 ? "bg-green-600" : "bg-gray-300"
+              }`}
+            ></div>
             <div className="flex flex-col items-center">
               <div
                 className={`w-10 h-10 flex items-center justify-center rounded-full text-white font-bold ${
@@ -54,7 +59,11 @@ const OfferRide = () => {
               </div>
               <p className="mt-2 font-medium text-gray-800">Zeit & Plätze</p>
             </div>
-            <div className="flex-1 h-1 bg-gray-300 mx-4"></div>
+            <div
+              className={`flex-1 h-1 mx-4 ${
+                currentStep === 3 ? "bg-green-600" : "bg-gray-300"
+              }`}
+            ></div>
             <div className="flex flex-col items-center">
               <div
                 className={`w-10 h-10 flex items-center justify-center rounded-full text-white font-bold ${
@@ -201,9 +210,14 @@ const OfferRide = () => {
 
             <button
               onClick={currentStep < 3 ? nextStep : createOffer}
+              disabled={
+                (currentStep === 1 && (!from || !to)) ||
+                (currentStep === 2 && (!date || !time))
+              }
               className={`px-6 py-2 text-white rounded-md shadow ${
-                currentStep < 3
-                  ? "bg-green-600 hover:bg-green-700"
+                (currentStep === 1 && (!from || !to)) ||
+                (currentStep === 2 && (!date || !time))
+                  ? "bg-gray-300 cursor-not-allowed"
                   : "bg-green-600 hover:bg-green-700"
               }`}
             >
