@@ -11,6 +11,7 @@ import NotFound from "@/pages/NotFound.tsx";
 import OfferRide from "@/pages/OfferRide.tsx";
 import NewPass from "@/pages/NewPass.tsx";
 import Logout from "@/pages/Logout.tsx";
+import CloseAcc from "@/pages/CloseAcc.tsx";
 
 const router = createBrowserRouter([
   {
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
   {
     path: "/logout",
     element: <Logout />,
+  },
+  {
+    path: "/close-account",
+    element: <CloseAcc />,
   },
   {
     path: "*",
