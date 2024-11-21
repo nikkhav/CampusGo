@@ -10,6 +10,7 @@ import Profile from "@/pages/Profile.tsx";
 import NotFound from "@/pages/NotFound.tsx";
 import OfferRide from "@/pages/OfferRide.tsx";
 import NewPassword from "@/pages/NewPassword.tsx";
+import BookRide from "@/pages/BookRide.tsx";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
   {
     path: "/offer-ride",
     element: <OfferRide />,
+  },
+  {
+    path: "/book/:id",
+    element: <BookRide />,
   },
   {
     path: "/login",

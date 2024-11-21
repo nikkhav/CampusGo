@@ -5,6 +5,7 @@ import { useState } from "react";
 
 const destinations = [
   {
+    id: "1",
     from: "Bayreuth",
     to: "Kulmbach",
     fromAddress: "Universitätstr. 1",
@@ -16,6 +17,7 @@ const destinations = [
     passengerInitials: "NK",
   },
   {
+    id: "2",
     from: "Nürnberg",
     to: "Erlangen",
     fromAddress: "Bahnhofstr. 5",
@@ -27,6 +29,7 @@ const destinations = [
     passengerInitials: "JM",
   },
   {
+    id: "3",
     from: "München",
     to: "Augsburg",
     fromAddress: "Marienplatz",
@@ -38,6 +41,7 @@ const destinations = [
     passengerInitials: "LH",
   },
   {
+    id: "4",
     from: "Berlin",
     to: "Potsdam",
     fromAddress: "Alexanderplatz",
@@ -49,6 +53,7 @@ const destinations = [
     passengerInitials: "SB",
   },
   {
+    id: "5",
     from: "Frankfurt",
     to: "Wiesbaden",
     fromAddress: "Hauptbahnhof",
@@ -150,6 +155,7 @@ const FindRide = () => {
           {destinations.map((destination, index) => (
             <DestinationCard
               key={index}
+              id={destination.id}
               from={destination.from}
               to={destination.to}
               fromAddress={destination.fromAddress}

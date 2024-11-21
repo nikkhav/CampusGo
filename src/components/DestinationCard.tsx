@@ -1,7 +1,9 @@
 import { Card } from "@/components/ui/card.tsx";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar.tsx";
+import { useNavigate } from "react-router-dom";
 
 interface DestinationCardProps {
+  id: string;
   from: string;
   to: string;
   fromAddress: string;
@@ -14,6 +16,7 @@ interface DestinationCardProps {
 }
 
 export const DestinationCard = ({
+  id,
   from,
   to,
   fromAddress,
@@ -24,8 +27,17 @@ export const DestinationCard = ({
   passengerName,
   passengerInitials,
 }: DestinationCardProps) => {
+  const navigate = useNavigate();
+
+  const navigateToBookRide = () => {
+    navigate(`/book/${id}`);
+  };
+
   return (
-    <Card className="flex items-center mt-6">
+    <Card
+      className="flex items-center mt-6 cursor-pointer"
+      onClick={navigateToBookRide}
+    >
       <div className="flex-1 grid p-5 w-8/12">
         <div className="flex justify-between items-center gap-4">
           <div className="grid gap-1 w-3/12">
