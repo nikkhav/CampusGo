@@ -8,6 +8,7 @@ import Login from "@/pages/Login.tsx";
 import Register from "@/pages/Register.tsx";
 import Profile from "@/pages/Profile.tsx";
 import NotFound from "@/pages/NotFound.tsx";
+import OfferRide from "@/pages/OfferRide.tsx";
 
 const router = createBrowserRouter([
   {
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
   {
     path: "/find-ride",
     element: <FindRide />,
+  },
+  {
+    path: "/offer-ride",
+    element: <OfferRide />,
   },
   {
     path: "/login",

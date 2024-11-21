@@ -17,6 +17,12 @@ export default function Header() {
               Fahrt finden
             </Link>
             <Link
+              to="/offer-ride"
+              className="text-gray-600 hover:text-gray-900"
+            >
+              Fahrt veröffentlichen
+            </Link>
+            <Link
               to="/fahrt-verfolgen"
               className="text-gray-600 hover:text-gray-900"
             >

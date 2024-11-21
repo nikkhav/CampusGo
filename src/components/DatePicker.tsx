@@ -14,9 +14,16 @@ import {
 interface DatePickerProps {
   date: Date | undefined;
   setDate: (date: Date | undefined) => void;
+  className?: string;
+  fullWidth?: boolean;
 }
 
-export function DatePicker({ date, setDate }: DatePickerProps) {
+export function DatePicker({
+  date,
+  setDate,
+  className,
+  fullWidth = false,
+}: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
@@ -30,8 +37,10 @@ export function DatePicker({ date, setDate }: DatePickerProps) {
         <Button
           variant="ghost"
           className={cn(
-            "w-[240px] justify-start text-left font-normal",
+            fullWidth ? "w-full" : "w-[240px]",
+            "justify-start text-left font-normal",
             !date && "text-muted-foreground",
+            className,
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />

@@ -1,6 +1,7 @@
 import Layout from "@/layout/Layout.tsx";
 import TripSearch from "@/components/TripSearch.tsx";
 import { DestinationCard } from "@/components/DestinationCard.tsx";
+import { useState } from "react";
 
 const destinations = [
   {
@@ -60,7 +61,32 @@ const destinations = [
   },
 ];
 
+const today = new Date();
+
+const dates = Array.from({ length: 7 }, (_, i) => {
+  const date = new Date();
+  date.setDate(today.getDate() + i);
+  return {
+    day: date.toLocaleDateString("de-DE", { weekday: "short" }),
+    date: date.getDate(),
+    month: date.toLocaleDateString("de-DE", { month: "short" }),
+    fullDate: date,
+  };
+});
+
+interface DateObj {
+  day: string; // Short day name (e.g., "Mon", "Tue")
+  date: number; // Numeric day of the month
+  month: string; // Short month name (e.g., "Jan", "Feb")
+}
+
+const formatDate = (dateObj: DateObj): string =>
+  `${dateObj.day}, ${dateObj.date} ${dateObj.month}`;
+
 const FindRide = () => {
+  const [activeDate, setActiveDate] = useState(today);
+
+  const visibleDates = dates.slice(0, 3);
   return (
     <Layout>
       <TripSearch />
@@ -107,9 +133,19 @@ const FindRide = () => {
         </div>
         <div className="w-8/12">
           <div className="flex justify-around items-center mb-4 text-lg font-bold">
-            <p>Do., 17 Nov.</p>
-            <p>Fr., 18 Nov.</p>
-            <p className="border-b-2 border-b-green-600">Sa., 19 Nov.</p>
+            {visibleDates.map((dateObj, index) => (
+              <p
+                key={index}
+                onClick={() => setActiveDate(dateObj.fullDate)}
+                className={`cursor-pointer ${
+                  dateObj.fullDate.toDateString() === activeDate.toDateString()
+                    ? "border-b-2 border-b-green-600"
+                    : ""
+                }`}
+              >
+                {formatDate(dateObj)}
+              </p>
+            ))}
           </div>
           {destinations.map((destination, index) => (
             <DestinationCard
