@@ -40,7 +40,7 @@
     "Unangemessene Musik 🎵❌",
     "Überfülltes Auto 👥🧳"
   ],
-  "auto-make": [
+  "vehicles-marke": [
     "Volkswagen",
     "Toyota",
     "Peugeot",
@@ -71,5 +71,22 @@
     "Lexus",
     "Porsche",
     "Tesla"
+  ],
+  "vehicles-color": [
+    [
+      "Rot",
+      "Blau",
+      "Grün",
+      "Gelb",
+      "Schwarz",
+      "Weiß",
+      "Grau",
+      "Braun",
+      "Orange",
+      "Lila",
+      "Pink",
+      "Silber"
+    ]
+
   ]
 }
