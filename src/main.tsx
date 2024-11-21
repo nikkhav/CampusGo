@@ -9,6 +9,7 @@ import Register from "@/pages/Register.tsx";
 import Profile from "@/pages/Profile.tsx";
 import NotFound from "@/pages/NotFound.tsx";
 import OfferRide from "@/pages/OfferRide.tsx";
+import NewPass from "@/pages/NewPass.tsx";
 
 const router = createBrowserRouter([
   {
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
   {
     path: "/profile/:id",
     element: <Profile />,
+  },
+  {
+    path: "/new-pass",
+    element: <NewPass />,
   },
   {
     path: "*",
