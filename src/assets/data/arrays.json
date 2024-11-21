@@ -1,0 +1,75 @@
+{
+  "states": [
+    "Mensa Bayreuth",
+    "ZOH Bayreuth",
+    "Hbf Bayreuth",
+    "Campus Kulmbach"
+  ],
+  "ride-good-passenger": [
+    "Freundlichkeit 😊",
+    "Rücksichtsnahme 🤝",
+    "Pünktlichkeit ⏰",
+    "Sauberes Auftreten 👔",
+    "Angenehme Gespräche 🗣️",
+    "Respektvolles Verhalten 🙌",
+    "Antwortet Schnell 📱"
+  ],
+  "ride-bad-passenger": [
+    "Unpünktlichkeit ⏳",
+    "Unangenehme Gespräche 🤐",
+    "Schlechte Kommunikation 📵",
+    "Verschmutzung im Auto 🤢",
+    "Unfreundlichkeit 😡",
+    "Respektloses Verhalten ❌"
+  ],
+  "ride-good-driver": [
+    "Geselligkeit 👫",
+    "Sauberekeit 🧹",
+    "Schnelle Fahrt 🚙💨",
+    "Pünktlichkeit ⏰",
+    "Gute Musik 🎶",
+    "Sorgfältiges Fahren 👀",
+    "Großer Kofferraum 🧳"
+  ],
+  "ride-bad-driver": [
+    "Unpünktlichkeit ⏰",
+    "Lange Fahrt ⏳",
+    "Unfreundlichkeit 😡",
+    "Unsauberes Auto 🧹❌",
+    "Unvorsichtiges Fahren ⚠️",
+    "Unangemessene Musik 🎵❌",
+    "Überfülltes Auto 👥🧳"
+  ],
+  "auto-make": [
+    "Volkswagen",
+    "Toyota",
+    "Peugeot",
+    "Renault",
+    "Mercedes-Benz",
+    "BMW",
+    "Audi",
+    "Ford",
+    "Škoda",
+    "Hyundai",
+    "Kia",
+    "Fiat",
+    "Citroën",
+    "Opel",
+    "Nissan",
+    "Dacia",
+    "Seat",
+    "Volvo",
+    "Mazda",
+    "Mini",
+    "Suzuki",
+    "Land Rover",
+    "Jaguar",
+    "Jeep",
+    "Honda",
+    "Mitsubishi",
+    "Alfa Romeo",
+    "Lexus",
+    "Porsche",
+    "Tesla"
+  ]
+}
