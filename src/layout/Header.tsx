@@ -58,7 +58,7 @@ export default function Header() {
               Fahrt verfolgen
             </Link>
             <Link
-              to="/hilfe-kontakt"
+              to="/contact-us"
               className="text-gray-600 hover:text-gray-900"
             >
               Hilfe & Kontakt

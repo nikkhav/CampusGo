@@ -14,6 +14,7 @@ import BookRide from "@/pages/BookRide.tsx";
 import Verification from "@/pages/Verification.tsx";
 import VerificationProcessing from "@/pages/VerificationProcessing.tsx";
 import Chats from "@/pages/Chats.tsx";
+import ContactUs from "@/pages/ContactUs.tsx";
 
 const router = createBrowserRouter([
   {
@@ -59,6 +60,10 @@ const router = createBrowserRouter([
   {
     path: "/chats",
     element: <Chats />,
+  },
+  {
+    path: "/contact-us",
+    element: <ContactUs />,
   },
   {
     path: "*",
