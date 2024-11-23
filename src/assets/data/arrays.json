@@ -1,11 +1,11 @@
 {
-  "states": [
+  "destinations": [
     "Mensa Bayreuth",
     "ZOH Bayreuth",
     "Hbf Bayreuth",
     "Campus Kulmbach"
   ],
-  "ride-good-passenger": [
+  "positiveFeedbackPassenger": [
     "Freundlichkeit 😊",
     "Rücksichtsnahme 🤝",
     "Pünktlichkeit ⏰",
@@ -14,7 +14,7 @@
     "Respektvolles Verhalten 🙌",
     "Antwortet Schnell 📱"
   ],
-  "ride-bad-passenger": [
+  "negativeFeedbackPassenger": [
     "Unpünktlichkeit ⏰",
     "Unangenehme Gespräche 🤐",
     "Schlechte Kommunikation 📵",
@@ -23,7 +23,7 @@
     "Respektloses Verhalten ❌",
     "Unzuverlässigkeit 🤷"
   ],
-  "ride-good-driver": [
+  "positiveFeedbackDriver": [
     "Geselligkeit 👫",
     "Sauberekeit 🧹",
     "Schnelle Fahrt 🚙💨",
@@ -32,7 +32,7 @@
     "Sorgfältiges Fahren 👀",
     "Großer Kofferraum 🧳"
   ],
-  "ride-bad-driver": [
+  "negativeFeedbackDriver": [
     "Unpünktlichkeit ⏰",
     "Lange Fahrt ⏳",
     "Unfreundlichkeit 😡",
@@ -41,7 +41,7 @@
     "Unangemessene Musik 🎵❌",
     "Überfülltes Auto 👥🧳"
   ],
-  "vehicles-marke": [
+  "vehiclesBrands": [
     "Volkswagen",
     "Toyota",
     "Peugeot",
@@ -73,7 +73,7 @@
     "Porsche",
     "Tesla"
   ],
-  "vehicles-color": [
+  "vehiclesColors": [
     [
       "Rot",
       "Blau",
