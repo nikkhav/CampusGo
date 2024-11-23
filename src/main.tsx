@@ -11,6 +11,8 @@ import NotFound from "@/pages/NotFound.tsx";
 import OfferRide from "@/pages/OfferRide.tsx";
 import NewPassword from "@/pages/NewPassword.tsx";
 import BookRide from "@/pages/BookRide.tsx";
+import Verification from "@/pages/Verification.tsx";
+import VerificationProcessing from "@/pages/VerificationProcessing.tsx";
 
 const router = createBrowserRouter([
   {
@@ -44,6 +46,14 @@ const router = createBrowserRouter([
   {
     path: "/new-password",
     element: <NewPassword />,
+  },
+  {
+    path: "/verification",
+    element: <Verification />,
+  },
+  {
+    path: "/verification-processing",
+    element: <VerificationProcessing />,
   },
   {
     path: "*",

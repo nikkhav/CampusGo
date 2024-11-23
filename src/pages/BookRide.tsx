@@ -10,9 +10,8 @@ const BookRide = () => {
           Sie diese buchen.
         </p>
 
-        {/* Ride Information */}
         <div className="mt-10 border p-8 bg-white shadow-lg rounded-xl">
-          <div className="flex justify-between items-center w-10/12 mx-auto">
+          <div className="flex justify-between items-center w-full mx-auto">
             <div className="text-center">
               <p className="text-lg font-semibold">12:00</p>
               <p className="text-xl font-bold mt-2">Bayreuth</p>
@@ -26,10 +25,10 @@ const BookRide = () => {
               </div>
             </div>
 
-            <div className="flex flex-col items-center">
-              <p className="text-gray-600 text-sm">1:00 Std.</p>
-              <div className="border-b border-gray-300 w-20 my-2"></div>
-              <p className="text-xl font-bold">&rarr;</p>
+            <div className="flex items-center justify-center flex-grow mx-4 relative">
+              <div className="h-px bg-green-600 flex-grow"></div>
+              <p className="mx-4 text-green-600 font-semibold">1:00 Std.</p>
+              <div className="h-px bg-green-600 flex-grow" />
             </div>
 
             <div className="text-center">
@@ -47,7 +46,6 @@ const BookRide = () => {
           </div>
         </div>
 
-        {/* Passenger Information */}
         <div className="mt-10 border bg-white shadow-lg rounded-xl p-8">
           <div className="flex items-center">
             <div className="w-16 h-16 rounded-full border-2 border-gray-300 flex items-center justify-center mr-4">
@@ -81,7 +79,6 @@ const BookRide = () => {
           </div>
         </div>
 
-        {/* Confirm Button */}
         <div className="flex justify-center mt-10">
           <button className="rounded-3xl bg-green-600 text-white px-6 py-3 text-lg hover:bg-green-700">
             Buchung bestätigen

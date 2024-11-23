@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import dummy_avatar from "@/assets/avatars/Eduard.webp";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/images/logo.png";
 
 export default function Header() {
   return (

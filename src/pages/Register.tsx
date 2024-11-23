@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import register_bg from "@/assets/register-bg.webp";
-import logo from "@/assets/logo.png";
+import register_bg from "@/assets/images/register-bg.webp";
+import logo from "@/assets/images/logo.png";
 
 const Register = () => {
   const [formData, setFormData] = useState({

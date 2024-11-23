@@ -1,47 +1,57 @@
-{
-  "destinations": [
+interface Constants {
+  destinations: string[];
+  positiveFeedbackPassenger: string[];
+  negativeFeedbackPassenger: string[];
+  positiveFeedbackDriver: string[];
+  negativeFeedbackDriver: string[];
+  vehiclesBrands: string[];
+  vehiclesColors: string[];
+}
+
+const constants: Constants = {
+  destinations: [
     "Mensa Bayreuth",
     "ZOH Bayreuth",
     "Hbf Bayreuth",
-    "Campus Kulmbach"
+    "Campus Kulmbach",
   ],
-  "positiveFeedbackPassenger": [
+  positiveFeedbackPassenger: [
     "Freundlichkeit 😊",
     "Rücksichtsnahme 🤝",
     "Pünktlichkeit ⏰",
     "Sauberes Auftreten 👔",
     "Angenehme Gespräche 🗣️",
     "Respektvolles Verhalten 🙌",
-    "Antwortet Schnell 📱"
+    "Antwortet Schnell 📱",
   ],
-  "negativeFeedbackPassenger": [
+  negativeFeedbackPassenger: [
     "Unpünktlichkeit ⏰",
     "Unangenehme Gespräche 🤐",
     "Schlechte Kommunikation 📵",
     "Verschmutzung im Auto 🤢",
     "Unfreundlichkeit 😡",
     "Respektloses Verhalten ❌",
-    "Unzuverlässigkeit 🤷"
+    "Unzuverlässigkeit 🤷",
   ],
-  "positiveFeedbackDriver": [
+  positiveFeedbackDriver: [
     "Geselligkeit 👫",
     "Sauberekeit 🧹",
     "Schnelle Fahrt 🚙💨",
     "Pünktlichkeit ⏰",
     "Gute Musik 🎶",
     "Sorgfältiges Fahren 👀",
-    "Großer Kofferraum 🧳"
+    "Großer Kofferraum 🧳",
   ],
-  "negativeFeedbackDriver": [
+  negativeFeedbackDriver: [
     "Unpünktlichkeit ⏰",
     "Lange Fahrt ⏳",
     "Unfreundlichkeit 😡",
     "Unsauberes Auto 🧹❌",
     "Unvorsichtiges Fahren ⚠️",
     "Unangemessene Musik 🎵❌",
-    "Überfülltes Auto 👥🧳"
+    "Überfülltes Auto 👥🧳",
   ],
-  "vehiclesBrands": [
+  vehiclesBrands: [
     "Volkswagen",
     "Toyota",
     "Peugeot",
@@ -71,23 +81,22 @@
     "Alfa Romeo",
     "Lexus",
     "Porsche",
-    "Tesla"
+    "Tesla",
   ],
-  "vehiclesColors": [
-    [
-      "Rot",
-      "Blau",
-      "Grün",
-      "Gelb",
-      "Schwarz",
-      "Weiß",
-      "Grau",
-      "Braun",
-      "Orange",
-      "Lila",
-      "Pink",
-      "Silber"
-    ]
+  vehiclesColors: [
+    "Rot",
+    "Blau",
+    "Grün",
+    "Gelb",
+    "Schwarz",
+    "Weiß",
+    "Grau",
+    "Braun",
+    "Orange",
+    "Lila",
+    "Pink",
+    "Silber",
+  ],
+};
 
-  ]
-}
+export default constants;

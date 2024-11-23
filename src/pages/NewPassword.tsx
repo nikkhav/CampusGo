@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import newpass_bg from "@/assets/newpass-bg.webp";
-import logo from "@/assets/logo.png";
+import newpass_bg from "@/assets/images/newpass-bg.webp";
+import logo from "@/assets/images/logo.png";
 
 const NewPassword = () => {
   const [formData, setFormData] = useState({
