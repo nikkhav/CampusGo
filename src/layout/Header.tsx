@@ -1,8 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-
-import dummy_avatar from "@/assets/avatars/Eduard.webp";
-import logo from "@/assets/images/logo.png";
 import {
   Send,
   Inbox,
@@ -10,10 +7,14 @@ import {
   User,
   MapPin,
   MoreHorizontal,
+  LogIn,
 } from "lucide-react";
+import dummy_avatar from "@/assets/avatars/Eduard.webp";
+import logo from "@/assets/images/logo.png";
 
 export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoggedIn] = useState(true); // Dummy variable to check login status
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -64,57 +65,68 @@ export default function Header() {
             </Link>
           </div>
           <div ref={dropdownRef} className="relative">
-            <button
-              onClick={() => setIsDropdownOpen((prev) => !prev)}
-              className="flex items-center focus:outline-none"
-            >
-              <img
-                src={dummy_avatar}
-                alt="Profilbild"
-                className="w-12 h-12 rounded-full border-2 border-green-600 cursor-pointer"
-              />
-            </button>
-            {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-                <ul className="flex flex-col">
-                  <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
-                    <Inbox className="w-5 h-5 text-gray-700" />
-                    <Link to="/deine-fahrten" className="text-gray-700">
-                      Deine Fahrten
-                    </Link>
-                  </li>
-                  <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
-                    <Send className="w-5 h-5 text-gray-700" />
-                    <Link to="/posteingang" className="text-gray-700">
-                      Posteingang
-                    </Link>
-                  </li>
-                  <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
-                    <FileText className="w-5 h-5 text-gray-700" />
-                    <Link to="/zahlungen" className="text-gray-700">
-                      Zahlungen
-                    </Link>
-                  </li>
-                  <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
-                    <User className="w-5 h-5 text-gray-700" />
-                    <Link to="/profil" className="text-gray-700">
-                      Profil
-                    </Link>
-                  </li>
-                  <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
-                    <MapPin className="w-5 h-5 text-gray-700" />
-                    <Link to="/fahrt-verfolgen" className="text-gray-700">
-                      Fahrt verfolgen
-                    </Link>
-                  </li>
-                  <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
-                    <MoreHorizontal className="w-5 h-5 text-gray-700" />
-                    <Link to="/bla-bla" className="text-gray-700">
-                      BlaBla
-                    </Link>
-                  </li>
-                </ul>
-              </div>
+            {isLoggedIn ? (
+              <>
+                <button
+                  onClick={() => setIsDropdownOpen((prev) => !prev)}
+                  className="flex items-center focus:outline-none"
+                >
+                  <img
+                    src={dummy_avatar}
+                    alt="Profilbild"
+                    className="w-12 h-12 rounded-full border-2 border-green-600 cursor-pointer"
+                  />
+                </button>
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                    <ul className="flex flex-col">
+                      <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
+                        <Inbox className="w-5 h-5 text-gray-700" />
+                        <Link to="/deine-fahrten" className="text-gray-700">
+                          Deine Fahrten
+                        </Link>
+                      </li>
+                      <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
+                        <Send className="w-5 h-5 text-gray-700" />
+                        <Link to="/posteingang" className="text-gray-700">
+                          Posteingang
+                        </Link>
+                      </li>
+                      <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
+                        <FileText className="w-5 h-5 text-gray-700" />
+                        <Link to="/zahlungen" className="text-gray-700">
+                          Zahlungen
+                        </Link>
+                      </li>
+                      <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
+                        <User className="w-5 h-5 text-gray-700" />
+                        <Link to="/profil" className="text-gray-700">
+                          Profil
+                        </Link>
+                      </li>
+                      <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
+                        <MapPin className="w-5 h-5 text-gray-700" />
+                        <Link to="/fahrt-verfolgen" className="text-gray-700">
+                          Fahrt verfolgen
+                        </Link>
+                      </li>
+                      <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
+                        <MoreHorizontal className="w-5 h-5 text-gray-700" />
+                        <Link to="/bla-bla" className="text-gray-700">
+                          BlaBla
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="flex items-center text-gray-600 hover:text-gray-900"
+              >
+                <LogIn className="w-12 h-12 p-2 rounded-full border-2 border-green-600 cursor-pointer text-green-600" />
+              </Link>
             )}
           </div>
         </nav>
