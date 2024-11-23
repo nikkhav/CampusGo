@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import login_bg from "@/assets/images/login-bg.webp";
 import logo from "@/assets/images/logo.png";
@@ -9,8 +9,9 @@ const Login = () => {
     email: "",
     password: "",
   });
-
   const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -27,7 +28,7 @@ const Login = () => {
     }
 
     console.log("Login data submitted:", formData);
-    alert("Login erfolgreich!"); // Temporary success message
+    navigate("/profile/1");
   };
 
   return (

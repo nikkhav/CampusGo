@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import register_bg from "@/assets/images/register-bg.webp";
 import logo from "@/assets/images/logo.png";
@@ -14,6 +14,8 @@ const Register = () => {
   });
 
   const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -30,7 +32,7 @@ const Register = () => {
     }
 
     console.log("Form data submitted:", formData);
-    alert("Registrierung erfolgreich!");
+    navigate("/profile/1");
   };
 
   return (

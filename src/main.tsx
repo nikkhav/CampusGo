@@ -13,6 +13,7 @@ import NewPassword from "@/pages/NewPassword.tsx";
 import BookRide from "@/pages/BookRide.tsx";
 import Verification from "@/pages/Verification.tsx";
 import VerificationProcessing from "@/pages/VerificationProcessing.tsx";
+import Chats from "@/pages/Chats.tsx";
 
 const router = createBrowserRouter([
   {
@@ -54,6 +55,10 @@ const router = createBrowserRouter([
   {
     path: "/verification-processing",
     element: <VerificationProcessing />,
+  },
+  {
+    path: "/chats",
+    element: <Chats />,
   },
   {
     path: "*",
