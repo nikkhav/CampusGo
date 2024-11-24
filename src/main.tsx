@@ -15,6 +15,8 @@ import Verification from "@/pages/Verification.tsx";
 import VerificationProcessing from "@/pages/VerificationProcessing.tsx";
 import Chats from "@/pages/Chats.tsx";
 import ContactUs from "@/pages/ContactUs.tsx";
+import RateDriver from "@/pages/RateDriver.tsx";
+import RatePassenger from "@/pages/RatePassenger.tsx";
 
 const router = createBrowserRouter([
   {
@@ -64,6 +66,14 @@ const router = createBrowserRouter([
   {
     path: "/contact-us",
     element: <ContactUs />,
+  },
+  {
+    path: "/rate-driver/:rideId",
+    element: <RateDriver />,
+  },
+  {
+    path: "/rate-passenger/:rideId",
+    element: <RatePassenger />,
   },
   {
     path: "*",
