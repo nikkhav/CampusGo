@@ -1,21 +1,64 @@
 import { useState, useEffect } from "react";
 import Layout from "@/layout/Layout.tsx";
 import Modal from "@/components/Modal";
-import { UserData, PublicProfileData, AccountSettingsData } from "@/types.ts";
-import dummy_user from "@/assets/data/dummy-user-data.json";
+import { User } from "@/types.ts";
+import { supabase } from "@/supabaseClient.ts";
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState<"public" | "account">("public");
-  const [data, setData] = useState<UserData | null>(null);
+  const [user, setUser] = useState<User>({
+    id: "",
+    first_name: "",
+    last_name: "",
+    email: "",
+    birth_date: null,
+    image: null,
+    is_id_verified: false,
+    is_license_verified: false,
+    phone: null,
+    languages: [],
+    created_at: "",
+    updated_at: "",
+  });
   const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 
   useEffect(() => {
-    // Simulate fetching data
     const fetchData = async () => {
-      const userData = dummy_user as UserData;
-      setData(userData);
+      try {
+        const { data: session } = await supabase.auth.getSession();
+        const userId = session.session?.user?.id;
+
+        if (userId) {
+          const { data: userData, error } = await supabase
+            .from("users")
+            .select(
+              `
+              *,
+              vehicles (
+                id,
+                brand,
+                model,
+                color,
+                license_plate,
+                seats,
+                created_at,
+                updated_at
+              )
+            `,
+            )
+            .eq("id", userId)
+            .single();
+
+          if (error) throw error;
+          console.log("User data with reviews:", userData);
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error("Error fetching user data with reviews:", error);
+      }
     };
+
     fetchData();
   }, []);
 
@@ -29,7 +72,7 @@ const Profile = () => {
     setDeleteModalOpen(false);
   };
 
-  if (!data) {
+  if (!user) {
     return <div className="text-center mt-20">Loading...</div>;
   }
 
@@ -61,17 +104,16 @@ const Profile = () => {
 
         <div className="mt-8">
           {activeTab === "public" ? (
-            <PublicProfile data={data.publicProfile} />
+            <PublicProfile user={user} />
           ) : (
             <AccountSettings
-              data={data.accountSettings}
+              user={user}
               onLogout={() => setLogoutModalOpen(true)}
               onDeleteAccount={() => setDeleteModalOpen(true)}
             />
           )}
         </div>
 
-        {/* Logout Confirmation Modal */}
         <Modal
           isOpen={isLogoutModalOpen}
           onClose={() => setLogoutModalOpen(false)}
@@ -133,7 +175,7 @@ const Profile = () => {
   );
 };
 
-const PublicProfile = ({ data }: { data: PublicProfileData }) => {
+const PublicProfile = ({ user }: { user: User }) => {
   return (
     <div className="flex flex-col lg:flex-row justify-between gap-10">
       <div className="lg:w-1/2 bg-white rounded-lg shadow-md p-6">
@@ -143,29 +185,41 @@ const PublicProfile = ({ data }: { data: PublicProfileData }) => {
           </div>
           <div>
             <h2 className="text-2xl font-semibold">
-              {data.firstName} {data.lastName}
+              {user.first_name} {user.last_name}
             </h2>
-            <p className="text-sm text-gray-500">{data.status}</p>
+            {/*<p className="text-sm text-gray-500">{data.status}</p>*/}
           </div>
         </div>
-
         <h3 className="mt-6 text-lg font-semibold border-b-2 border-green-600 pb-2">
           Dein Profil verifizieren
         </h3>
         <ul className="mt-4 space-y-3 text-gray-700">
-          {data.verification.map((item, index) => (
-            <li key={index} className="flex items-center gap-2 text-green-600">
-              <span>✔</span> {item}
+          {user.is_id_verified ? (
+            <li className="flex items-center gap-2 text-green-600">
+              <span>✔</span> ID verifiziert
             </li>
-          ))}
+          ) : (
+            <li className="flex items-center gap-2 text-red-600">
+              <span>✘</span> ID nicht verifiziert
+            </li>
+          )}
+          {user.is_license_verified ? (
+            <li className="flex items-center gap-2 text-green-600">
+              <span>✔</span> Führerschein verifiziert
+            </li>
+          ) : (
+            <li className="flex items-center gap-2 text-red-600">
+              <span>✘</span> Führerschein nicht verifiziert
+            </li>
+          )}
         </ul>
-
         <h3 className="mt-6 text-lg font-semibold">Meine Fahrzeuge</h3>
-        {data.vehicles.map((vehicle, index) => (
-          <p key={index} className="mt-3 text-gray-700">
-            {vehicle.make} {vehicle.model}, {vehicle.color}
-          </p>
-        ))}
+        {user.vehicles &&
+          user.vehicles.map((vehicle, index) => (
+            <p key={index} className="mt-3 text-gray-700">
+              {vehicle.brand} {vehicle.model}, {vehicle.color}
+            </p>
+          ))}
         <button className="text-green-600 mt-2 hover:underline">
           + Fahrzeug hinzufügen
         </button>
@@ -174,14 +228,15 @@ const PublicProfile = ({ data }: { data: PublicProfileData }) => {
       <div className="lg:w-1/2 bg-white rounded-lg shadow-md p-6">
         <h3 className="text-lg font-semibold">Über dich</h3>
         <div className="mt-4 flex flex-wrap gap-2">
-          {data.preferences.map((preference, index) => (
-            <span
-              key={index}
-              className="border border-green-600 text-green-600 px-3 py-1 rounded-full text-sm"
-            >
-              {preference}
-            </span>
-          ))}
+          // TODO: Replace with reviews? Or add preferences to user
+          {/*{user.preferences.map((preference, index) => (*/}
+          {/*  <span*/}
+          {/*    key={index}*/}
+          {/*    className="border border-green-600 text-green-600 px-3 py-1 rounded-full text-sm"*/}
+          {/*  >*/}
+          {/*    {preference}*/}
+          {/*  </span>*/}
+          {/*))}*/}
           <button className="text-green-600 text-sm hover:underline">
             + Präferenz hinzufügen
           </button>
@@ -189,7 +244,7 @@ const PublicProfile = ({ data }: { data: PublicProfileData }) => {
 
         <h3 className="mt-6 text-lg font-semibold">Sprachen</h3>
         <div className="mt-4 flex flex-wrap gap-2">
-          {data.languages.map((language, index) => (
+          {user.languages.map((language, index) => (
             <span
               key={index}
               className="border border-green-600 text-green-600 px-3 py-1 rounded-full text-sm"
@@ -207,11 +262,11 @@ const PublicProfile = ({ data }: { data: PublicProfileData }) => {
 };
 
 const AccountSettings = ({
-  data,
+  user,
   onLogout,
   onDeleteAccount,
 }: {
-  data: AccountSettingsData;
+  user: User;
   onLogout: () => void;
   onDeleteAccount: () => void;
 }) => {
@@ -224,7 +279,7 @@ const AccountSettings = ({
           </div>
           <div>
             <h2 className="text-2xl font-semibold">
-              {data.personalDetails.firstName} {data.personalDetails.lastName}
+              {user.first_name} {user.last_name}
             </h2>
             <p className="text-sm text-gray-500">Status</p>
           </div>
@@ -233,28 +288,25 @@ const AccountSettings = ({
         <h3 className="mt-6 text-lg font-semibold">Persönliche Daten</h3>
         <ul className="mt-4 space-y-2 text-gray-700">
           <li>
-            Vorname:{" "}
-            <span className="font-medium">
-              {data.personalDetails.firstName}
-            </span>
+            Vorname: <span className="font-medium">{user.first_name}</span>
           </li>
           <li>
-            Nachname:{" "}
-            <span className="font-medium">{data.personalDetails.lastName}</span>
+            Nachname: <span className="font-medium">{user.last_name}</span>
           </li>
           <li>
             Geburtsdatum:{" "}
             <span className="font-medium">
-              {data.personalDetails.birthDate}
+              {user.birth_date ? user.birth_date : "N/A"}
             </span>
           </li>
           <li>
-            E-Mail-Adresse:{" "}
-            <span className="font-medium">{data.personalDetails.email}</span>
+            E-Mail-Adresse: <span className="font-medium">{user.email}</span>
           </li>
           <li>
             Telefonnummer:{" "}
-            <span className="font-medium">{data.personalDetails.phone}</span>
+            <span className="font-medium">
+              {user.phone ? user.phone : "N/A"}
+            </span>
           </li>
         </ul>
         <button className="text-green-600 mt-4 hover:underline">
@@ -267,7 +319,6 @@ const AccountSettings = ({
           <h3 className="text-lg font-semibold">Konto</h3>
           <ul className="mt-4 space-y-3 text-gray-700">
             <li>Kennwort</li>
-            <li>Postanschrift</li>
           </ul>
         </div>
         <div className="flex justify-end gap-4 mt-10">

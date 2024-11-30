@@ -14,8 +14,25 @@ import logo from "@/assets/images/logo.png";
 
 export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isLoggedIn] = useState(true); // Dummy variable to check login status
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const tokenData = JSON.parse(
+      localStorage.getItem("sb-qheatslvrwrvuwuheyxc-auth-token") || "{}",
+    );
+    const token = tokenData?.access_token;
+    const expiryTime = tokenData?.expires_at;
+
+    if (token && expiryTime > Date.now() / 1000) {
+      setIsLoggedIn(true);
+      setUserId(localStorage.getItem("userId"));
+    } else {
+      setIsLoggedIn(false);
+      setUserId(null);
+    }
+  }, []);
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -100,7 +117,10 @@ export default function Header() {
                       </li>
                       <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
                         <User className="w-5 h-5 text-gray-700" />
-                        <Link to="/profil" className="text-gray-700">
+                        <Link
+                          to={`/profile/${userId}`}
+                          className="text-gray-700"
+                        >
                           Profil
                         </Link>
                       </li>

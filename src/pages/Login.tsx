@@ -43,6 +43,7 @@ const Login = () => {
       const userId = data.user?.id;
       if (userId) {
         toast.success("Erfolgreich eingeloggt!");
+        localStorage.setItem("userId", userId);
         navigate(`/profile/${userId}`);
       } else {
         toast.error("Benutzer-ID konnte nicht abgerufen werden.");
