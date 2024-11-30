@@ -1,16 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "@/layout/Layout.tsx";
 import { Link } from "react-router-dom";
 import { Car, User, Clock, MapPin } from "lucide-react";
-import constants from "@/assets/data/constants.ts";
 import success_animation from "@/assets/animations/success.json";
 import Lottie from "lottie-react";
+import { supabase } from "@/supabaseClient.ts";
+import { ReviewOption } from "@/types.ts";
 
 const RateDriver = () => {
   const [step, setStep] = useState(1);
   const [likedRide, setLikedRide] = useState<boolean | null>(null);
-  const [selectedFeedback, setSelectedFeedback] = useState<string[]>([]);
+  const [selectedReviewOptions, setSelectedReviewOptions] = useState<string[]>(
+    [],
+  );
   const [comment, setComment] = useState("");
+  const [positiveReviewOptions, setPositiveReviewOptions] = useState<
+    ReviewOption[]
+  >([]);
+  const [negativeReviewOptions, setNegativeReviewOptions] = useState<
+    ReviewOption[]
+  >([]);
 
   const rideDetails = {
     from: "Bayreuth",
@@ -20,11 +29,37 @@ const RateDriver = () => {
     duration: "45 Minuten",
   };
 
-  const handleFeedbackSelection = (feedback: string) => {
-    setSelectedFeedback((prev) =>
-      prev.includes(feedback)
-        ? prev.filter((item) => item !== feedback)
-        : [...prev, feedback],
+  const getReviewOptions = async (): Promise<ReviewOption[] | null> => {
+    const { data, error } = await supabase
+      .from("review_options")
+      .select("*")
+      .eq("to_driver", true);
+
+    if (error) {
+      console.error("Error fetching review options:", error.message);
+      return null;
+    }
+
+    return data;
+  };
+
+  useEffect(() => {
+    const fetchReviewOptions = async () => {
+      const data = await getReviewOptions();
+      if (data) {
+        setPositiveReviewOptions(data.filter((option) => option.is_positive));
+        setNegativeReviewOptions(data.filter((option) => !option.is_positive));
+      }
+    };
+
+    fetchReviewOptions();
+  }, []);
+
+  const handleReviewSelection = (review: string) => {
+    setSelectedReviewOptions((prev) =>
+      prev.includes(review)
+        ? prev.filter((item) => item !== review)
+        : [...prev, review],
     );
   };
 
@@ -63,10 +98,10 @@ const RateDriver = () => {
           </div>
         );
       case 2: {
-        // TODO: Get Feedback options from the database
-        const feedbackOptions = likedRide
-          ? constants.positiveFeedbackDriver
-          : constants.negativeFeedbackDriver;
+        const reviewOptions = likedRide
+          ? positiveReviewOptions
+          : negativeReviewOptions;
+
         return (
           <div className="flex flex-col items-center">
             <h2 className="text-2xl font-bold mt-10">
@@ -75,17 +110,17 @@ const RateDriver = () => {
                 : "Was hat dir an der Fahrt nicht gefallen?"}
             </h2>
             <div className="flex flex-wrap justify-center gap-3 mt-6">
-              {feedbackOptions.map((feedback, index) => (
+              {reviewOptions.map((option, index) => (
                 <button
                   key={index}
-                  onClick={() => handleFeedbackSelection(feedback)}
+                  onClick={() => handleReviewSelection(option.text)}
                   className={`px-4 py-2 rounded-full border ${
-                    selectedFeedback.includes(feedback)
+                    selectedReviewOptions.includes(option.text)
                       ? "bg-green-700 text-white"
                       : "text-green-700 border-green-700"
                   } transition`}
                 >
-                  {feedback}
+                  {option.text}
                 </button>
               ))}
             </div>

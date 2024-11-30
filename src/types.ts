@@ -30,3 +30,10 @@ export interface UserData {
   publicProfile: PublicProfileData;
   accountSettings: AccountSettingsData;
 }
+
+export interface ReviewOption {
+  id: number;
+  is_positive: boolean;
+  text: string;
+  to_driver: boolean;
+}
