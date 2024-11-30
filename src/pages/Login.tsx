@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { supabase } from "@/supabaseClient";
 import { ArrowLeft } from "lucide-react";
 import login_bg from "@/assets/images/login-bg.webp";
 import logo from "@/assets/images/logo.png";
@@ -9,8 +11,7 @@ const Login = () => {
     email: "",
     password: "",
   });
-  const [error, setError] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -18,17 +19,39 @@ const Login = () => {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (!formData.email || !formData.password) {
-      setError("Bitte geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein.");
+      toast.error("Bitte geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein.");
       return;
     }
 
-    console.log("Login data submitted:", formData);
-    navigate("/profile/1");
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (error) {
+        toast.error(error.message);
+        setLoading(false);
+        return;
+      }
+
+      const userId = data.user?.id;
+      if (userId) {
+        toast.success("Erfolgreich eingeloggt!");
+        navigate(`/profile/${userId}`);
+      } else {
+        toast.error("Benutzer-ID konnte nicht abgerufen werden.");
+      }
+    } catch {
+      toast.error("Etwas ist schief gelaufen. Bitte versuche es erneut.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -57,9 +80,6 @@ const Login = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="mt-5">
-            <label htmlFor="email" className="sr-only">
-              E-mail Adresse
-            </label>
             <input
               type="email"
               id="email"
@@ -71,9 +91,6 @@ const Login = () => {
           </div>
 
           <div className="mt-5">
-            <label htmlFor="password" className="sr-only">
-              Passwort
-            </label>
             <input
               type="password"
               id="password"
@@ -92,15 +109,14 @@ const Login = () => {
             </div>
           </div>
 
-          {error && (
-            <p className="mt-3 text-sm text-red-600 text-center">{error}</p>
-          )}
-
           <button
             type="submit"
-            className="mt-4 w-full py-3 text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50"
+            className={`mt-4 w-full py-3 text-white ${
+              loading ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
+            } rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50`}
+            disabled={loading}
           >
-            Anmelden
+            {loading ? "Anmelden..." : "Anmelden"}
           </button>
         </form>
 

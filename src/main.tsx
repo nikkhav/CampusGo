@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
+import "react-toastify/dist/ReactToastify.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/Home.tsx";
 import FindRide from "@/pages/FindRide.tsx";
@@ -17,6 +18,8 @@ import Chats from "@/pages/Chats.tsx";
 import ContactUs from "@/pages/ContactUs.tsx";
 import RateDriver from "@/pages/RateDriver.tsx";
 import RatePassenger from "@/pages/RatePassenger.tsx";
+import { ToastContainer } from "react-toastify";
+import EmailConfirmed from "@/pages/EmailConfirmed.tsx";
 
 const router = createBrowserRouter([
   {
@@ -76,6 +79,10 @@ const router = createBrowserRouter([
     element: <RatePassenger />,
   },
   {
+    path: "/email-confirmed",
+    element: <EmailConfirmed />,
+  },
+  {
     path: "*",
     element: <NotFound />,
   },
@@ -83,6 +90,17 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
+    <ToastContainer
+      position="top-right"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+    />
     <RouterProvider router={router} />
   </StrictMode>,
 );

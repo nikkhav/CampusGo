@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { supabase } from "@/supabaseClient";
 import { ArrowLeft } from "lucide-react";
 import register_bg from "@/assets/images/register-bg.webp";
 import logo from "@/assets/images/logo.png";
@@ -12,9 +14,7 @@ const Register = () => {
     password: "",
     confirmPassword: "",
   });
-
-  const [error, setError] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,17 +22,52 @@ const Register = () => {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Die Passwörter stimmen nicht überein.");
+      toast.error("Die Passwörter stimmen nicht überein.");
       return;
     }
 
-    console.log("Form data submitted:", formData);
-    navigate("/profile/1");
+    setLoading(true);
+    try {
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: window.location.origin + "/email-confirmed",
+        },
+      });
+
+      if (authError) {
+        toast.error(authError.message);
+        setLoading(false);
+        return;
+      }
+
+      const { error: dbError } = await supabase.from("users").insert([
+        {
+          id: authData?.user?.id,
+          first_name: formData.vorname,
+          last_name: formData.nachname,
+          email: formData.email,
+        },
+      ]);
+
+      if (dbError) {
+        toast.error(dbError.message);
+        setLoading(false);
+        return;
+      }
+
+      toast.success("Erfolgreich registriert!");
+      navigate("/login");
+    } catch {
+      toast.error("Etwas ist schief gelaufen. Bitte versuche es erneut.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -61,9 +96,6 @@ const Register = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="mt-5">
-            <label htmlFor="vorname" className="sr-only">
-              Vorname
-            </label>
             <input
               type="text"
               id="vorname"
@@ -75,9 +107,6 @@ const Register = () => {
           </div>
 
           <div className="mt-5">
-            <label htmlFor="nachname" className="sr-only">
-              Nachname
-            </label>
             <input
               type="text"
               id="nachname"
@@ -89,9 +118,6 @@ const Register = () => {
           </div>
 
           <div className="mt-5">
-            <label htmlFor="email" className="sr-only">
-              E-mail Adresse
-            </label>
             <input
               type="email"
               id="email"
@@ -103,9 +129,6 @@ const Register = () => {
           </div>
 
           <div className="mt-5">
-            <label htmlFor="password" className="sr-only">
-              Passwort
-            </label>
             <input
               type="password"
               id="password"
@@ -117,9 +140,6 @@ const Register = () => {
           </div>
 
           <div className="mt-5">
-            <label htmlFor="confirmPassword" className="sr-only">
-              Passwort bestätigen
-            </label>
             <input
               type="password"
               id="confirmPassword"
@@ -130,15 +150,14 @@ const Register = () => {
             />
           </div>
 
-          {error && (
-            <p className="mt-3 text-sm text-red-600 text-center">{error}</p>
-          )}
-
           <button
             type="submit"
-            className="mt-6 w-full py-3 text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50"
+            className={`mt-6 w-full py-3 text-white ${
+              loading ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
+            } rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50`}
+            disabled={loading}
           >
-            Registrieren
+            {loading ? "Registrieren..." : "Registrieren"}
           </button>
         </form>
 
