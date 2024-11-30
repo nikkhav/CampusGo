@@ -62,6 +62,7 @@ const RatePassenger = () => {
           </div>
         );
       case 2: {
+        // TODO: Get Feedback options from the database
         const feedbackOptions = likedRide
           ? constants.positiveFeedbackPassenger
           : constants.negativeFeedbackPassenger;

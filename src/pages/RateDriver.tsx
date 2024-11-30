@@ -63,6 +63,7 @@ const RateDriver = () => {
           </div>
         );
       case 2: {
+        // TODO: Get Feedback options from the database
         const feedbackOptions = likedRide
           ? constants.positiveFeedbackDriver
           : constants.negativeFeedbackDriver;
