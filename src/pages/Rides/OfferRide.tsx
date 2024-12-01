@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Layout from "@/layout/Layout.tsx";
-import { DatePicker } from "@/components/DatePicker";
+import { DatePicker } from "@/components/DatePicker.tsx";
 
 const OfferRide = () => {
   const [currentStep, setCurrentStep] = useState(1);

@@ -4,22 +4,22 @@ import "./index.css";
 import "react-toastify/dist/ReactToastify.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/Home.tsx";
-import FindRide from "@/pages/FindRide.tsx";
-import Login from "@/pages/Login.tsx";
-import Register from "@/pages/Register.tsx";
-import Profile from "@/pages/Profile.tsx";
+import FindRide from "@/pages/Rides/FindRide.tsx";
+import Login from "@/pages/Auth/Login.tsx";
+import Register from "@/pages/Auth/Register.tsx";
+import Profile from "@/pages/Profile/Profile.tsx";
 import NotFound from "@/pages/NotFound.tsx";
-import OfferRide from "@/pages/OfferRide.tsx";
-import NewPassword from "@/pages/NewPassword.tsx";
-import BookRide from "@/pages/BookRide.tsx";
-import Verification from "@/pages/Verification.tsx";
-import VerificationProcessing from "@/pages/VerificationProcessing.tsx";
+import OfferRide from "@/pages/Rides/OfferRide.tsx";
+import NewPassword from "@/pages/Auth/NewPassword.tsx";
+import BookRide from "@/pages/Rides/BookRide.tsx";
+import Verification from "@/pages/Verification/Verification.tsx";
+import VerificationProcessing from "@/pages/Verification/VerificationProcessing.tsx";
 import Chats from "@/pages/Chats.tsx";
 import ContactUs from "@/pages/ContactUs.tsx";
-import RateDriver from "@/pages/RateDriver.tsx";
-import RatePassenger from "@/pages/RatePassenger.tsx";
+import RateDriver from "@/pages/Ratings/RateDriver.tsx";
+import RatePassenger from "@/pages/Ratings/RatePassenger.tsx";
 import { ToastContainer } from "react-toastify";
-import EmailConfirmed from "@/pages/EmailConfirmed.tsx";
+import EmailConfirmed from "@/pages/Auth/EmailConfirmed.tsx";
 
 const router = createBrowserRouter([
   {

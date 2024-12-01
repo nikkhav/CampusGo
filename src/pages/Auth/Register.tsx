@@ -1,15 +1,18 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { supabase } from "@/supabaseClient";
+import { supabase } from "@/supabaseClient.ts";
 import { ArrowLeft } from "lucide-react";
-import login_bg from "@/assets/images/login-bg.webp";
+import register_bg from "@/assets/images/register-bg.webp";
 import logo from "@/assets/images/logo.png";
 
-const Login = () => {
+const Register = () => {
   const [formData, setFormData] = useState({
+    vorname: "",
+    nachname: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -24,8 +27,18 @@ const Login = () => {
 
     const emailRegex = /^[a-zA-Z0-9._%+-]+@(myubt\.de|uni-bayreuth\.de)$/;
 
-    if (!formData.email || !formData.password) {
-      toast.error("Bitte geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein.");
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Die Passwörter stimmen nicht überein.");
+      return;
+    }
+
+    if (
+      !formData.vorname ||
+      !formData.nachname ||
+      !formData.email ||
+      !formData.password
+    ) {
+      toast.error("Bitte füllen Sie alle Felder aus.");
       return;
     }
 
@@ -38,25 +51,37 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
+        options: {
+          emailRedirectTo: window.location.origin + "/email-confirmed",
+        },
       });
 
-      if (error) {
-        toast.error(error.message);
+      if (authError) {
+        toast.error(authError.message);
         setLoading(false);
         return;
       }
 
-      const userId = data.user?.id;
-      if (userId) {
-        toast.success("Erfolgreich eingeloggt!");
-        localStorage.setItem("userId", userId);
-        navigate(`/profile/${userId}`);
-      } else {
-        toast.error("Benutzer-ID konnte nicht abgerufen werden.");
+      const { error: dbError } = await supabase.from("users").insert([
+        {
+          id: authData?.user?.id,
+          first_name: formData.vorname,
+          last_name: formData.nachname,
+          email: formData.email,
+        },
+      ]);
+
+      if (dbError) {
+        toast.error(dbError.message);
+        setLoading(false);
+        return;
       }
+
+      toast.success("Erfolgreich registriert!");
+      navigate("/login");
     } catch {
       toast.error("Etwas ist schief gelaufen. Bitte versuche es erneut.");
     } finally {
@@ -68,7 +93,7 @@ const Login = () => {
     <div
       className="relative flex items-center justify-center min-h-screen bg-gray-100"
       style={{
-        backgroundImage: `url(${login_bg})`,
+        backgroundImage: `url(${register_bg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -85,10 +110,32 @@ const Login = () => {
         <img src={logo} alt="CampusGo Logo" className="w-20 mx-auto" />
 
         <h2 className="text-2xl text-center font-semibold text-gray-900 mt-4">
-          Einloggen
+          Registrieren
         </h2>
 
         <form onSubmit={handleSubmit}>
+          <div className="mt-5">
+            <input
+              type="text"
+              id="vorname"
+              placeholder="Vorname"
+              value={formData.vorname}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600"
+            />
+          </div>
+
+          <div className="mt-5">
+            <input
+              type="text"
+              id="nachname"
+              placeholder="Nachname"
+              value={formData.nachname}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600"
+            />
+          </div>
+
           <div className="mt-5">
             <input
               type="email"
@@ -109,40 +156,44 @@ const Login = () => {
               onChange={handleChange}
               className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600"
             />
-            <div className="text-right mt-2">
-              <Link
-                to="/new-password"
-                className="text-sm font-medium text-green-600 hover:text-green-700"
-              >
-                Passwort vergessen?
-              </Link>
-            </div>
+          </div>
+
+          <div className="mt-5">
+            <input
+              type="password"
+              id="confirmPassword"
+              placeholder="Passwort bestätigen"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-600"
+            />
           </div>
 
           <button
             type="submit"
-            className={`mt-4 w-full py-3 text-white ${
+            className={`mt-6 w-full py-3 text-white ${
               loading ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
             } rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50`}
             disabled={loading}
           >
-            {loading ? "Anmelden..." : "Anmelden"}
+            {loading ? "Registrieren..." : "Registrieren"}
           </button>
         </form>
 
-        <p className="text-center mt-4 text-sm text-gray-500">oder</p>
-
         <div className="text-center mt-4">
-          <Link
-            to="/register"
-            className="text-sm font-medium text-gray-700 hover:text-gray-900"
-          >
-            Jetzt registrieren
-          </Link>
+          <p className="text-sm text-gray-500">
+            Bereits registriert?{" "}
+            <Link
+              to="/login"
+              className="text-sm font-medium text-gray-700 hover:text-gray-900"
+            >
+              Jetzt einloggen
+            </Link>
+          </p>
         </div>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default Register;
