@@ -22,8 +22,17 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@(myubt\.de|uni-bayreuth\.de)$/;
+
     if (!formData.email || !formData.password) {
       toast.error("Bitte geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein.");
+      return;
+    }
+
+    if (!emailRegex.test(formData.email)) {
+      toast.error(
+        "Bitte geben Sie eine gültige E-Mail-Adresse ein, die auf @myubt.de oder @uni-bayreuth.de endet.",
+      );
       return;
     }
 

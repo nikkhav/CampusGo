@@ -25,8 +25,27 @@ const Register = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@(myubt\.de|uni-bayreuth\.de)$/;
+
     if (formData.password !== formData.confirmPassword) {
       toast.error("Die Passwörter stimmen nicht überein.");
+      return;
+    }
+
+    if (
+      !formData.vorname ||
+      !formData.nachname ||
+      !formData.email ||
+      !formData.password
+    ) {
+      toast.error("Bitte füllen Sie alle Felder aus.");
+      return;
+    }
+
+    if (!emailRegex.test(formData.email)) {
+      toast.error(
+        "Bitte geben Sie eine gültige E-Mail-Adresse ein, die auf @myubt.de oder @uni-bayreuth.de endet.",
+      );
       return;
     }
 
