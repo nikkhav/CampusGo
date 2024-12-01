@@ -41,6 +41,7 @@ export interface User {
   languages: string[];
   vehicles?: Vehicle[];
   reviews?: Review[];
+  preferences: string[];
   created_at: string;
   updated_at: string;
 }

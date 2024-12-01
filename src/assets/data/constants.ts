@@ -6,6 +6,8 @@ interface Constants {
   negativeFeedbackDriver: string[];
   vehiclesBrands: string[];
   vehiclesColors: string[];
+  userPreferences: string[];
+  languagesList: string[];
 }
 
 const constants: Constants = {
@@ -96,6 +98,40 @@ const constants: Constants = {
     "Lila",
     "Pink",
     "Silber",
+  ],
+  userPreferences: [
+    "Haustiere willkommen🐾",
+    "Flexible Stopps🛑",
+    "Keine Raucher🚬",
+    "Musikliebhaber🎶",
+    "Pünktlichkeit wichtig⏰",
+    "Snacks erlaubt🍿",
+    "Gepäck willkommen🧳",
+    "Plaudern okay🗣️",
+    "Fahrstil entspannt 🚗",
+    "Fahrtziel fix🏁",
+  ],
+  languagesList: [
+    "Deutsch 🇩🇪",
+    "Englisch 🇬🇧",
+    "Türkisch 🇹🇷",
+    "Polnisch 🇵🇱",
+    "Russisch 🇷🇺",
+    "Italienisch 🇮🇹",
+    "Arabisch 🇸🇦",
+    "Französisch 🇫🇷",
+    "Spanisch 🇪🇸",
+    "Niederländisch 🇳🇱",
+    // Remaining languages in alphabetical order
+    "Chinesisch 🇨🇳",
+    "Dänisch 🇩🇰",
+    "Finnisch 🇫🇮",
+    "Griechisch 🇬🇷",
+    "Ungarisch 🇭🇺",
+    "Japanisch 🇯🇵",
+    "Norwegisch 🇳🇴",
+    "Portugiesisch 🇵🇹",
+    "Schwedisch 🇸🇪",
   ],
 };
 
