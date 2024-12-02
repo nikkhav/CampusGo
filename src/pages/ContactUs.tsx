@@ -94,7 +94,7 @@ const ContactUs = () => {
               </p>
             </div>
             <p className="text-gray-600">
-              Unsere Öffnungszeiten:
+              Unsere Arbeitszeiten:
               <br />
               Montag - Freitag: 9:00 - 18:00 Uhr
             </p>
