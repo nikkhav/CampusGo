@@ -74,16 +74,10 @@ export const PublicProfile = ({
         throw new Error(`Upload failed: ${uploadError.message}`);
       }
 
-      const { data, error: urlError } = supabase.storage
-        .from("images")
-        .getPublicUrl(filePath);
+      const { data } = supabase.storage.from("images").getPublicUrl(filePath);
 
-      if (urlError || !data.publicUrl) {
-        throw new Error(
-          `Failed to retrieve the public URL: ${
-            urlError?.message || "Unknown error"
-          }`,
-        );
+      if (!data.publicUrl) {
+        toast.error("Error getting public URL for the uploaded file.");
       }
 
       await updateProfilePhoto(data.publicUrl);
