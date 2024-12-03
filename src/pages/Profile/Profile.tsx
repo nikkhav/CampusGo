@@ -51,7 +51,6 @@ const Profile = () => {
           .single();
 
         if (error) throw error;
-        console.log("User data with reviews:", userData);
         setUser(userData);
       }
     } catch (error) {

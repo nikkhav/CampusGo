@@ -1,5 +1,5 @@
 import { User, Vehicle } from "@/types.ts";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { supabase } from "@/supabaseClient.ts";
 import { Link } from "react-router-dom";
 import Modal from "@/components/Modal.tsx";
@@ -16,6 +16,7 @@ export const PublicProfile = ({
   user: User;
   refetchUserData: () => void;
 }) => {
+  const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState<boolean>(false);
   const [isPreferencesModalOpen, setIsPreferencesModalOpen] =
     useState<boolean>(false);
@@ -48,6 +49,60 @@ export const PublicProfile = ({
   const [deleteItem, setDeleteItem] = useState<string | null>(null);
 
   const [isCustomBrand, setIsCustomBrand] = useState<boolean>(false);
+
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const fileName = `${user.id}-${Date.now()}-${file.name}`;
+    const filePath = `profile_photos/${fileName}`;
+
+    try {
+      setIsUploading(true);
+
+      const { error: uploadError } = await supabase.storage
+        .from("public_images")
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabase.storage
+        .from("public_images")
+        .getPublicUrl(filePath);
+
+      if (!data || !data.publicUrl) {
+        throw new Error(
+          "Failed to retrieve the public URL for the uploaded file.",
+        );
+      }
+
+      await updateProfilePhoto(data.publicUrl);
+
+      toast.success("Profile photo uploaded successfully!");
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast.error("Error uploading the photo. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const updateProfilePhoto = async (photoUrl: string) => {
+    try {
+      const { error } = await supabase
+        .from("users")
+        .update({ image: photoUrl })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      await refetchUserData();
+    } catch {
+      toast.error("Fehler beim Aktualisieren des Profilfotos.");
+    }
+  };
 
   const saveVehicle = async () => {
     try {
@@ -200,16 +255,35 @@ export const PublicProfile = ({
     <div className="flex flex-col lg:flex-row justify-between gap-10">
       <div className="lg:w-1/2 bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center gap-4">
-          <div className="w-24 h-24 rounded-full border-4 border-green-600 flex items-center justify-center bg-gray-100">
-            <span className="text-gray-400">Foto</span>
+          <div className="w-24 h-24 rounded-full border-4 border-green-600 flex items-center justify-center bg-gray-100 overflow-hidden">
+            {user.image ? (
+              <img
+                src={user.image}
+                alt="Profilfoto"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-gray-400">Foto</span>
+            )}
           </div>
           <div>
             <h2 className="text-2xl font-semibold">
               {user.first_name} {user.last_name}
             </h2>
-            <button className="text-green-600 mt-2 hover:underline">
+            <label
+              className="text-green-600 mt-2 hover:underline cursor-pointer"
+              htmlFor="profile-photo"
+            >
               Foto ändern
-            </button>
+            </label>
+            <input
+              id="profile-photo"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+              disabled={isUploading}
+            />
           </div>
         </div>
         <h3 className="mt-6 text-lg font-semibold border-b-2 border-green-600 pb-2">
