@@ -9,13 +9,16 @@ import {
   MoreHorizontal,
   LogIn,
 } from "lucide-react";
-import dummy_avatar from "@/assets/avatars/Eduard.webp";
 import logo from "@/assets/images/logo.png";
+import { supabase } from "@/supabaseClient";
 
 export default function Header() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [userPhoto, setUserPhoto] = useState<string | null>(null);
+  const [userFirstName, setUserFirstName] = useState<string | null>(null);
+  const [userLastName, setUserLastName] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -27,12 +30,35 @@ export default function Header() {
 
     if (token && expiryTime > Date.now() / 1000) {
       setIsLoggedIn(true);
-      setUserId(localStorage.getItem("userId"));
+      const localUserId = localStorage.getItem("userId");
+      setUserId(localUserId);
     } else {
       setIsLoggedIn(false);
       setUserId(null);
     }
   }, []);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (userId) {
+        const { data, error } = await supabase
+          .from("users")
+          .select("image, first_name, last_name")
+          .eq("id", userId)
+          .single();
+
+        if (error) {
+          console.error("Error fetching user data:", error);
+        } else if (data) {
+          setUserPhoto(data.image);
+          setUserFirstName(data.first_name);
+          setUserLastName(data.last_name);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -88,11 +114,18 @@ export default function Header() {
                   onClick={() => setIsDropdownOpen((prev) => !prev)}
                   className="flex items-center focus:outline-none"
                 >
-                  <img
-                    src={dummy_avatar}
-                    alt="Profilbild"
-                    className="w-12 h-12 rounded-full border-2 border-green-600 cursor-pointer"
-                  />
+                  {userPhoto ? (
+                    <img
+                      src={userPhoto}
+                      alt="Profilbild"
+                      className="w-12 h-12 rounded-full border-2 border-green-600 cursor-pointer"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full border-2 border-green-600 bg-gray-200 flex items-center justify-center text-lg font-bold text-green-700 cursor-pointer">
+                      {userFirstName?.charAt(0).toUpperCase()}
+                      {userLastName?.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                 </button>
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">

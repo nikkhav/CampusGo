@@ -52,7 +52,10 @@ export const PublicProfile = ({
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      toast.error("No file selected. Please try again.");
+      return;
+    }
 
     const fileName = `${user.id}-${Date.now()}-${file.name}`;
     const filePath = `profile_photos/${fileName}`;
@@ -61,29 +64,34 @@ export const PublicProfile = ({
       setIsUploading(true);
 
       const { error: uploadError } = await supabase.storage
-        .from("public_images")
-        .upload(filePath, file);
+        .from("images")
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
 
       if (uploadError) {
-        throw uploadError;
+        throw new Error(`Upload failed: ${uploadError.message}`);
       }
 
-      const { data } = supabase.storage
-        .from("public_images")
+      const { data, error: urlError } = supabase.storage
+        .from("images")
         .getPublicUrl(filePath);
 
-      if (!data || !data.publicUrl) {
+      if (urlError || !data.publicUrl) {
         throw new Error(
-          "Failed to retrieve the public URL for the uploaded file.",
+          `Failed to retrieve the public URL: ${
+            urlError?.message || "Unknown error"
+          }`,
         );
       }
 
       await updateProfilePhoto(data.publicUrl);
 
-      toast.success("Profile photo uploaded successfully!");
-    } catch (error) {
+      toast.success("Profile photo uploaded and updated successfully!");
+    } catch (error: any) {
       console.error("Error uploading file:", error);
-      toast.error("Error uploading the photo. Please try again.");
+      toast.error(`Error uploading the photo: ${error.message}`);
     } finally {
       setIsUploading(false);
     }
@@ -263,7 +271,10 @@ export const PublicProfile = ({
                 className="w-full h-full object-cover"
               />
             ) : (
-              <span className="text-gray-400">Foto</span>
+              <span className="text-gray-400 text-2xl font-bold">
+                {user.first_name?.charAt(0).toUpperCase()}
+                {user.last_name?.charAt(0).toUpperCase()}
+              </span>
             )}
           </div>
           <div>

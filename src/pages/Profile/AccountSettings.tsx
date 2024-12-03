@@ -109,8 +109,19 @@ export const AccountSettings = ({
     <div className="flex flex-col lg:flex-row justify-between gap-10">
       <div className="lg:w-1/2 bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center gap-4">
-          <div className="w-24 h-24 rounded-full border-4 border-green-600 flex items-center justify-center bg-gray-100">
-            <span className="text-gray-400">Foto</span>
+          <div className="w-24 h-24 rounded-full border-4 border-green-600 flex items-center justify-center bg-gray-100 overflow-hidden">
+            {user.image ? (
+              <img
+                src={user.image}
+                alt="Profilfoto"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-gray-400 text-2xl font-bold">
+                {user.first_name?.charAt(0).toUpperCase()}
+                {user.last_name?.charAt(0).toUpperCase()}
+              </span>
+            )}
           </div>
           <div>
             <h2 className="text-2xl font-semibold">
