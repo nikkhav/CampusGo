@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import Layout from "@/layout/Layout.tsx";
-import Modal from "@/components/Modal.tsx";
 import { User } from "@/types.ts";
 import { supabase } from "@/supabaseClient.ts";
 import { PublicProfile } from "@/pages/Profile/PublicProfile.tsx";
@@ -24,8 +23,6 @@ const Profile = () => {
     created_at: "",
     updated_at: "",
   });
-  const [isLogoutModalOpen, setLogoutModalOpen] = useState<boolean>(false);
-  const [isDeleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
 
   const fetchData = async () => {
     try {
@@ -66,16 +63,6 @@ const Profile = () => {
     fetchData();
   }, []);
 
-  const handleLogout = () => {
-    console.log("Logged out");
-    setLogoutModalOpen(false);
-  };
-
-  const handleDeleteAccount = () => {
-    console.log("Account deleted");
-    setDeleteModalOpen(false);
-  };
-
   if (!user) {
     return <div className="text-center mt-20">Loading...</div>;
   }
@@ -110,70 +97,9 @@ const Profile = () => {
           {activeTab === "public" ? (
             <PublicProfile user={user} refetchUserData={fetchData} />
           ) : (
-            <AccountSettings
-              user={user}
-              onLogout={() => setLogoutModalOpen(true)}
-              onDeleteAccount={() => setDeleteModalOpen(true)}
-            />
+            <AccountSettings user={user} refetchUserData={fetchData} />
           )}
         </div>
-
-        <Modal
-          isOpen={isLogoutModalOpen}
-          onClose={() => setLogoutModalOpen(false)}
-          title="Logout Confirmation"
-          footer={
-            <div className="flex justify-between w-5/12 mx-auto">
-              <button
-                onClick={() => setLogoutModalOpen(false)}
-                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-              >
-                Logout
-              </button>
-            </div>
-          }
-        >
-          <p className="text-gray-700 text-center">
-            Are you sure you want to log out?
-            <br />
-            This action will end your session.
-          </p>
-        </Modal>
-
-        {/* Delete Account Confirmation Modal */}
-        <Modal
-          isOpen={isDeleteModalOpen}
-          onClose={() => setDeleteModalOpen(false)}
-          title="Delete Account Confirmation"
-          footer={
-            <div className="flex justify-between w-5/12 mx-auto">
-              <button
-                onClick={() => setDeleteModalOpen(false)}
-                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteAccount}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-              >
-                Delete
-              </button>
-            </div>
-          }
-        >
-          <p className="text-gray-700 text-center">
-            Are you sure you want to delete your account?
-            <br />
-            This action is irreversible.
-          </p>
-        </Modal>
       </div>
     </Layout>
   );

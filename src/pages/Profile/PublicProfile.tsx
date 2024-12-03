@@ -207,6 +207,9 @@ export const PublicProfile = ({
             <h2 className="text-2xl font-semibold">
               {user.first_name} {user.last_name}
             </h2>
+            <button className="text-green-600 mt-2 hover:underline">
+              Foto ändern
+            </button>
           </div>
         </div>
         <h3 className="mt-6 text-lg font-semibold border-b-2 border-green-600 pb-2">
