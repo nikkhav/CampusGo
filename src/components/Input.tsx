@@ -5,6 +5,9 @@ interface InputProps {
   className?: string;
   value: string | number;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  min?: number;
+  max?: number;
 }
 
 const Input = ({
@@ -12,6 +15,9 @@ const Input = ({
   className = "",
   value,
   onChange,
+  placeholder,
+  min,
+  max,
 }: InputProps) => {
   return (
     <input
@@ -22,6 +28,9 @@ const Input = ({
       )}
       value={value}
       onChange={onChange}
+      placeholder={placeholder}
+      min={min}
+      max={max}
     />
   );
 };

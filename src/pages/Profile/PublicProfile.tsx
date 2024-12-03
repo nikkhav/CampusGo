@@ -6,6 +6,8 @@ import Modal from "@/components/Modal.tsx";
 import Select from "@/components/Select.tsx";
 import constants from "@/assets/data/constants.ts";
 import Input from "@/components/Input.tsx";
+import { Pencil, Trash2Icon } from "lucide-react";
+import { toast } from "react-toastify";
 
 export const PublicProfile = ({
   user,
@@ -35,8 +37,33 @@ export const PublicProfile = ({
   const [newPreference, setNewPreference] = useState<string>("");
   const [newLanguage, setNewLanguage] = useState<string>("");
 
+  const [editVehicle, setEditVehicle] = useState<Vehicle | null>(null);
+  const [isEditVehicleModalOpen, setIsEditVehicleModalOpen] =
+    useState<boolean>(false);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [deleteType, setDeleteType] = useState<
+    "preference" | "language" | null
+  >(null);
+  const [deleteItem, setDeleteItem] = useState<string | null>(null);
+
+  const [isCustomBrand, setIsCustomBrand] = useState<boolean>(false);
+
   const saveVehicle = async () => {
     try {
+      if (
+        !newVehicle.brand ||
+        !newVehicle.model ||
+        !newVehicle.color ||
+        !newVehicle.license_plate ||
+        !newVehicle.seats
+      ) {
+        toast.error(
+          "Bitte füllen Sie alle Felder aus, um das Fahrzeug zu speichern.",
+        );
+        return;
+      }
+
       const { error } = await supabase.from("vehicles").insert([
         {
           user_id: user.id,
@@ -47,11 +74,60 @@ export const PublicProfile = ({
           seats: newVehicle.seats,
         },
       ]);
+
       if (error) throw error;
+
+      toast.success("Fahrzeug erfolgreich gespeichert!");
       await refetchUserData();
       setIsVehicleModalOpen(false);
+
+      setNewVehicle({
+        id: "",
+        user_id: "",
+        brand: "",
+        model: "",
+        color: "",
+        license_plate: "",
+        seats: 5,
+        created_at: "",
+        updated_at: "",
+      });
     } catch (error) {
-      console.error("Error saving vehicle:", error);
+      console.error("Fehler beim Speichern des Fahrzeugs:", error);
+      toast.error(
+        "Fehler beim Speichern des Fahrzeugs. Bitte versuchen Sie es erneut.",
+      );
+    }
+  };
+
+  const updateVehicle = async () => {
+    if (!editVehicle) return;
+    try {
+      const { error } = await supabase
+        .from("vehicles")
+        .update({
+          brand: editVehicle.brand,
+          model: editVehicle.model,
+          color: editVehicle.color,
+          license_plate: editVehicle.license_plate,
+          seats: editVehicle.seats,
+        })
+        .eq("id", editVehicle.id);
+      if (error) throw error;
+      await refetchUserData();
+      setIsEditVehicleModalOpen(false);
+    } catch (error) {
+      console.error("Fehler beim Aktualisieren des Fahrzeugs:", error);
+    }
+  };
+
+  const deleteVehicle = async (id: string) => {
+    try {
+      const { error } = await supabase.from("vehicles").delete().eq("id", id);
+      if (error) throw error;
+      await refetchUserData();
+    } catch (error) {
+      console.error("Fehler beim Löschen des Fahrzeugs:", error);
     }
   };
 
@@ -68,7 +144,7 @@ export const PublicProfile = ({
       await refetchUserData();
       setIsPreferencesModalOpen(false);
     } catch (error) {
-      console.error("Error saving preference:", error);
+      console.error("Fehler beim Speichern der Präferenz:", error);
     }
   };
 
@@ -86,7 +162,37 @@ export const PublicProfile = ({
       await refetchUserData();
       setIsLanguageModalOpen(false);
     } catch (error) {
-      console.error("Error saving language:", error);
+      console.error("Fehler beim Speichern der Sprache:", error);
+    }
+  };
+
+  const confirmDelete = async () => {
+    try {
+      if (deleteType === "preference" && deleteItem) {
+        const updatedPreferences = user.preferences.filter(
+          (p) => p !== deleteItem,
+        );
+        const { error } = await supabase
+          .from("users")
+          .update({ preferences: updatedPreferences })
+          .eq("id", user.id);
+        if (error) throw error;
+        toast.success("Präferenz erfolgreich gelöscht!");
+      } else if (deleteType === "language" && deleteItem) {
+        const updatedLanguages = user.languages.filter((l) => l !== deleteItem);
+        const { error } = await supabase
+          .from("users")
+          .update({ languages: updatedLanguages })
+          .eq("id", user.id);
+        if (error) throw error;
+        toast.success("Sprache erfolgreich gelöscht!");
+      }
+
+      setIsDeleteModalOpen(false);
+      await refetchUserData();
+    } catch (error) {
+      console.error("Fehler beim Löschen:", error);
+      toast.error("Fehler beim Löschen. Bitte versuchen Sie es erneut.");
     }
   };
 
@@ -101,7 +207,6 @@ export const PublicProfile = ({
             <h2 className="text-2xl font-semibold">
               {user.first_name} {user.last_name}
             </h2>
-            {/*<p className="text-sm text-gray-500">{data.status}</p>*/}
           </div>
         </div>
         <h3 className="mt-6 text-lg font-semibold border-b-2 border-green-600 pb-2">
@@ -115,7 +220,10 @@ export const PublicProfile = ({
           ) : (
             <li className="flex items-center gap-2 text-red-600">
               <span>✘</span> ID nicht verifiziert.{" "}
-              <Link to={"/"} className="text-green-600 hover:underline">
+              <Link
+                to={"/verification"}
+                className="text-green-600 hover:underline"
+              >
                 Jetzt verifizieren
               </Link>
             </li>
@@ -127,7 +235,10 @@ export const PublicProfile = ({
           ) : (
             <li className="flex items-center gap-2 text-red-600">
               <span>✘</span> Führerschein nicht verifiziert.{" "}
-              <Link to={"/"} className="text-green-600 hover:underline">
+              <Link
+                to={"/verification"}
+                className="text-green-600 hover:underline"
+              >
                 Jetzt verifizieren
               </Link>
             </li>
@@ -135,10 +246,30 @@ export const PublicProfile = ({
         </ul>
         <h3 className="mt-6 text-lg font-semibold">Meine Fahrzeuge</h3>
         {user.vehicles &&
-          user.vehicles.map((vehicle, index) => (
-            <p key={index} className="mt-3 text-gray-700">
-              {vehicle.brand} {vehicle.model}, {vehicle.color}
-            </p>
+          user.vehicles.map((vehicle) => (
+            <div
+              key={vehicle.id}
+              className="mt-3 flex items-center justify-between text-gray-700"
+            >
+              <p>
+                {vehicle.brand} {vehicle.model}, {vehicle.color}
+              </p>
+              <div className="flex items-center gap-2">
+                <Pencil
+                  className="text-green-600 cursor-pointer"
+                  size={16}
+                  onClick={() => {
+                    setEditVehicle(vehicle);
+                    setIsEditVehicleModalOpen(true);
+                  }}
+                />
+                <Trash2Icon
+                  className="text-red-600 cursor-pointer"
+                  size={16}
+                  onClick={() => deleteVehicle(vehicle.id)}
+                />
+              </div>
+            </div>
           ))}
         <button
           className="text-green-600 mt-2 hover:underline"
@@ -147,46 +278,61 @@ export const PublicProfile = ({
           + Fahrzeug hinzufügen
         </button>
 
-        {/* Add Vehicle Modal */}
         <Modal
           isOpen={isVehicleModalOpen}
           onClose={() => setIsVehicleModalOpen(false)}
-          title="Add Vehicle"
+          title="Fahrzeug hinzufügen"
           footer={
             <div className="flex justify-between w-5/12 mx-auto">
               <button
                 onClick={() => setIsVehicleModalOpen(false)}
                 className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
               >
-                Cancel
+                Abbrechen
               </button>
               <button
                 onClick={() => {
                   saveVehicle();
-                  setIsVehicleModalOpen(false);
                 }}
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
               >
-                Add
+                Hinzufügen
               </button>
             </div>
           }
         >
           <div className="space-y-4">
             <div>
-              <label className="font-medium text-gray-700">Brand</label>
-              <Select
-                value={newVehicle.brand}
-                options={constants.vehiclesBrands}
-                onChange={(brand) => {
-                  setNewVehicle({ ...newVehicle, brand: brand });
-                }}
-                className="p-2 mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
-              />
+              <label className="font-medium text-gray-700">Marke</label>
+              {isCustomBrand ? (
+                <Input
+                  value={newVehicle.brand}
+                  onChange={(e) =>
+                    setNewVehicle({ ...newVehicle, brand: e.target.value })
+                  }
+                  placeholder="Geben Sie die Marke ein"
+                  className="p-2 mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                />
+              ) : (
+                <Select
+                  value={newVehicle.brand}
+                  options={[...constants.vehiclesBrands, "Andere"]}
+                  onChange={(brand) => {
+                    if (brand === "Andere") {
+                      setIsCustomBrand(true);
+                      setNewVehicle({ ...newVehicle, brand: "" });
+                    } else {
+                      setIsCustomBrand(false);
+                      setNewVehicle({ ...newVehicle, brand });
+                    }
+                  }}
+                  className="p-2 mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                />
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Model
+                Modell
               </label>
               <Input
                 value={newVehicle.model}
@@ -197,7 +343,7 @@ export const PublicProfile = ({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Color
+                Farbe
               </label>
               <Select
                 value={newVehicle.color}
@@ -210,7 +356,7 @@ export const PublicProfile = ({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                License Plate
+                Kennzeichen
               </label>
               <Input
                 value={newVehicle.license_plate}
@@ -224,15 +370,131 @@ export const PublicProfile = ({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Seats (including driver)
+                Verfügbare Sitze im Auto
               </label>
               <Input
                 type="number"
                 value={newVehicle.seats}
+                min={1}
+                max={10}
                 onChange={(e) =>
                   setNewVehicle({
                     ...newVehicle,
-                    seats: parseInt(e.target.value),
+                    seats: Math.min(Math.max(parseInt(e.target.value), 1), 10),
+                  })
+                }
+              />
+            </div>
+          </div>
+        </Modal>
+
+        <Modal
+          isOpen={isEditVehicleModalOpen}
+          onClose={() => setIsEditVehicleModalOpen(false)}
+          title="Fahrzeug bearbeiten"
+          footer={
+            <div className="flex justify-between w-5/12 mx-auto">
+              <button
+                onClick={() => setIsEditVehicleModalOpen(false)}
+                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={updateVehicle}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              >
+                Aktualisieren
+              </button>
+            </div>
+          }
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="font-medium text-gray-700">Marke</label>
+              {isCustomBrand ? (
+                <Input
+                  value={editVehicle?.brand || ""}
+                  onChange={(e) =>
+                    editVehicle &&
+                    setEditVehicle({ ...editVehicle, brand: e.target.value })
+                  }
+                  placeholder="Geben Sie die Marke ein"
+                  className="p-2 mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                />
+              ) : (
+                <Select
+                  value={editVehicle?.brand || ""}
+                  options={[...constants.vehiclesBrands, "Andere"]}
+                  onChange={(brand) => {
+                    if (brand === "Andere") {
+                      setIsCustomBrand(true);
+                      if (editVehicle)
+                        setEditVehicle({ ...editVehicle, brand: "" });
+                    } else {
+                      setIsCustomBrand(false);
+                      if (editVehicle)
+                        setEditVehicle({ ...editVehicle, brand });
+                    }
+                  }}
+                  className="p-2 mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                />
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Modell
+              </label>
+              <Input
+                value={editVehicle?.model || ""}
+                onChange={(e) =>
+                  editVehicle &&
+                  setEditVehicle({ ...editVehicle, model: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Farbe
+              </label>
+              <Select
+                value={editVehicle?.color || ""}
+                options={constants.vehiclesColors}
+                onChange={(color) => {
+                  if (editVehicle) setEditVehicle({ ...editVehicle, color });
+                }}
+                className="p-2 mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Kennzeichen
+              </label>
+              <Input
+                value={editVehicle?.license_plate || ""}
+                onChange={(e) =>
+                  editVehicle &&
+                  setEditVehicle({
+                    ...editVehicle,
+                    license_plate: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Verfügbare Sitze im Auto
+              </label>
+              <Input
+                type="number"
+                value={editVehicle?.seats || ""}
+                min={1}
+                max={10}
+                onChange={(e) =>
+                  editVehicle &&
+                  setEditVehicle({
+                    ...editVehicle,
+                    seats: Math.min(Math.max(parseInt(e.target.value), 1), 10),
                   })
                 }
               />
@@ -243,11 +505,20 @@ export const PublicProfile = ({
 
       <div className="lg:w-1/2 bg-white rounded-lg shadow-md p-6">
         <h3 className="text-lg font-semibold">Über dich</h3>
+        <p className="mt-1 text-sm text-gray-500">
+          Klicken Sie auf eine Präferenz oder Sprache, um sie zu löschen.
+        </p>
+        {/* Preferences */}
         <div className="mt-4 flex flex-wrap gap-2">
-          {user.preferences.map((preference, index) => (
+          {user.preferences.map((preference) => (
             <span
-              key={index}
-              className="border border-green-600 text-green-600 px-3 py-1 rounded-full text-sm"
+              key={preference}
+              className="border border-green-600 text-green-600 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-green-50"
+              onClick={() => {
+                setDeleteType("preference");
+                setDeleteItem(preference);
+                setIsDeleteModalOpen(true);
+              }}
             >
               {preference}
             </span>
@@ -260,18 +531,17 @@ export const PublicProfile = ({
           </button>
         </div>
 
-        {/* Add Preference Modal */}
         <Modal
           isOpen={isPreferencesModalOpen}
           onClose={() => setIsPreferencesModalOpen(false)}
-          title="Add Preference"
+          title="Präferenz hinzufügen"
           footer={
             <div className="flex justify-between w-5/12 mx-auto">
               <button
                 onClick={() => setIsPreferencesModalOpen(false)}
                 className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
               >
-                Cancel
+                Abbrechen
               </button>
               <button
                 onClick={() => {
@@ -280,7 +550,7 @@ export const PublicProfile = ({
                 }}
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
               >
-                Add
+                Hinzufügen
               </button>
             </div>
           }
@@ -288,7 +558,7 @@ export const PublicProfile = ({
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Preference
+                Präferenz
               </label>
               <Select
                 value={newPreference}
@@ -302,10 +572,15 @@ export const PublicProfile = ({
 
         <h3 className="mt-6 text-lg font-semibold">Sprachen</h3>
         <div className="mt-4 flex flex-wrap gap-2">
-          {user.languages.map((language, index) => (
+          {user.languages.map((language) => (
             <span
-              key={index}
-              className="border border-green-600 text-green-600 px-3 py-1 rounded-full text-sm"
+              key={language}
+              className="border border-green-600 text-green-600 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-green-50"
+              onClick={() => {
+                setDeleteType("language");
+                setDeleteItem(language);
+                setIsDeleteModalOpen(true);
+              }}
             >
               {language}
             </span>
@@ -317,24 +592,23 @@ export const PublicProfile = ({
             + Sprache hinzufügen
           </button>
 
-          {/* Add Language Modal */}
           <Modal
             isOpen={isLanguageModalOpen}
             onClose={() => setIsLanguageModalOpen(false)}
-            title="Add Language"
+            title="Sprache hinzufügen"
             footer={
               <div className="flex justify-between w-5/12 mx-auto">
                 <button
                   onClick={() => setIsLanguageModalOpen(false)}
                   className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
                 >
-                  Cancel
+                  Abbrechen
                 </button>
                 <button
                   onClick={saveLanguage}
                   className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
                 >
-                  Add
+                  Hinzufügen
                 </button>
               </div>
             }
@@ -342,7 +616,7 @@ export const PublicProfile = ({
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Language
+                  Sprache
                 </label>
                 <Select
                   value={newLanguage}
@@ -352,6 +626,34 @@ export const PublicProfile = ({
                 />
               </div>
             </div>
+          </Modal>
+
+          <Modal
+            isOpen={isDeleteModalOpen}
+            onClose={() => setIsDeleteModalOpen(false)}
+            title="Löschen bestätigen"
+            footer={
+              <div className="flex justify-between w-5/12 mx-auto">
+                <button
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+                >
+                  Abbrechen
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                >
+                  Löschen
+                </button>
+              </div>
+            }
+          >
+            <p className="text-gray-700">
+              Möchten Sie{" "}
+              <span className="font-semibold text-green-600">{deleteItem}</span>{" "}
+              wirklich löschen?
+            </p>
           </Modal>
         </div>
       </div>
