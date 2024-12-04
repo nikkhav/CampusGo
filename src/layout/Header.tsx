@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { useSupabaseSession } from "@/hooks/useSupabaseSession";
 import {
   Send,
   Inbox,
@@ -10,41 +11,23 @@ import {
   LogIn,
 } from "lucide-react";
 import logo from "@/assets/images/logo.png";
-import { supabase } from "@/supabaseClient";
+import { supabase } from "@/supabaseClient.ts";
 
 export default function Header() {
+  const { session, loading, error } = useSupabaseSession();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
   const [userFirstName, setUserFirstName] = useState<string | null>(null);
   const [userLastName, setUserLastName] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const tokenData = JSON.parse(
-      localStorage.getItem("sb-qheatslvrwrvuwuheyxc-auth-token") || "{}",
-    );
-    const token = tokenData?.access_token;
-    const expiryTime = tokenData?.expires_at;
-
-    if (token && expiryTime > Date.now() / 1000) {
-      setIsLoggedIn(true);
-      const localUserId = localStorage.getItem("userId");
-      setUserId(localUserId);
-    } else {
-      setIsLoggedIn(false);
-      setUserId(null);
-    }
-  }, []);
-
-  useEffect(() => {
     const fetchUserData = async () => {
-      if (userId) {
+      if (session?.user?.id) {
         const { data, error } = await supabase
           .from("users")
           .select("image, first_name, last_name")
-          .eq("id", userId)
+          .eq("id", session.user.id)
           .single();
 
         if (error) {
@@ -57,8 +40,8 @@ export default function Header() {
       }
     };
 
-    fetchUserData();
-  }, [userId]);
+    if (session) fetchUserData();
+  }, [session]);
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -74,6 +57,9 @@ export default function Header() {
       document.removeEventListener("mousedown", handleOutsideClick);
     };
   }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <header className="w-full relative">
@@ -108,7 +94,7 @@ export default function Header() {
             </Link>
           </div>
           <div ref={dropdownRef} className="relative">
-            {isLoggedIn ? (
+            {session ? (
               <>
                 <button
                   onClick={() => setIsDropdownOpen((prev) => !prev)}
@@ -151,7 +137,7 @@ export default function Header() {
                       <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
                         <User className="w-5 h-5 text-gray-700" />
                         <Link
-                          to={`/profile/${userId}`}
+                          to={`/profile/${session.user.id}`}
                           className="text-gray-700"
                         >
                           Profil

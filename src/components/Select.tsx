@@ -21,7 +21,7 @@ const Select: React.FC<SelectProps> = ({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-transparent text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full bg-transparent text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-600"
       >
         <option value="" disabled>
           {placeholder}

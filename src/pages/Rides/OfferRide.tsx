@@ -1,14 +1,64 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Layout from "@/layout/Layout.tsx";
 import { DatePicker } from "@/components/DatePicker.tsx";
+import constants from "@/assets/data/constants.ts";
+import { Vehicle } from "@/types.ts";
+import { supabase } from "@/supabaseClient.ts";
+import { useSupabaseSession } from "@/hooks/useSupabaseSession.tsx";
+import Select from "@/components/Select.tsx";
 
 const OfferRide = () => {
+  const {
+    session,
+    loading: sessionLoading,
+    error: sessionError,
+  } = useSupabaseSession();
   const [currentStep, setCurrentStep] = useState(1);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [time, setTime] = useState("");
-  const [seats, setSeats] = useState(1);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  // const [newRide, setNewRide] = useState<Ride>({
+  //   id: "",
+  //   driver_id: session?.user?.id || "",
+  //   vehicle_id: "",
+  //   start_time: "",
+  //   end_time: "",
+  //   available_seats: 1,
+  //   created_at: "",
+  //   updated_at: "",
+  // });
+
+  const getVehicles = async () => {
+    if (!session?.user?.id) return;
+
+    try {
+      const { data: vehiclesData, error } = await supabase
+        .from("vehicles")
+        .select("*")
+        .eq("user_id", session.user.id);
+
+      if (error) throw error;
+      setVehicles(vehiclesData || []);
+    } catch (error) {
+      console.error("Error fetching user vehicles:", error);
+    }
+  };
+
+  // Fetch vehicles after session is available
+  useEffect(() => {
+    if (!sessionLoading && session) {
+      getVehicles();
+    }
+  }, [session, sessionLoading]);
+
+  if (sessionLoading) {
+    return <div>Loading...</div>;
+  }
+  if (sessionError) {
+    return <div>Error: {sessionError}</div>;
+  }
 
   const nextStep = () => {
     if (currentStep < 3) setCurrentStep(currentStep + 1);
@@ -19,7 +69,9 @@ const OfferRide = () => {
   };
 
   const createOffer = () => {
-    console.log({ from, to, date: date?.toISOString(), time, seats });
+    // 1. Check that FROM and TO are not empty and not equal
+    // 2. Date and time should be set and in the future
+    console.log({ from, to, date, time });
   };
 
   return (
@@ -31,8 +83,6 @@ const OfferRide = () => {
           anzubieten. Es dauert nur wenige Minuten!
         </p>
         <div className="mt-10 border rounded-xl shadow-lg bg-white p-8">
-          {/* Stepper */}
-          {/* Stepper */}
           <div className="flex justify-between items-center mb-8">
             <div className="flex flex-col items-center">
               <div
@@ -76,7 +126,6 @@ const OfferRide = () => {
             </div>
           </div>
 
-          {/* Step Content */}
           {currentStep === 1 && (
             <div>
               <h3 className="text-2xl font-semibold mb-4">Details der Fahrt</h3>
@@ -87,11 +136,11 @@ const OfferRide = () => {
                   onChange={(e) => setFrom(e.target.value)}
                   className="w-full mt-2 p-3 border rounded-md focus:ring-2 focus:ring-green-600"
                 >
-                  <option value="">Startort auswählen</option>
-                  <option value="Bayreuth">Bayreuth</option>
-                  <option value="München">München</option>
-                  <option value="Hamburg">Hamburg</option>
-                  <option value="Frankfurt">Frankfurt</option>
+                  {constants.destinations.map((destination) => (
+                    <option key={destination} value={destination}>
+                      {destination}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="mt-4">
@@ -101,11 +150,11 @@ const OfferRide = () => {
                   onChange={(e) => setTo(e.target.value)}
                   className="w-full mt-2 p-3 border rounded-md focus:ring-2 focus:ring-green-600"
                 >
-                  <option value="">Zielort auswählen</option>
-                  <option value="Bayreuth">Bayreuth</option>
-                  <option value="München">München</option>
-                  <option value="Hamburg">Hamburg</option>
-                  <option value="Frankfurt">Frankfurt</option>
+                  {constants.destinations.map((destination) => (
+                    <option key={destination} value={destination}>
+                      {destination}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -134,20 +183,33 @@ const OfferRide = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700">
-                    Anzahl der Plätze
-                  </label>
-                  <select
-                    value={seats}
-                    onChange={(e) => setSeats(Number(e.target.value))}
-                    className="w-full mt-2 p-3 border rounded-md focus:ring-2 focus:ring-green-600"
-                  >
-                    <option value="1">1 Platz</option>
-                    <option value="2">2 Plätze</option>
-                    <option value="3">3 Plätze</option>
-                    <option value="4">4 Plätze</option>
-                  </select>
+                  <label className="block text-gray-700">Auto</label>
+                  <Select
+                    className="mt-2 p-3 border rounded-md"
+                    value=""
+                    options={vehicles.map(
+                      (vehicle) =>
+                        `${vehicle.brand}, ${vehicle.model}, ${vehicle.license_plate}`,
+                    )}
+                    onChange={(value) => console.log(value)}
+                    placeholder="Wähle dein Auto"
+                  />
                 </div>
+                {/*<div>*/}
+                {/*  <label className="block text-gray-700">*/}
+                {/*    Anzahl der Plätze*/}
+                {/*  </label>*/}
+                {/*  <select*/}
+                {/*    value={seats}*/}
+                {/*    onChange={(e) => setSeats(Number(e.target.value))}*/}
+                {/*    className="w-full mt-2 p-3 border rounded-md focus:ring-2 focus:ring-green-600"*/}
+                {/*  >*/}
+                {/*    <option value="1">1 Platz</option>*/}
+                {/*    <option value="2">2 Plätze</option>*/}
+                {/*    <option value="3">3 Plätze</option>*/}
+                {/*    <option value="4">4 Plätze</option>*/}
+                {/*  </select>*/}
+                {/*</div>*/}
               </div>
             </div>
           )}
@@ -189,7 +251,7 @@ const OfferRide = () => {
                   <div>
                     <p className="text-sm text-gray-500">Plätze</p>
                     <p className="text-lg font-semibold text-gray-800">
-                      {seats}
+                      1{/*{seats}*/}
                     </p>
                   </div>
                 </div>

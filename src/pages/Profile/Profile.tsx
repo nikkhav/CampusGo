@@ -4,8 +4,10 @@ import { User } from "@/types.ts";
 import { supabase } from "@/supabaseClient.ts";
 import { PublicProfile } from "@/pages/Profile/PublicProfile.tsx";
 import { AccountSettings } from "@/pages/Profile/AccountSettings.tsx";
+import { useSupabaseSession } from "@/hooks/useSupabaseSession.tsx";
 
 const Profile = () => {
+  const { session, loading, error } = useSupabaseSession();
   const [activeTab, setActiveTab] = useState<"public" | "account">("public");
   const [user, setUser] = useState<User>({
     id: "",
@@ -26,10 +28,9 @@ const Profile = () => {
 
   const fetchData = async () => {
     try {
-      const { data: session } = await supabase.auth.getSession();
-      const userId = session.session?.user?.id;
+      if (!session) return;
 
-      if (userId) {
+      if (session.user?.id) {
         const { data: userData, error } = await supabase
           .from("users")
           .select(
@@ -47,7 +48,7 @@ const Profile = () => {
               )
             `,
           )
-          .eq("id", userId)
+          .eq("id", session.user.id)
           .single();
 
         if (error) throw error;
@@ -60,11 +61,14 @@ const Profile = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [session]);
 
   if (!user) {
     return <div className="text-center mt-20">Loading...</div>;
   }
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <Layout>

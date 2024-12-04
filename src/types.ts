@@ -45,3 +45,33 @@ export interface User {
   created_at: string;
   updated_at: string;
 }
+
+export interface Ride {
+  id: string;
+  driver_id: string;
+  vehicle_id: string;
+  start_time: string;
+  end_time: string;
+  available_seats: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Stop {
+  id: string;
+  ride_id: string;
+  location_id: string;
+  stop_type: string;
+  stop_time: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Location {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  created_at: string;
+  updated_at: string;
+}
