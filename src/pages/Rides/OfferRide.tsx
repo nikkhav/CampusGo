@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import Layout from "@/layout/Layout.tsx";
 import { DatePicker } from "@/components/DatePicker.tsx";
-import constants from "@/assets/data/constants.ts";
-import { Vehicle } from "@/types.ts";
+import { Stop, Vehicle, Location } from "@/types.ts";
 import { supabase } from "@/supabaseClient.ts";
 import { useSupabaseSession } from "@/hooks/useSupabaseSession.tsx";
 import Select from "@/components/Select.tsx";
@@ -19,6 +18,29 @@ const OfferRide = () => {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [time, setTime] = useState("");
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [stops, setStops] = useState<Stop[]>([
+    {
+      id: "",
+      ride_id: "",
+      location_id: locations[0]?.id || "",
+      stop_order: 1,
+      stop_time: "",
+      stop_type: "start",
+      created_at: "",
+      updated_at: "",
+    },
+    {
+      id: "",
+      ride_id: "",
+      location_id: locations[1]?.id || "",
+      stop_order: 2,
+      stop_time: "",
+      stop_type: "end",
+      created_at: "",
+      updated_at: "",
+    },
+  ]);
   // const [newRide, setNewRide] = useState<Ride>({
   //   id: "",
   //   driver_id: session?.user?.id || "",
@@ -46,11 +68,26 @@ const OfferRide = () => {
     }
   };
 
+  const getLocations = async () => {
+    try {
+      const { data: locationsData, error } = await supabase
+        .from("locations")
+        .select("*");
+
+      if (error) throw error;
+      setLocations(locationsData || []);
+      console.log(locationsData);
+    } catch (error) {
+      console.error("Error fetching locations:", error);
+    }
+  };
+
   // Fetch vehicles after session is available
   useEffect(() => {
     if (!sessionLoading && session) {
       getVehicles();
     }
+    getLocations();
   }, [session, sessionLoading]);
 
   if (sessionLoading) {
@@ -129,34 +166,70 @@ const OfferRide = () => {
           {currentStep === 1 && (
             <div>
               <h3 className="text-2xl font-semibold mb-4">Details der Fahrt</h3>
-              <div>
-                <label className="block text-gray-700">Startort</label>
-                <select
-                  value={from}
-                  onChange={(e) => setFrom(e.target.value)}
-                  className="w-full mt-2 p-3 border rounded-md focus:ring-2 focus:ring-green-600"
-                >
-                  {constants.destinations.map((destination) => (
-                    <option key={destination} value={destination}>
-                      {destination}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="mt-4">
-                <label className="block text-gray-700">Zielort</label>
-                <select
-                  value={to}
-                  onChange={(e) => setTo(e.target.value)}
-                  className="w-full mt-2 p-3 border rounded-md focus:ring-2 focus:ring-green-600"
-                >
-                  {constants.destinations.map((destination) => (
-                    <option key={destination} value={destination}>
-                      {destination}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {stops.map((stop, index) => (
+                <div className="mt-5" key={index}>
+                  <label className="block text-gray-700">
+                    {index === 0 ? "Startort" : "Zielort"}
+                  </label>
+                  <Select
+                    className="mt-2 p-3 border rounded-md"
+                    value={stop.location_id}
+                    options={locations.map((location) => location.name)}
+                    onChange={(value) => {
+                      setStops((prevStops) =>
+                        prevStops.map((prevStop, i) =>
+                          i === index
+                            ? { ...prevStop, location_id: value }
+                            : prevStop,
+                        ),
+                      );
+                    }}
+                    placeholder="Wähle den Ort"
+                  />
+                </div>
+              ))}
+              {/*<div>*/}
+              {/*  <label className="block text-gray-700">Startort</label>*/}
+              {/*  <select*/}
+              {/*    value={from}*/}
+              {/*    onChange={(e) => setFrom(e.target.value)}*/}
+              {/*    className="w-full mt-2 p-3 border rounded-md focus:ring-2 focus:ring-green-600"*/}
+              {/*  >*/}
+              {/*    {constants.destinations.map((destination) => (*/}
+              {/*      <option key={destination} value={destination}>*/}
+              {/*        {destination}*/}
+              {/*      </option>*/}
+              {/*    ))}*/}
+              {/*  </select>*/}
+              {/*</div>*/}
+              {/*<div>*/}
+              {/*  <label className="block text-gray-700">Startort</label>*/}
+              {/*  <select*/}
+              {/*    value={from}*/}
+              {/*    onChange={(e) => setFrom(e.target.value)}*/}
+              {/*    className="w-full mt-2 p-3 border rounded-md focus:ring-2 focus:ring-green-600"*/}
+              {/*  >*/}
+              {/*    {constants.destinations.map((destination) => (*/}
+              {/*      <option key={destination} value={destination}>*/}
+              {/*        {destination}*/}
+              {/*      </option>*/}
+              {/*    ))}*/}
+              {/*  </select>*/}
+              {/*</div>*/}
+              {/*<div className="mt-4">*/}
+              {/*  <label className="block text-gray-700">Zielort</label>*/}
+              {/*  <select*/}
+              {/*    value={to}*/}
+              {/*    onChange={(e) => setTo(e.target.value)}*/}
+              {/*    className="w-full mt-2 p-3 border rounded-md focus:ring-2 focus:ring-green-600"*/}
+              {/*  >*/}
+              {/*    {constants.destinations.map((destination) => (*/}
+              {/*      <option key={destination} value={destination}>*/}
+              {/*        {destination}*/}
+              {/*      </option>*/}
+              {/*    ))}*/}
+              {/*  </select>*/}
+              {/*</div>*/}
             </div>
           )}
 
