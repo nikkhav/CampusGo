@@ -204,39 +204,59 @@ export const AccountSettings = ({
         }
       >
         <div className="space-y-4">
-          <Input
-            value={updatedUser.first_name}
-            onChange={(e) =>
-              setUpdatedUser({ ...updatedUser, first_name: e.target.value })
-            }
-          />
-          <Input
-            value={updatedUser.last_name}
-            onChange={(e) =>
-              setUpdatedUser({ ...updatedUser, last_name: e.target.value })
-            }
-          />
-          <Input
-            type="date"
-            value={updatedUser.birth_date || ""}
-            onChange={(e) =>
-              setUpdatedUser({ ...updatedUser, birth_date: e.target.value })
-            }
-          />
-          <Input
-            type="email"
-            value={updatedUser.email}
-            onChange={(e) =>
-              setUpdatedUser({ ...updatedUser, email: e.target.value })
-            }
-          />
-          <Input
-            type="tel"
-            value={updatedUser.phone || ""}
-            onChange={(e) =>
-              setUpdatedUser({ ...updatedUser, phone: e.target.value })
-            }
-          />
+          <div>
+            <label className="text-gray-700">Vorname</label>
+            <Input
+              value={updatedUser.first_name}
+              onChange={(e) =>
+                setUpdatedUser({ ...updatedUser, first_name: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label className="text-gray-700">Nachname</label>
+            <Input
+              value={updatedUser.last_name}
+              onChange={(e) =>
+                setUpdatedUser({ ...updatedUser, last_name: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label className="text-gray-700">Geburtsdatum</label>
+            <Input
+              type="date"
+              value={updatedUser.birth_date || ""}
+              onChange={(e) =>
+                setUpdatedUser({ ...updatedUser, birth_date: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label className="text-gray-700">E-Mail-Adresse</label>
+            <Input
+              type="email"
+              value={updatedUser.email}
+              onChange={(e) =>
+                setUpdatedUser({ ...updatedUser, email: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label className="text-gray-700">Telefonnummer</label>
+            <Input
+              type="tel"
+              value={updatedUser.phone || ""}
+              onChange={(e) => {
+                const input = e.target.value;
+                const formatted = input.replace(/[^+\d]/g, "");
+                const startsWithPlus = formatted.startsWith("+")
+                  ? formatted
+                  : `+${formatted}`;
+                setUpdatedUser({ ...updatedUser, phone: startsWithPlus });
+              }}
+            />
+          </div>
         </div>
       </Modal>
 
@@ -262,24 +282,33 @@ export const AccountSettings = ({
         }
       >
         <div className="space-y-4">
-          <Input
-            type="password"
-            placeholder="Aktuelles Passwort"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-          />
-          <Input
-            type="password"
-            placeholder="Neues Passwort"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-          />
-          <Input
-            type="password"
-            placeholder="Passwort bestätigen"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
+          <div>
+            <label className="text-gray-700">Aktuelles Passwort</label>
+            <Input
+              type="password"
+              placeholder="Aktuelles Passwort"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="text-gray-700">Neues Passwort</label>
+            <Input
+              type="password"
+              placeholder="Neues Passwort"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="text-gray-700">Passwort bestätigen</label>
+            <Input
+              type="password"
+              placeholder="Passwort bestätigen"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </div>
         </div>
       </Modal>
 
