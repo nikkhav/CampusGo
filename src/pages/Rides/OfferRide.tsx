@@ -116,6 +116,7 @@ const OfferRide = () => {
     try {
       if (!date || !startTime || !endTime || !selectedVehicle) {
         console.error("Required fields are missing");
+        toast.error("Bitte füllen Sie alle erforderlichen Felder aus.");
         return;
       }
 
@@ -136,8 +137,28 @@ const OfferRide = () => {
       );
 
       if (endDateTime <= startDateTime) {
-        console.error("End time must be after start time");
+        toast.error("Endzeit muss nach der Startzeit liegen.");
         return;
+      }
+
+      for (const stop of stops) {
+        if (stop.stop_type === "intermediate" && stop.stop_time) {
+          const [hours, minutes] = stop.stop_time.split(":").map(Number);
+          const stopDateTime = new Date(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate(),
+            hours,
+            minutes,
+          );
+
+          if (stopDateTime < startDateTime || stopDateTime > endDateTime) {
+            toast.error(
+              `Die Zwischenstoppzeit (${stop.stop_time}) muss zwischen der Startzeit und der Endzeit liegen.`,
+            );
+            return;
+          }
+        }
       }
 
       const startTimestamp = startDateTime.toISOString();
@@ -160,29 +181,22 @@ const OfferRide = () => {
       if (rideError) throw rideError;
 
       const rideId = rideData.id;
-      const stopsWithRideId = stops.map((stop) => {
-        if (stop.stop_type === "intermediate") {
-          if (stop.stop_time && /^\d{2}:\d{2}$/.test(stop.stop_time)) {
-            const [hours, minutes] = stop.stop_time.split(":").map(Number);
-            const stopTimestamp = new Date(
-              date.getFullYear(),
-              date.getMonth(),
-              date.getDate(),
-              hours,
-              minutes,
-            ).toISOString();
 
-            return {
-              ...stop,
-              ride_id: rideId,
-              stop_time: stopTimestamp,
-            };
-          }
+      const stopsWithRideId = stops.map((stop) => {
+        if (stop.stop_type === "intermediate" && stop.stop_time) {
+          const [hours, minutes] = stop.stop_time.split(":").map(Number);
+          const stopTimestamp = new Date(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate(),
+            hours,
+            minutes,
+          ).toISOString();
 
           return {
             ...stop,
             ride_id: rideId,
-            stop_time: null,
+            stop_time: stopTimestamp,
           };
         }
 
@@ -201,6 +215,7 @@ const OfferRide = () => {
       }, 5000);
     } catch (error) {
       console.error("Error creating offer:", error);
+      toast.error("Fehler beim Erstellen des Angebots.");
     }
   };
 
