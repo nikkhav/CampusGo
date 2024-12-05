@@ -7,6 +7,7 @@ interface SelectProps {
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -15,6 +16,7 @@ const Select: React.FC<SelectProps> = ({
   onChange,
   placeholder = "Option auswählen",
   className,
+  disabled = false,
 }) => {
   return (
     <div className={clsx("relative", className)}>
@@ -22,6 +24,7 @@ const Select: React.FC<SelectProps> = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full bg-transparent text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-600"
+        disabled={disabled}
       >
         <option value="" disabled>
           {placeholder}

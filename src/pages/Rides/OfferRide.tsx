@@ -1,10 +1,21 @@
 import { useEffect, useState } from "react";
 import Layout from "@/layout/Layout.tsx";
 import { DatePicker } from "@/components/DatePicker.tsx";
-import { Stop, Vehicle, Location } from "@/types.ts";
+import { Vehicle, Location } from "@/types.ts";
 import { supabase } from "@/supabaseClient.ts";
 import { useSupabaseSession } from "@/hooks/useSupabaseSession.tsx";
 import Select from "@/components/Select.tsx";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import Input from "@/components/Input.tsx";
+
+export interface NewStop {
+  ride_id: string | null;
+  location_id: string;
+  stop_type: "start" | "end" | "intermediate";
+  stop_time: string | null;
+  stop_order: number;
+}
 
 const OfferRide = () => {
   const {
@@ -13,44 +24,31 @@ const OfferRide = () => {
     error: sessionError,
   } = useSupabaseSession();
   const [currentStep, setCurrentStep] = useState(1);
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
   const [date, setDate] = useState<Date | undefined>(undefined);
-  const [time, setTime] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
-  const [stops, setStops] = useState<Stop[]>([
+  const [stops, setStops] = useState<NewStop[]>([
     {
-      id: "",
-      ride_id: "",
-      location_id: locations[0]?.id || "",
-      stop_order: 1,
-      stop_time: "",
+      ride_id: null,
+      location_id: "",
       stop_type: "start",
-      created_at: "",
-      updated_at: "",
+      stop_time: null,
+      stop_order: 1,
     },
     {
-      id: "",
-      ride_id: "",
-      location_id: locations[1]?.id || "",
-      stop_order: 2,
-      stop_time: "",
+      ride_id: null,
+      location_id: "",
       stop_type: "end",
-      created_at: "",
-      updated_at: "",
+      stop_time: null,
+      stop_order: 2,
     },
   ]);
-  // const [newRide, setNewRide] = useState<Ride>({
-  //   id: "",
-  //   driver_id: session?.user?.id || "",
-  //   vehicle_id: "",
-  //   start_time: "",
-  //   end_time: "",
-  //   available_seats: 1,
-  //   created_at: "",
-  //   updated_at: "",
-  // });
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const [availableSeats, setAvailableSeats] = useState(1);
+
+  const navigate = useNavigate();
 
   const getVehicles = async () => {
     if (!session?.user?.id) return;
@@ -76,13 +74,136 @@ const OfferRide = () => {
 
       if (error) throw error;
       setLocations(locationsData || []);
-      console.log(locationsData);
     } catch (error) {
       console.error("Error fetching locations:", error);
     }
   };
 
-  // Fetch vehicles after session is available
+  const addStop = () => {
+    setStops((prevStops) => [
+      ...prevStops.slice(0, prevStops.length - 1),
+      {
+        ride_id: null,
+        location_id: "",
+        stop_type: "intermediate",
+        stop_time: "",
+        stop_order: prevStops.length,
+      },
+      {
+        ...prevStops[prevStops.length - 1],
+        stop_order: prevStops.length + 1,
+      },
+    ]);
+  };
+
+  const updateStopLocation = (index: number, locationId: string) => {
+    setStops((prevStops) =>
+      prevStops.map((stop, i) =>
+        i === index ? { ...stop, location_id: locationId } : stop,
+      ),
+    );
+  };
+
+  const nextStep = () => {
+    if (currentStep < 3) setCurrentStep(currentStep + 1);
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) setCurrentStep(currentStep - 1);
+  };
+
+  const createOffer = async () => {
+    try {
+      if (!date || !startTime || !endTime || !selectedVehicle) {
+        console.error("Required fields are missing");
+        return;
+      }
+
+      const startDateTime = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        parseInt(startTime.split(":")[0], 10),
+        parseInt(startTime.split(":")[1], 10),
+      );
+
+      const endDateTime = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        parseInt(endTime.split(":")[0], 10),
+        parseInt(endTime.split(":")[1], 10),
+      );
+
+      if (endDateTime <= startDateTime) {
+        console.error("End time must be after start time");
+        return;
+      }
+
+      const startTimestamp = startDateTime.toISOString();
+      const endTimestamp = endDateTime.toISOString();
+
+      const { data: rideData, error: rideError } = await supabase
+        .from("rides")
+        .insert([
+          {
+            driver_id: session?.user?.id,
+            vehicle_id: selectedVehicle.id,
+            start_time: startTimestamp,
+            end_time: endTimestamp,
+            available_seats: availableSeats,
+          },
+        ])
+        .select()
+        .single();
+
+      if (rideError) throw rideError;
+
+      const rideId = rideData.id;
+      const stopsWithRideId = stops.map((stop) => {
+        if (stop.stop_type === "intermediate") {
+          if (stop.stop_time && /^\d{2}:\d{2}$/.test(stop.stop_time)) {
+            const [hours, minutes] = stop.stop_time.split(":").map(Number);
+            const stopTimestamp = new Date(
+              date.getFullYear(),
+              date.getMonth(),
+              date.getDate(),
+              hours,
+              minutes,
+            ).toISOString();
+
+            return {
+              ...stop,
+              ride_id: rideId,
+              stop_time: stopTimestamp,
+            };
+          }
+
+          return {
+            ...stop,
+            ride_id: rideId,
+            stop_time: null,
+          };
+        }
+
+        return { ...stop, ride_id: rideId };
+      });
+
+      const { error: stopsError } = await supabase
+        .from("stops")
+        .insert(stopsWithRideId);
+
+      if (stopsError) throw stopsError;
+
+      toast.success("Angebot erfolgreich erstellt!");
+      setTimeout(() => {
+        navigate("/find-ride");
+      }, 5000);
+    } catch (error) {
+      console.error("Error creating offer:", error);
+    }
+  };
+
   useEffect(() => {
     if (!sessionLoading && session) {
       getVehicles();
@@ -96,20 +217,6 @@ const OfferRide = () => {
   if (sessionError) {
     return <div>Error: {sessionError}</div>;
   }
-
-  const nextStep = () => {
-    if (currentStep < 3) setCurrentStep(currentStep + 1);
-  };
-
-  const prevStep = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
-  };
-
-  const createOffer = () => {
-    // 1. Check that FROM and TO are not empty and not equal
-    // 2. Date and time should be set and in the future
-    console.log({ from, to, date, time });
-  };
 
   return (
     <Layout>
@@ -169,73 +276,65 @@ const OfferRide = () => {
               {stops.map((stop, index) => (
                 <div className="mt-5" key={index}>
                   <label className="block text-gray-700">
-                    {index === 0 ? "Startort" : "Zielort"}
+                    {stop.stop_type === "start"
+                      ? "Startort"
+                      : stop.stop_type === "end"
+                      ? "Zielort"
+                      : `Zwischenstopp ${index}`}
                   </label>
                   <Select
                     className="mt-2 p-3 border rounded-md"
-                    value={stop.location_id}
+                    value={
+                      locations.find(
+                        (location) => location.id === stop.location_id,
+                      )?.name || ""
+                    }
                     options={locations.map((location) => location.name)}
                     onChange={(value) => {
-                      setStops((prevStops) =>
-                        prevStops.map((prevStop, i) =>
-                          i === index
-                            ? { ...prevStop, location_id: value }
-                            : prevStop,
-                        ),
+                      const selectedLocation = locations.find(
+                        (location) => location.name === value,
                       );
+                      if (selectedLocation) {
+                        updateStopLocation(index, selectedLocation.id);
+                      }
                     }}
                     placeholder="Wähle den Ort"
                   />
+                  {stop.stop_type === "intermediate" && (
+                    <div className="mt-3">
+                      <label className="block text-gray-700">
+                        Stopzeit (z.B. 15:30)
+                      </label>
+                      <Input
+                        type="time"
+                        className="mt-2 p-3 border rounded-md w-full"
+                        value={stop.stop_time || ""}
+                        onChange={(e) => {
+                          const value = e.target.value.trim();
+                          setStops((prevStops) =>
+                            prevStops.map((s, i) =>
+                              i === index ? { ...s, stop_time: value } : s,
+                            ),
+                          );
+                        }}
+                        placeholder="Stopzeit eingeben"
+                      />
+                    </div>
+                  )}
                 </div>
               ))}
-              {/*<div>*/}
-              {/*  <label className="block text-gray-700">Startort</label>*/}
-              {/*  <select*/}
-              {/*    value={from}*/}
-              {/*    onChange={(e) => setFrom(e.target.value)}*/}
-              {/*    className="w-full mt-2 p-3 border rounded-md focus:ring-2 focus:ring-green-600"*/}
-              {/*  >*/}
-              {/*    {constants.destinations.map((destination) => (*/}
-              {/*      <option key={destination} value={destination}>*/}
-              {/*        {destination}*/}
-              {/*      </option>*/}
-              {/*    ))}*/}
-              {/*  </select>*/}
-              {/*</div>*/}
-              {/*<div>*/}
-              {/*  <label className="block text-gray-700">Startort</label>*/}
-              {/*  <select*/}
-              {/*    value={from}*/}
-              {/*    onChange={(e) => setFrom(e.target.value)}*/}
-              {/*    className="w-full mt-2 p-3 border rounded-md focus:ring-2 focus:ring-green-600"*/}
-              {/*  >*/}
-              {/*    {constants.destinations.map((destination) => (*/}
-              {/*      <option key={destination} value={destination}>*/}
-              {/*        {destination}*/}
-              {/*      </option>*/}
-              {/*    ))}*/}
-              {/*  </select>*/}
-              {/*</div>*/}
-              {/*<div className="mt-4">*/}
-              {/*  <label className="block text-gray-700">Zielort</label>*/}
-              {/*  <select*/}
-              {/*    value={to}*/}
-              {/*    onChange={(e) => setTo(e.target.value)}*/}
-              {/*    className="w-full mt-2 p-3 border rounded-md focus:ring-2 focus:ring-green-600"*/}
-              {/*  >*/}
-              {/*    {constants.destinations.map((destination) => (*/}
-              {/*      <option key={destination} value={destination}>*/}
-              {/*        {destination}*/}
-              {/*      </option>*/}
-              {/*    ))}*/}
-              {/*  </select>*/}
-              {/*</div>*/}
+              <button
+                onClick={addStop}
+                className="mt-5 px-6 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600"
+              >
+                Zwischenstopp hinzufügen
+              </button>
             </div>
           )}
 
           {currentStep === 2 && (
             <div>
-              <h3 className="text-2xl font-semibold mb-4">Zeit & Plätze</h3>
+              <h3 className="text-2xl font-semibold mb-4">Zeit</h3>
               <div className="space-y-6">
                 <div>
                   <label className="block text-gray-700">Datum</label>
@@ -247,42 +346,71 @@ const OfferRide = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700">Uhrzeit</label>
+                  <label className="block text-gray-700">Startzeit</label>
                   <input
                     type="time"
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
                     className="w-full mt-2 p-3 border rounded-md focus:ring-2 focus:ring-green-600"
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700">Auto</label>
-                  <Select
-                    className="mt-2 p-3 border rounded-md"
-                    value=""
-                    options={vehicles.map(
-                      (vehicle) =>
-                        `${vehicle.brand}, ${vehicle.model}, ${vehicle.license_plate}`,
-                    )}
-                    onChange={(value) => console.log(value)}
-                    placeholder="Wähle dein Auto"
+                  <label className="block text-gray-700">Endzeit</label>
+                  <input
+                    type="time"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                    className="w-full mt-2 p-3 border rounded-md focus:ring-2 focus:ring-green-600"
                   />
                 </div>
-                {/*<div>*/}
-                {/*  <label className="block text-gray-700">*/}
-                {/*    Anzahl der Plätze*/}
-                {/*  </label>*/}
-                {/*  <select*/}
-                {/*    value={seats}*/}
-                {/*    onChange={(e) => setSeats(Number(e.target.value))}*/}
-                {/*    className="w-full mt-2 p-3 border rounded-md focus:ring-2 focus:ring-green-600"*/}
-                {/*  >*/}
-                {/*    <option value="1">1 Platz</option>*/}
-                {/*    <option value="2">2 Plätze</option>*/}
-                {/*    <option value="3">3 Plätze</option>*/}
-                {/*    <option value="4">4 Plätze</option>*/}
-                {/*  </select>*/}
-                {/*</div>*/}
+              </div>
+              <h3 className="text-2xl font-semibold my-4">Plätze</h3>
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-gray-700">Fahrzeug</label>
+                  <Select
+                    className="mt-2 p-3 border rounded-md"
+                    value={selectedVehicle?.license_plate || ""}
+                    options={vehicles.map(
+                      (vehicle) =>
+                        `${vehicle.brand} - ${vehicle.license_plate}`,
+                    )}
+                    onChange={(value) => {
+                      const vehicle = vehicles.find(
+                        (v) => `${v.brand} - ${v.license_plate}` === value,
+                      );
+                      setSelectedVehicle(vehicle || null);
+                      setAvailableSeats(1);
+                    }}
+                    placeholder="Wähle dein Fahrzeug"
+                  />
+                </div>
+                <div>
+                  <label
+                    className={`block text-gray-700 ${
+                      selectedVehicle ? "opacity-100" : "opacity-50"
+                    }`}
+                  >
+                    Anzahl der verfügbaren Plätze
+                  </label>
+                  <Select
+                    className={`mt-2 p-3 border rounded-md ${
+                      selectedVehicle ? "opacity-100" : "opacity-50"
+                    }`}
+                    value={availableSeats.toString()}
+                    options={
+                      selectedVehicle
+                        ? Array.from(
+                            { length: selectedVehicle.seats },
+                            (_, i) => (i + 1).toString(),
+                          )
+                        : []
+                    }
+                    onChange={(value) => setAvailableSeats(parseInt(value))}
+                    placeholder="Wähle die Anzahl der Plätze"
+                    disabled={!selectedVehicle}
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -297,42 +425,88 @@ const OfferRide = () => {
               </p>
               <div className="mt-8 bg-gray-50 p-6 rounded-xl shadow-lg">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-sm text-gray-500">Startort</p>
+                  {stops
+                    .filter(
+                      (stop) =>
+                        stop.stop_type === "start" || stop.stop_type === "end",
+                    )
+                    .map((stop, index) => (
+                      <div key={index}>
+                        <p className="text-sm text-gray-500">
+                          {stop.stop_type === "start" ? "Startort" : "Zielort"}
+                        </p>
+                        <p className="text-lg font-semibold text-gray-800">
+                          {locations.find(
+                            (location) => location.id === stop.location_id,
+                          )?.name || "Nicht angegeben"}
+                        </p>
+                      </div>
+                    ))}
+                </div>
+
+                {stops.filter((stop) => stop.stop_type === "intermediate")
+                  .length > 0 && (
+                  <div className="mt-6">
+                    <p className="text-sm text-gray-500">Zwischenstopps</p>
                     <p className="text-lg font-semibold text-gray-800">
-                      {from || "Nicht angegeben"}
+                      {stops
+                        .filter((stop) => stop.stop_type === "intermediate")
+                        .map((stop, index) => {
+                          const locationName =
+                            locations.find(
+                              (location) => location.id === stop.location_id,
+                            )?.name || "Nicht angegeben";
+                          const stopTime = stop.stop_time
+                            ? ` (${new Date(stop.stop_time).toLocaleTimeString(
+                                [],
+                                { hour: "2-digit", minute: "2-digit" },
+                              )})`
+                            : "";
+                          return `${index + 1}. ${locationName}${stopTime}`;
+                        })
+                        .join(", ")}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Zielort</p>
-                    <p className="text-lg font-semibold text-gray-800">
-                      {to || "Nicht angegeben"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Datum</p>
-                    <p className="text-lg font-semibold text-gray-800">
-                      {date ? date.toLocaleDateString() : "Nicht angegeben"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Uhrzeit</p>
-                    <p className="text-lg font-semibold text-gray-800">
-                      {time || "Nicht angegeben"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Plätze</p>
-                    <p className="text-lg font-semibold text-gray-800">
-                      1{/*{seats}*/}
-                    </p>
-                  </div>
+                )}
+                <div className="border-t border-gray-300 my-6"></div>
+
+                <div className="mt-6">
+                  <p className="text-sm text-gray-500">Datum</p>
+                  <p className="text-lg font-semibold text-gray-800">
+                    {date ? date.toLocaleDateString() : "Nicht angegeben"}
+                  </p>
+                </div>
+                <div className="mt-4">
+                  <p className="text-sm text-gray-500">Uhrzeit</p>
+                  <p className="text-lg font-semibold text-gray-800">
+                    {startTime || "Nicht angegeben"} -{" "}
+                    {endTime || "Nicht angegeben"}
+                  </p>
+                </div>
+
+                <div className="border-t border-gray-300 my-6"></div>
+
+                <div className="mt-6">
+                  <p className="text-sm text-gray-500">Fahrzeug</p>
+                  <p className="text-lg font-semibold text-gray-800">
+                    {selectedVehicle
+                      ? `${selectedVehicle.brand} (${selectedVehicle.license_plate})`
+                      : "Nicht angegeben"}
+                  </p>
+                </div>
+
+                <div className="mt-4">
+                  <p className="text-sm text-gray-500">
+                    Anzahl der verfügbaren Plätze
+                  </p>
+                  <p className="text-lg font-semibold text-gray-800">
+                    {availableSeats || "Nicht angegeben"}
+                  </p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Navigation Buttons */}
           <div className="mt-10 flex justify-between">
             <button
               onClick={prevStep}
@@ -346,12 +520,14 @@ const OfferRide = () => {
             <button
               onClick={currentStep < 3 ? nextStep : createOffer}
               disabled={
-                (currentStep === 1 && (!from || !to)) ||
-                (currentStep === 2 && (!date || !time))
+                currentStep === 1 &&
+                (stops[0].location_id === "" ||
+                  stops[stops.length - 1].location_id === "")
               }
               className={`px-6 py-2 text-white rounded-md shadow ${
-                (currentStep === 1 && (!from || !to)) ||
-                (currentStep === 2 && (!date || !time))
+                currentStep === 1 &&
+                (stops[0].location_id === "" ||
+                  stops[stops.length - 1].location_id === "")
                   ? "bg-gray-300 cursor-not-allowed"
                   : "bg-green-600 hover:bg-green-700"
               }`}
@@ -364,4 +540,5 @@ const OfferRide = () => {
     </Layout>
   );
 };
+
 export default OfferRide;

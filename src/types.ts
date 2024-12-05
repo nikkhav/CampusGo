@@ -62,7 +62,7 @@ export interface Stop {
   ride_id: string;
   location_id: string;
   stop_type: "start" | "end" | "intermediate";
-  stop_time: string;
+  stop_time?: string;
   stop_order: number;
   created_at: string;
   updated_at: string;
