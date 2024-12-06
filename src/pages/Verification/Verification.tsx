@@ -15,7 +15,7 @@ const Verification = () => {
     <Layout>
       <div className="bg-white w-8/12 border-2 border-green-600 rounded-2xl shadow-lg p-8 mx-auto mt-10">
         <h1 className="text-center text-2xl font-bold">
-          Verifiziere Deine Identität
+          Verifiziere Deine Dokumente
         </h1>
         <div className="flex justify-center">
           <Lottie
@@ -25,7 +25,7 @@ const Verification = () => {
         </div>
         <div className="text-center">
           <p className="text-gray-700">
-            Wähle bitte aus, wie Du Dich verifizieren möchtest
+            Wähle bitte aus, welches Dokument du hochladen möchtest.
           </p>
           <select className="border border-gray-300 rounded-md px-4 py-2 w-full max-w-md mt-4 focus:outline-none focus:ring-2 focus:ring-green-600">
             {verificationOptions.map((option) => (

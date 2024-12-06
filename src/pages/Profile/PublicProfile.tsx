@@ -17,6 +17,11 @@ export const PublicProfile = ({
   refetchUserData: () => void;
 }) => {
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState<boolean>(false);
+  const [tempPhoto, setTempPhoto] = useState<string | null>(null);
+  const [isDeleteProfilePhotoModalOpen, setIsDeleteProfilePhotoModalOpen] =
+    useState<boolean>(false);
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState<boolean>(false);
   const [isPreferencesModalOpen, setIsPreferencesModalOpen] =
     useState<boolean>(false);
@@ -41,6 +46,9 @@ export const PublicProfile = ({
   const [editVehicle, setEditVehicle] = useState<Vehicle | null>(null);
   const [isEditVehicleModalOpen, setIsEditVehicleModalOpen] =
     useState<boolean>(false);
+  const [isDeleteVehicleModalOpen, setIsDeleteVehicleModalOpen] =
+    useState<boolean>(false);
+  const [vehicleToDelete, setVehicleToDelete] = useState<Vehicle | null>(null);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [deleteType, setDeleteType] = useState<
@@ -50,13 +58,32 @@ export const PublicProfile = ({
 
   const [isCustomBrand, setIsCustomBrand] = useState<boolean>(false);
 
-  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) {
-      toast.error("No file selected. Please try again.");
+      toast.error("Keine Datei ausgewählt. Bitte erneut versuchen.");
       return;
     }
 
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (reader.result) {
+        setTempPhoto(reader.result as string);
+        setIsPreviewModalOpen(true);
+      } else {
+        toast.error("Fehler beim Erstellen der Vorschau.");
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const savePreviewPhoto = async () => {
+    if (!tempPhoto) return;
+
+    const file = new File(
+      [await (await fetch(tempPhoto)).blob()],
+      "preview.jpg",
+    );
     const fileName = `${user.id}-${Date.now()}-${file.name}`;
     const filePath = `profile_photos/${fileName}`;
 
@@ -71,21 +98,24 @@ export const PublicProfile = ({
         });
 
       if (uploadError) {
-        throw new Error(`Upload failed: ${uploadError.message}`);
+        throw new Error(`Upload fehlgeschlagen: ${uploadError.message}`);
       }
 
       const { data } = supabase.storage.from("images").getPublicUrl(filePath);
 
       if (!data.publicUrl) {
-        toast.error("Error getting public URL for the uploaded file.");
+        toast.error("Fehler beim Abrufen der öffentlichen URL der Datei.");
+        return;
       }
 
       await updateProfilePhoto(data.publicUrl);
-
-      toast.success("Profile photo uploaded and updated successfully!");
+      toast.success("Profilfoto erfolgreich hochgeladen und aktualisiert!");
+      setTempPhoto(null);
+      setPreview(null);
+      setIsPreviewModalOpen(false);
     } catch (error: any) {
-      console.error("Error uploading file:", error);
-      toast.error(`Error uploading the photo: ${error.message}`);
+      console.error("Fehler beim Hochladen der Datei:", error);
+      toast.error(`Fehler beim Hochladen des Fotos: ${error.message}`);
     } finally {
       setIsUploading(false);
     }
@@ -103,6 +133,24 @@ export const PublicProfile = ({
       await refetchUserData();
     } catch {
       toast.error("Fehler beim Aktualisieren des Profilfotos.");
+    }
+  };
+
+  const deleteProfilePhoto = async () => {
+    try {
+      const { error } = await supabase
+        .from("users")
+        .update({ image: null })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      toast.success("Profilfoto erfolgreich gelöscht!");
+      setIsDeleteProfilePhotoModalOpen(false);
+      await refetchUserData();
+    } catch (error) {
+      console.error("Fehler beim Löschen des Profilfotos:", error);
+      toast.error("Fehler beim Löschen des Profilfotos.");
     }
   };
 
@@ -258,7 +306,19 @@ export const PublicProfile = ({
       <div className="lg:w-1/2 bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center gap-4">
           <div className="w-24 h-24 rounded-full border-4 border-green-600 flex items-center justify-center bg-gray-100 overflow-hidden">
-            {user.image ? (
+            {tempPhoto ? (
+              <img
+                src={tempPhoto}
+                alt="Foto Vorschau"
+                className="w-full h-full object-cover"
+              />
+            ) : preview ? (
+              <img
+                src={preview}
+                alt="Profilfoto Vorschau"
+                className="w-full h-full object-cover"
+              />
+            ) : user.image ? (
               <img
                 src={user.image}
                 alt="Profilfoto"
@@ -275,12 +335,22 @@ export const PublicProfile = ({
             <h2 className="text-2xl font-semibold">
               {user.first_name} {user.last_name}
             </h2>
-            <label
-              className="text-green-600 mt-2 hover:underline cursor-pointer"
-              htmlFor="profile-photo"
-            >
-              Foto ändern
-            </label>
+            <div className="flex items-center mt-2">
+              <label
+                className="text-green-600 hover:underline cursor-pointer"
+                htmlFor="profile-photo"
+              >
+                {user.image ? "Foto ändern" : "Foto hinzufügen"}
+              </label>
+              {user.image && (
+                <button
+                  className="text-red-600 ml-4 hover:underline"
+                  onClick={() => setIsDeleteProfilePhotoModalOpen(true)}
+                >
+                  Foto entfernen
+                </button>
+              )}
+            </div>
             <input
               id="profile-photo"
               type="file"
@@ -289,7 +359,85 @@ export const PublicProfile = ({
               onChange={handleFileChange}
               disabled={isUploading}
             />
+            {preview && (
+              <button
+                className="text-red-600 ml-4 hover:underline"
+                onClick={() => setPreview(null)}
+              >
+                Vorschau löschen
+              </button>
+            )}
           </div>
+          <Modal
+            isOpen={isPreviewModalOpen}
+            onClose={() => {
+              setIsPreviewModalOpen(false);
+              setTempPhoto(null);
+            }}
+            title="Foto Vorschau bestätigen"
+            footer={
+              <div className="flex justify-between">
+                <button
+                  onClick={() => {
+                    setIsPreviewModalOpen(false);
+                    setTempPhoto(null);
+                  }}
+                  className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+                >
+                  Abbrechen
+                </button>
+                <button
+                  onClick={savePreviewPhoto}
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                  disabled={isUploading}
+                >
+                  {isUploading ? "Speichern..." : "Speichern"}
+                </button>
+              </div>
+            }
+          >
+            {tempPhoto ? (
+              <img
+                src={tempPhoto}
+                alt="Vorschau"
+                className="w-full h-auto object-cover rounded-lg"
+              />
+            ) : (
+              <p className="text-center text-gray-500">
+                Keine Vorschau verfügbar
+              </p>
+            )}
+          </Modal>
+
+          <Modal
+            isOpen={isDeleteProfilePhotoModalOpen}
+            onClose={() => setIsDeleteProfilePhotoModalOpen(false)}
+            title="Foto löschen bestätigen"
+            footer={
+              <div className="flex justify-between w-8/12 mx-auto">
+                <button
+                  onClick={() => setIsDeleteProfilePhotoModalOpen(false)}
+                  className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+                >
+                  Abbrechen
+                </button>
+                <button
+                  onClick={async () => {
+                    await deleteProfilePhoto();
+                    setIsDeleteProfilePhotoModalOpen(false);
+                  }}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                >
+                  Löschen
+                </button>
+              </div>
+            }
+          >
+            <p className="text-gray-700 text-center">
+              Möchten Sie Ihr Profilfoto wirklich löschen? Dieser Vorgang ist
+              endgültig.
+            </p>
+          </Modal>
         </div>
         <h3 className="mt-6 text-lg font-semibold border-b-2 border-green-600 pb-2">
           Dein Profil verifizieren
@@ -348,7 +496,10 @@ export const PublicProfile = ({
                 <Trash2Icon
                   className="text-red-600 cursor-pointer"
                   size={16}
-                  onClick={() => deleteVehicle(vehicle.id)}
+                  onClick={() => {
+                    setVehicleToDelete(vehicle);
+                    setIsDeleteVehicleModalOpen(true);
+                  }}
                 />
               </div>
             </div>
@@ -365,7 +516,7 @@ export const PublicProfile = ({
           onClose={() => setIsVehicleModalOpen(false)}
           title="Fahrzeug hinzufügen"
           footer={
-            <div className="flex justify-between w-5/12 mx-auto">
+            <div className="flex justify-between w-8/12 mx-auto">
               <button
                 onClick={() => setIsVehicleModalOpen(false)}
                 className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
@@ -475,7 +626,7 @@ export const PublicProfile = ({
           onClose={() => setIsEditVehicleModalOpen(false)}
           title="Fahrzeug bearbeiten"
           footer={
-            <div className="flex justify-between w-5/12 mx-auto">
+            <div className="flex justify-between w-8/12 mx-auto">
               <button
                 onClick={() => setIsEditVehicleModalOpen(false)}
                 className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
@@ -583,6 +734,41 @@ export const PublicProfile = ({
             </div>
           </div>
         </Modal>
+
+        <Modal
+          isOpen={isDeleteVehicleModalOpen}
+          onClose={() => setIsDeleteVehicleModalOpen(false)}
+          title="Fahrzeug löschen bestätigen"
+          footer={
+            <div className="flex justify-between w-8/12 mx-auto">
+              <button
+                onClick={() => setIsDeleteVehicleModalOpen(false)}
+                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={() => {
+                  if (vehicleToDelete) {
+                    deleteVehicle(vehicleToDelete.id);
+                  }
+                  setIsDeleteVehicleModalOpen(false);
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              >
+                Löschen
+              </button>
+            </div>
+          }
+        >
+          <p className="text-gray-700">
+            Möchten Sie das Fahrzeug{" "}
+            <span className="font-semibold text-green-600">
+              {vehicleToDelete?.brand} {vehicleToDelete?.model}
+            </span>{" "}
+            wirklich löschen?
+          </p>
+        </Modal>
       </div>
 
       <div className="lg:w-1/2 bg-white rounded-lg shadow-md p-6">
@@ -618,7 +804,7 @@ export const PublicProfile = ({
           onClose={() => setIsPreferencesModalOpen(false)}
           title="Präferenz hinzufügen"
           footer={
-            <div className="flex justify-between w-5/12 mx-auto">
+            <div className="flex justify-between w-8/12 mx-auto">
               <button
                 onClick={() => setIsPreferencesModalOpen(false)}
                 className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
@@ -679,7 +865,7 @@ export const PublicProfile = ({
             onClose={() => setIsLanguageModalOpen(false)}
             title="Sprache hinzufügen"
             footer={
-              <div className="flex justify-between w-5/12 mx-auto">
+              <div className="flex justify-between w-8/12 mx-auto">
                 <button
                   onClick={() => setIsLanguageModalOpen(false)}
                   className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
@@ -715,7 +901,7 @@ export const PublicProfile = ({
             onClose={() => setIsDeleteModalOpen(false)}
             title="Löschen bestätigen"
             footer={
-              <div className="flex justify-between w-5/12 mx-auto">
+              <div className="flex justify-between w-8/12 mx-auto">
                 <button
                   onClick={() => setIsDeleteModalOpen(false)}
                   className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"

@@ -15,6 +15,7 @@ export const AccountSettings = ({
 }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] =
     useState<boolean>(false);
   const [updatedUser, setUpdatedUser] = useState<User>({ ...user });
@@ -170,7 +171,10 @@ export const AccountSettings = ({
           >
             Passwort ändern
           </button>
-          <button onClick={onLogout} className="text-green-600 hover:underline">
+          <button
+            onClick={() => setIsLogoutModalOpen(true)}
+            className="text-green-600 hover:underline"
+          >
             Ausloggen
           </button>
           <button
@@ -187,7 +191,7 @@ export const AccountSettings = ({
         onClose={() => setIsEditModalOpen(false)}
         title="Persönliche Daten bearbeiten"
         footer={
-          <div className="flex justify-between w-5/12 mx-auto">
+          <div className="flex justify-between w-8/12 mx-auto">
             <button
               onClick={() => setIsEditModalOpen(false)}
               className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
@@ -265,7 +269,7 @@ export const AccountSettings = ({
         onClose={() => setIsChangePasswordModalOpen(false)}
         title="Passwort ändern"
         footer={
-          <div className="flex justify-between w-5/12 mx-auto">
+          <div className="flex justify-between w-8/12 mx-auto">
             <button
               onClick={() => setIsChangePasswordModalOpen(false)}
               className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
@@ -313,11 +317,40 @@ export const AccountSettings = ({
       </Modal>
 
       <Modal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        title="Abmelden bestätigen"
+        footer={
+          <div className="flex justify-between w-8/12 mx-auto">
+            <button
+              onClick={() => setIsLogoutModalOpen(false)}
+              className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+            >
+              Abbrechen
+            </button>
+            <button
+              onClick={() => {
+                setIsLogoutModalOpen(false);
+                onLogout();
+              }}
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+            >
+              Abmelden
+            </button>
+          </div>
+        }
+      >
+        <p className="text-center text-gray-700">
+          Möchten Sie sich wirklich abmelden?
+        </p>
+      </Modal>
+
+      <Modal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         title="Konto löschen bestätigen"
         footer={
-          <div className="flex justify-between w-5/12 mx-auto">
+          <div className="flex justify-between w-8/12 mx-auto">
             <button
               onClick={() => setIsDeleteModalOpen(false)}
               className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"

@@ -122,7 +122,6 @@ const constants: Constants = {
     "Französisch 🇫🇷",
     "Spanisch 🇪🇸",
     "Niederländisch 🇳🇱",
-    // Remaining languages in alphabetical order
     "Chinesisch 🇨🇳",
     "Dänisch 🇩🇰",
     "Finnisch 🇫🇮",
