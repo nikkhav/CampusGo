@@ -112,6 +112,20 @@ const OfferRide = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
+  const isStep1Valid = () => {
+    return stops[0].location_id && stops[stops.length - 1].location_id;
+  };
+
+  const isStep2Valid = () => {
+    if (!date || !startTime || !endTime || !selectedVehicle) {
+      return false;
+    }
+    const invalidStops = stops.filter(
+      (stop) => stop.stop_type === "intermediate" && !stop.stop_time,
+    );
+    return invalidStops.length === 0;
+  };
+
   const createOffer = async () => {
     try {
       if (!date || !startTime || !endTime || !selectedVehicle) {
@@ -242,8 +256,8 @@ const OfferRide = () => {
           anzubieten. Es dauert nur wenige Minuten!
         </p>
         <div className="mt-10 border rounded-xl shadow-lg bg-white p-8">
-          <div className="flex justify-between items-center mb-8">
-            <div className="flex flex-col items-center">
+          <div className="flex items-center justify-center relative mb-8">
+            <div className="flex flex-col items-center w-28">
               <div
                 className={`w-10 h-10 flex items-center justify-center rounded-full text-white font-bold ${
                   currentStep >= 1 ? "bg-green-600" : "bg-gray-300"
@@ -257,8 +271,8 @@ const OfferRide = () => {
               className={`flex-1 h-1 mx-4 ${
                 currentStep >= 2 ? "bg-green-600" : "bg-gray-300"
               }`}
-            ></div>
-            <div className="flex flex-col items-center">
+            />
+            <div className="flex flex-col items-center w-28">
               <div
                 className={`w-10 h-10 flex items-center justify-center rounded-full text-white font-bold ${
                   currentStep >= 2 ? "bg-green-600" : "bg-gray-300"
@@ -266,14 +280,16 @@ const OfferRide = () => {
               >
                 2
               </div>
-              <p className="mt-2 font-medium text-gray-800">Zeit & Plätze</p>
+              <p className="mt-2 font-medium text-gray-800 text-center">
+                Zeit & Plätze
+              </p>
             </div>
             <div
               className={`flex-1 h-1 mx-4 ${
                 currentStep === 3 ? "bg-green-600" : "bg-gray-300"
               }`}
-            ></div>
-            <div className="flex flex-col items-center">
+            />
+            <div className="flex flex-col items-center w-28">
               <div
                 className={`w-10 h-10 flex items-center justify-center rounded-full text-white font-bold ${
                   currentStep === 3 ? "bg-green-600" : "bg-gray-300"
@@ -294,8 +310,8 @@ const OfferRide = () => {
                     {stop.stop_type === "start"
                       ? "Startort"
                       : stop.stop_type === "end"
-                      ? "Zielort"
-                      : `Zwischenstopp ${index}`}
+                        ? "Zielort"
+                        : `Zwischenstopp ${index}`}
                   </label>
                   <Select
                     className="mt-2 p-3 border rounded-md"
@@ -315,27 +331,6 @@ const OfferRide = () => {
                     }}
                     placeholder="Wähle den Ort"
                   />
-                  {stop.stop_type === "intermediate" && (
-                    <div className="mt-3">
-                      <label className="block text-gray-700">
-                        Stopzeit (z.B. 15:30)
-                      </label>
-                      <Input
-                        type="time"
-                        className="mt-2 p-3 border rounded-md w-full"
-                        value={stop.stop_time || ""}
-                        onChange={(e) => {
-                          const value = e.target.value.trim();
-                          setStops((prevStops) =>
-                            prevStops.map((s, i) =>
-                              i === index ? { ...s, stop_time: value } : s,
-                            ),
-                          );
-                        }}
-                        placeholder="Stopzeit eingeben"
-                      />
-                    </div>
-                  )}
                 </div>
               ))}
               <button
@@ -362,16 +357,43 @@ const OfferRide = () => {
                 </div>
                 <div>
                   <label className="block text-gray-700">Startzeit</label>
-                  <input
+                  <Input
                     type="time"
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
                     className="w-full mt-2 p-3 border rounded-md focus:ring-2 focus:ring-green-600"
                   />
                 </div>
+                {stops
+                  .filter((stop) => stop.stop_type === "intermediate")
+                  .map((stop, index) => (
+                    <div key={index} className="mt-5">
+                      <label className="block text-gray-700">
+                        {`Zwischenstopp ${index + 1} - ${
+                          locations.find(
+                            (location) => location.id === stop.location_id,
+                          )?.name || "Nicht angegeben"
+                        }`}
+                      </label>
+                      <Input
+                        type="time"
+                        className="mt-2 p-3 border rounded-md w-full"
+                        value={stop.stop_time || ""}
+                        onChange={(e) => {
+                          const value = e.target.value.trim();
+                          setStops((prevStops) =>
+                            prevStops.map((s, i) =>
+                              i === index + 1 ? { ...s, stop_time: value } : s,
+                            ),
+                          );
+                        }}
+                      />
+                    </div>
+                  ))}
+
                 <div>
                   <label className="block text-gray-700">Endzeit</label>
-                  <input
+                  <Input
                     type="time"
                     value={endTime}
                     onChange={(e) => setEndTime(e.target.value)}
@@ -384,25 +406,26 @@ const OfferRide = () => {
                 <div>
                   <label className="block text-gray-700">Fahrzeug</label>
                   <Select
-                      className="mt-2 p-3 border rounded-md"
-                      value={
-                        selectedVehicle
-                            ? `${selectedVehicle.brand} - ${selectedVehicle.license_plate}`
-                            : ""
+                    className="mt-2 p-3 border rounded-md"
+                    value={
+                      selectedVehicle
+                        ? `${selectedVehicle.brand} - ${selectedVehicle.license_plate}`
+                        : ""
+                    }
+                    options={vehicles.map(
+                      (vehicle) =>
+                        `${vehicle.brand} - ${vehicle.license_plate}`,
+                    )}
+                    onChange={(value) => {
+                      const vehicle = vehicles.find(
+                        (v) => `${v.brand} - ${v.license_plate}` === value,
+                      );
+                      if (vehicle) {
+                        setSelectedVehicle(vehicle);
+                        setAvailableSeats(1);
                       }
-                      options={vehicles.map(
-                          (vehicle) => `${vehicle.brand} - ${vehicle.license_plate}`
-                      )}
-                      onChange={(value) => {
-                        const vehicle = vehicles.find(
-                            (v) => `${v.brand} - ${v.license_plate}` === value
-                        );
-                        if (vehicle) {
-                          setSelectedVehicle(vehicle);
-                          setAvailableSeats(1);
-                        }
-                      }}
-                      placeholder="Wähle dein Fahrzeug"
+                    }}
+                    placeholder="Wähle dein Fahrzeug"
                   />
                 </div>
                 <div>
@@ -490,41 +513,41 @@ const OfferRide = () => {
                 )}
                 <div className="border-t border-gray-300 my-6"></div>
 
-                <div className="flex justify-between">
-                    <div className="w-1/2">
-                      <div className="mt-6">
-                        <p className="text-sm text-gray-500">Datum</p>
-                        <p className="text-lg font-semibold text-gray-800">
-                          {date ? date.toLocaleDateString() : "Nicht angegeben"}
-                        </p>
-                      </div>
-                      <div className="mt-4">
-                        <p className="text-sm text-gray-500">Uhrzeit</p>
-                        <p className="text-lg font-semibold text-gray-800">
-                          {startTime || "Nicht angegeben"} -{" "}
-                          {endTime || "Nicht angegeben"}
-                        </p>
-                      </div>
+                <div className="flex justify-between mt-5">
+                  <div className="w-1/2">
+                    <div>
+                      <p className="text-sm text-gray-500">Datum</p>
+                      <p className="text-lg font-semibold text-gray-800">
+                        {date ? date.toLocaleDateString() : "Nicht angegeben"}
+                      </p>
                     </div>
+                    <div className="mt-4">
+                      <p className="text-sm text-gray-500">Uhrzeit</p>
+                      <p className="text-lg font-semibold text-gray-800">
+                        {startTime || "Nicht angegeben"} -{" "}
+                        {endTime || "Nicht angegeben"}
+                      </p>
+                    </div>
+                  </div>
 
                   <div className="w-1/2">
-                      <div className="mt-6">
-                        <p className="text-sm text-gray-500">Fahrzeug</p>
-                        <p className="text-lg font-semibold text-gray-800">
-                          {selectedVehicle
-                              ? `${selectedVehicle.brand} (${selectedVehicle.license_plate})`
-                              : "Nicht angegeben"}
-                        </p>
-                      </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Fahrzeug</p>
+                      <p className="text-lg font-semibold text-gray-800">
+                        {selectedVehicle
+                          ? `${selectedVehicle.brand} (${selectedVehicle.license_plate})`
+                          : "Nicht angegeben"}
+                      </p>
+                    </div>
 
-                      <div className="mt-4">
-                        <p className="text-sm text-gray-500">
-                          Anzahl der verfügbaren Plätze
-                        </p>
-                        <p className="text-lg font-semibold text-gray-800">
-                          {availableSeats || "Nicht angegeben"}
-                        </p>
-                      </div>
+                    <div className="mt-4">
+                      <p className="text-sm text-gray-500">
+                        Anzahl der verfügbaren Plätze
+                      </p>
+                      <p className="text-lg font-semibold text-gray-800">
+                        {availableSeats || "Nicht angegeben"}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -533,25 +556,23 @@ const OfferRide = () => {
 
           <div className="mt-10 flex justify-between">
             <button
-                onClick={prevStep}
-                className={`px-6 py-2 bg-gray-300 text-gray-800 rounded-md shadow hover:bg-gray-400 ${
-                    currentStep > 1 ? "" : "opacity-0"
-                }`}
+              onClick={prevStep}
+              className={`px-6 py-2 bg-gray-300 text-gray-800 rounded-md shadow hover:bg-gray-400 ${
+                currentStep > 1 ? "" : "opacity-0"
+              }`}
             >
               Zurück
             </button>
 
             <button
-                onClick={currentStep < 3 ? nextStep : createOffer}
-                disabled={
-                    currentStep === 1 &&
-                    (stops[0].location_id === "" ||
-                        stops[stops.length - 1].location_id === "")
+              onClick={currentStep < 3 ? nextStep : createOffer}
+              disabled={
+                (currentStep === 1 && !isStep1Valid()) ||
+                (currentStep === 2 && !isStep2Valid())
               }
               className={`px-6 py-2 text-white rounded-md shadow ${
-                currentStep === 1 &&
-                (stops[0].location_id === "" ||
-                  stops[stops.length - 1].location_id === "")
+                (currentStep === 1 && !isStep1Valid()) ||
+                (currentStep === 2 && !isStep2Valid())
                   ? "bg-gray-300 cursor-not-allowed"
                   : "bg-green-600 hover:bg-green-700"
               }`}
