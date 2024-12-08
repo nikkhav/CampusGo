@@ -12,6 +12,7 @@ interface DestinationCardProps {
   to: string;
   startDate: string;
   endDate: string;
+  intermediateStopsAmount: number;
   driverFirstName: string;
   driverLastName: string;
   driverImage?: string;
@@ -23,6 +24,7 @@ export const DestinationCard = ({
   to,
   startDate,
   endDate,
+  intermediateStopsAmount,
   driverFirstName,
   driverLastName,
   driverImage,
@@ -70,8 +72,13 @@ export const DestinationCard = ({
           </div>
           <div className="flex items-center gap-2 w-6/12">
             <div className="h-[2px] flex-1 bg-border" />
-            <div className="text-sm text-muted-foreground whitespace-nowrap">
+            <div className="text-sm text-center text-muted-foreground whitespace-nowrap">
               {duration}
+              <br />
+              {intermediateStopsAmount > 0 &&
+                `${intermediateStopsAmount} Zwischenstop${
+                  intermediateStopsAmount > 1 ? "s" : ""
+                }`}
             </div>
             <div className="h-[2px] flex-1 bg-border" />
           </div>

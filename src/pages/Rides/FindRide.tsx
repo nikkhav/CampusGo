@@ -27,6 +27,7 @@ interface FullRide {
   end_time: string;
   start_location: string;
   end_location: string;
+  intermediate_stops: number;
   driver: {
     first_name: string;
     last_name: string;
@@ -51,8 +52,10 @@ const formatDate = (dateObj: { day: string; date: number; month: string }) =>
   `${dateObj.day}, ${dateObj.date} ${dateObj.month}`;
 
 const FindRide = () => {
+  const [allRides, setAllRides] = useState<FullRide[]>([]);
   const [rides, setRides] = useState<FullRide[]>([]);
   const [activeDate, setActiveDate] = useState(today);
+  const [timeFilters, setTimeFilters] = useState<string[]>([]);
 
   const visibleDates = dates.slice(0, 3);
 
@@ -77,6 +80,9 @@ const FindRide = () => {
       const formattedData = (data as RideDataSupabase[]).map((ride) => {
         const startStop = ride.stops.find((stop) => stop.stop_type === "start");
         const endStop = ride.stops.find((stop) => stop.stop_type === "end");
+        const intermediateStops = ride.stops.filter(
+          (stop) => stop.stop_type === "intermediate",
+        );
 
         return {
           id: ride.id,
@@ -84,6 +90,7 @@ const FindRide = () => {
           end_time: ride.end_time,
           start_location: startStop?.locations.name || "Unknown",
           end_location: endStop?.locations.name || "Unknown",
+          intermediate_stops: intermediateStops.length,
           driver: {
             first_name: ride.users.first_name,
             last_name: ride.users.last_name,
@@ -92,15 +99,49 @@ const FindRide = () => {
         };
       });
 
+      setAllRides(formattedData);
       setRides(formattedData);
     } catch (error) {
       console.error("Error fetching rides:", error);
     }
   };
 
+  const applyFilters = () => {
+    let filtered = [...allRides];
+
+    if (timeFilters.length > 0) {
+      filtered = filtered.filter((ride) => {
+        const rideStartTime = new Date(ride.start_time).getHours();
+        return timeFilters.some((filter) => {
+          if (filter === "before_5") return rideStartTime < 5;
+          if (filter === "5_to_12")
+            return rideStartTime >= 5 && rideStartTime < 12;
+          if (filter === "12_to_17")
+            return rideStartTime >= 12 && rideStartTime < 17;
+          if (filter === "after_17") return rideStartTime >= 17;
+          return false;
+        });
+      });
+    }
+
+    setRides(filtered);
+  };
+
+  const toggleTimeFilter = (filter: string) => {
+    setTimeFilters((prev) =>
+      prev.includes(filter)
+        ? prev.filter((item) => item !== filter)
+        : [...prev, filter],
+    );
+  };
+
   useEffect(() => {
     getRides();
   }, []);
+
+  useEffect(() => {
+    applyFilters();
+  }, [timeFilters]);
 
   return (
     <Layout>
@@ -110,39 +151,36 @@ const FindRide = () => {
           <p className="text-lg font-bold mb-4">Abfahrtszeit</p>
           <div className="flex flex-col space-y-2">
             <label className="flex items-center">
-              <input type="checkbox" className="mr-2" defaultChecked />
+              <input
+                type="checkbox"
+                className="mr-2"
+                onChange={() => toggleTimeFilter("before_5")}
+              />
               Vor 5:00
             </label>
             <label className="flex items-center">
-              <input type="checkbox" className="mr-2" />
-              5:01 - 12:00
+              <input
+                type="checkbox"
+                className="mr-2"
+                onChange={() => toggleTimeFilter("5_to_12")}
+              />
+              5:00 - 12:00
             </label>
             <label className="flex items-center">
-              <input type="checkbox" className="mr-2" />
-              12:01 - 17:00
+              <input
+                type="checkbox"
+                className="mr-2"
+                onChange={() => toggleTimeFilter("12_to_17")}
+              />
+              12:00 - 17:00
             </label>
             <label className="flex items-center">
-              <input type="checkbox" className="mr-2" />
+              <input
+                type="checkbox"
+                className="mr-2"
+                onChange={() => toggleTimeFilter("after_17")}
+              />
               Nach 17:00
-            </label>
-          </div>
-          <p className="text-lg font-bold mt-6 mb-4">Präferenzen</p>
-          <div className="flex flex-col space-y-2">
-            <label className="flex items-center">
-              <input type="checkbox" className="mr-2" />
-              Nicht Raucher
-            </label>
-            <label className="flex items-center">
-              <input type="checkbox" className="mr-2" />
-              Haustiere sind erlaubt
-            </label>
-            <label className="flex items-center">
-              <input type="checkbox" className="mr-2" />
-              Only Ladies
-            </label>
-            <label className="flex items-center">
-              <input type="checkbox" className="mr-2" />
-              Zwischenstopps sind gewünscht
             </label>
           </div>
         </div>
@@ -168,6 +206,7 @@ const FindRide = () => {
               id={ride.id}
               startDate={ride.start_time}
               endDate={ride.end_time}
+              intermediateStopsAmount={ride.intermediate_stops}
               from={ride.start_location}
               to={ride.end_location}
               driverFirstName={ride.driver.first_name}
