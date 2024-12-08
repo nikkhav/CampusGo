@@ -1,70 +1,38 @@
 import Layout from "@/layout/Layout.tsx";
 import TripSearch from "@/components/TripSearch.tsx";
 import { DestinationCard } from "@/components/DestinationCard.tsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/supabaseClient.ts";
 
-const destinations = [
-  {
-    id: "1",
-    from: "Bayreuth",
-    to: "Kulmbach",
-    fromAddress: "Universitätstr. 1",
-    toAddress: "Universitätstr. 2",
-    startTime: "12:00",
-    duration: "1:00 Std.",
-    endTime: "13:00",
-    passengerName: "Nikita K.",
-    passengerInitials: "NK",
-  },
-  {
-    id: "2",
-    from: "Nürnberg",
-    to: "Erlangen",
-    fromAddress: "Bahnhofstr. 5",
-    toAddress: "Hauptstr. 12",
-    startTime: "08:30",
-    duration: "0:30 Std.",
-    endTime: "09:00",
-    passengerName: "Julia M.",
-    passengerInitials: "JM",
-  },
-  {
-    id: "3",
-    from: "München",
-    to: "Augsburg",
-    fromAddress: "Marienplatz",
-    toAddress: "Maximilianstr. 8",
-    startTime: "10:15",
-    duration: "1:15 Std.",
-    endTime: "11:30",
-    passengerName: "Lukas H.",
-    passengerInitials: "LH",
-  },
-  {
-    id: "4",
-    from: "Berlin",
-    to: "Potsdam",
-    fromAddress: "Alexanderplatz",
-    toAddress: "Schlossstr. 3",
-    startTime: "14:00",
-    duration: "0:45 Std.",
-    endTime: "14:45",
-    passengerName: "Sophia B.",
-    passengerInitials: "SB",
-  },
-  {
-    id: "5",
-    from: "Frankfurt",
-    to: "Wiesbaden",
-    fromAddress: "Hauptbahnhof",
-    toAddress: "Rheinstr. 10",
-    startTime: "17:30",
-    duration: "0:40 Std.",
-    endTime: "18:10",
-    passengerName: "Mark T.",
-    passengerInitials: "MT",
-  },
-];
+interface RideDataSupabase {
+  id: string;
+  start_time: string;
+  end_time: string;
+  users: {
+    first_name: string;
+    last_name: string;
+    image?: string;
+  };
+  stops: {
+    stop_type: "start" | "end" | "intermediate";
+    locations: {
+      name: string;
+    };
+  }[];
+}
+
+interface FullRide {
+  id: string;
+  start_time: string;
+  end_time: string;
+  start_location: string;
+  end_location: string;
+  driver: {
+    first_name: string;
+    last_name: string;
+    image?: string;
+  };
+}
 
 const today = new Date();
 
@@ -79,19 +47,61 @@ const dates = Array.from({ length: 7 }, (_, i) => {
   };
 });
 
-interface DateObj {
-  day: string; // Short day name (e.g., "Mon", "Tue")
-  date: number; // Numeric day of the month
-  month: string; // Short month name (e.g., "Jan", "Feb")
-}
-
-const formatDate = (dateObj: DateObj): string =>
+const formatDate = (dateObj: { day: string; date: number; month: string }) =>
   `${dateObj.day}, ${dateObj.date} ${dateObj.month}`;
 
 const FindRide = () => {
+  const [rides, setRides] = useState<FullRide[]>([]);
   const [activeDate, setActiveDate] = useState(today);
 
   const visibleDates = dates.slice(0, 3);
+
+  const getRides = async () => {
+    try {
+      const { data, error } = await supabase.from("rides").select(
+        `
+        id,
+        start_time,
+        end_time,
+        users(first_name, last_name, image),
+        stops(
+          stop_type,
+          locations(name)
+        )
+      `,
+      );
+
+      if (error) throw error;
+
+      // @ts-ignore
+      const formattedData = (data as RideDataSupabase[]).map((ride) => {
+        const startStop = ride.stops.find((stop) => stop.stop_type === "start");
+        const endStop = ride.stops.find((stop) => stop.stop_type === "end");
+
+        return {
+          id: ride.id,
+          start_time: ride.start_time,
+          end_time: ride.end_time,
+          start_location: startStop?.locations.name || "Unknown",
+          end_location: endStop?.locations.name || "Unknown",
+          driver: {
+            first_name: ride.users.first_name,
+            last_name: ride.users.last_name,
+            image: ride.users.image,
+          },
+        };
+      });
+
+      setRides(formattedData);
+    } catch (error) {
+      console.error("Error fetching rides:", error);
+    }
+  };
+
+  useEffect(() => {
+    getRides();
+  }, []);
+
   return (
     <Layout>
       <TripSearch />
@@ -152,19 +162,17 @@ const FindRide = () => {
               </p>
             ))}
           </div>
-          {destinations.map((destination, index) => (
+          {rides.map((ride) => (
             <DestinationCard
-              key={index}
-              id={destination.id}
-              from={destination.from}
-              to={destination.to}
-              fromAddress={destination.fromAddress}
-              toAddress={destination.toAddress}
-              startTime={destination.startTime}
-              duration={destination.duration}
-              endTime={destination.endTime}
-              passengerName={destination.passengerName}
-              passengerInitials={destination.passengerInitials}
+              key={ride.id}
+              id={ride.id}
+              startDate={ride.start_time}
+              endDate={ride.end_time}
+              from={ride.start_location}
+              to={ride.end_location}
+              driverFirstName={ride.driver.first_name}
+              driverLastName={ride.driver.last_name}
+              driverImage={ride.driver.image}
             />
           ))}
         </div>

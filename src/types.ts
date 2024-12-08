@@ -53,8 +53,10 @@ export interface Ride {
   start_time: string;
   end_time: string;
   available_seats: number;
-  created_at: string;
-  updated_at: string;
+  from: string;
+  to: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Stop {
