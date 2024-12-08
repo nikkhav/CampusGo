@@ -8,6 +8,7 @@ import Select from "@/components/Select.tsx";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Input from "@/components/Input.tsx";
+import AccountRequired from "@/pages/AccountRequired.tsx";
 
 export interface NewStop {
   ride_id: string | null;
@@ -113,7 +114,11 @@ const OfferRide = () => {
   };
 
   const isStep1Valid = () => {
-    return stops[0].location_id && stops[stops.length - 1].location_id;
+    return (
+      stops[0].location_id &&
+      stops[stops.length - 1].location_id &&
+      stops[0].location_id !== stops[stops.length - 1].location_id
+    );
   };
 
   const isStep2Valid = () => {
@@ -247,6 +252,10 @@ const OfferRide = () => {
     return <div>Error: {sessionError}</div>;
   }
 
+  if (!session) {
+    return <AccountRequired />;
+  }
+
   return (
     <Layout>
       <div className="w-10/12 mx-auto">
@@ -310,8 +319,8 @@ const OfferRide = () => {
                     {stop.stop_type === "start"
                       ? "Startort"
                       : stop.stop_type === "end"
-                        ? "Zielort"
-                        : `Zwischenstopp ${index}`}
+                      ? "Zielort"
+                      : `Zwischenstopp ${index}`}
                   </label>
                   <Select
                     className="mt-2 p-3 border rounded-md"
