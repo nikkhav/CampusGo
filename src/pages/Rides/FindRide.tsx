@@ -61,18 +61,21 @@ const FindRide = () => {
 
   const getRides = async () => {
     try {
-      const { data, error } = await supabase.from("rides").select(
-        `
-        id,
-        start_time,
-        end_time,
-        users(first_name, last_name, image),
-        stops(
-          stop_type,
-          locations(name)
+      const { data, error } = await supabase
+        .from("rides")
+        .select(
+          `
+          id,
+          start_time,
+          end_time,
+          users(first_name, last_name, image),
+          stops(
+            stop_type,
+            locations(name)
+          )
+        `,
         )
-      `,
-      );
+        .order("start_time", { ascending: true });
 
       if (error) throw error;
 
@@ -100,17 +103,23 @@ const FindRide = () => {
       });
 
       setAllRides(formattedData);
-      setRides(formattedData);
+      filterRidesByDate(formattedData, activeDate);
     } catch (error) {
       console.error("Error fetching rides:", error);
     }
   };
 
-  const applyFilters = () => {
-    let filtered = [...allRides];
+  const filterRidesByDate = (rides: FullRide[], date: Date) => {
+    const filteredRides = rides.filter((ride) => {
+      const rideDate = new Date(ride.start_time);
+      return (
+        rideDate.toDateString() === date.toDateString() && rideDate >= today
+      );
+    });
 
+    let finalFilteredRides = filteredRides;
     if (timeFilters.length > 0) {
-      filtered = filtered.filter((ride) => {
+      finalFilteredRides = filteredRides.filter((ride) => {
         const rideStartTime = new Date(ride.start_time).getHours();
         return timeFilters.some((filter) => {
           if (filter === "before_5") return rideStartTime < 5;
@@ -124,7 +133,7 @@ const FindRide = () => {
       });
     }
 
-    setRides(filtered);
+    setRides(finalFilteredRides);
   };
 
   const toggleTimeFilter = (filter: string) => {
@@ -136,12 +145,12 @@ const FindRide = () => {
   };
 
   useEffect(() => {
-    getRides();
-  }, []);
+    filterRidesByDate(allRides, activeDate);
+  }, [activeDate, timeFilters]);
 
   useEffect(() => {
-    applyFilters();
-  }, [timeFilters]);
+    getRides();
+  }, []);
 
   return (
     <Layout>
