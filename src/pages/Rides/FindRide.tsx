@@ -3,11 +3,14 @@ import TripSearch from "@/components/TripSearch.tsx";
 import { DestinationCard } from "@/components/DestinationCard.tsx";
 import { useEffect, useState } from "react";
 import { supabase } from "@/supabaseClient.ts";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 
 interface RideDataSupabase {
   id: string;
   start_time: string;
   end_time: string;
+  available_seats: number;
   users: {
     first_name: string;
     last_name: string;
@@ -15,9 +18,7 @@ interface RideDataSupabase {
   };
   stops: {
     stop_type: "start" | "end" | "intermediate";
-    locations: {
-      name: string;
-    };
+    locations: { name: string };
   }[];
 }
 
@@ -28,11 +29,8 @@ interface FullRide {
   start_location: string;
   end_location: string;
   intermediate_stops: number;
-  driver: {
-    first_name: string;
-    last_name: string;
-    image?: string;
-  };
+  available_seats: number;
+  driver: { first_name: string; last_name: string; image?: string };
 }
 
 const today = new Date();
@@ -55,11 +53,31 @@ const FindRide = () => {
   const [allRides, setAllRides] = useState<FullRide[]>([]);
   const [rides, setRides] = useState<FullRide[]>([]);
   const [activeDate, setActiveDate] = useState(today);
+  const [startIndex, setStartIndex] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [timeFilters, setTimeFilters] = useState<string[]>([]);
+  const [searchParams] = useSearchParams();
 
-  const visibleDates = dates.slice(0, 3);
+  const visibleDates = dates.slice(startIndex, startIndex + 3);
+
+  const handleNextDates = () => {
+    if (startIndex + 3 < dates.length) setStartIndex((prev) => prev + 1);
+  };
+
+  const handlePreviousDates = () => {
+    if (startIndex > 0) setStartIndex((prev) => prev - 1);
+  };
+
+  const toggleTimeFilter = (filter: string) => {
+    setTimeFilters((prev) =>
+      prev.includes(filter)
+        ? prev.filter((item) => item !== filter)
+        : [...prev, filter],
+    );
+  };
 
   const getRides = async () => {
+    setLoading(true);
     try {
       const { data, error } = await supabase
         .from("rides")
@@ -68,11 +86,9 @@ const FindRide = () => {
           id,
           start_time,
           end_time,
+          available_seats,
           users(first_name, last_name, image),
-          stops(
-            stop_type,
-            locations(name)
-          )
+          stops(stop_type, locations(name))
         `,
         )
         .order("start_time", { ascending: true });
@@ -94,6 +110,7 @@ const FindRide = () => {
           start_location: startStop?.locations.name || "Unknown",
           end_location: endStop?.locations.name || "Unknown",
           intermediate_stops: intermediateStops.length,
+          available_seats: ride.available_seats,
           driver: {
             first_name: ride.users.first_name,
             last_name: ride.users.last_name,
@@ -103,59 +120,67 @@ const FindRide = () => {
       });
 
       setAllRides(formattedData);
-      filterRidesByDate(formattedData, activeDate);
+      filterRides(formattedData);
     } catch (error) {
       console.error("Error fetching rides:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const filterRidesByDate = (rides: FullRide[], date: Date) => {
-    const filteredRides = rides.filter((ride) => {
-      const rideDate = new Date(ride.start_time);
-      return (
-        rideDate.toDateString() === date.toDateString() && rideDate >= today
-      );
-    });
+  const filterRides = (data: FullRide[]) => {
+    const from = searchParams.get("from");
+    const to = searchParams.get("to");
+    const date =
+      searchParams.get("date") || activeDate.toISOString().split("T")[0];
+    const passengers = parseInt(searchParams.get("passengers") || "1", 10);
 
-    let finalFilteredRides = filteredRides;
+    let filteredRides = data;
+
+    if (from)
+      filteredRides = filteredRides.filter(
+        (ride) => ride.start_location === from,
+      );
+    if (to)
+      filteredRides = filteredRides.filter((ride) => ride.end_location === to);
+    if (date)
+      filteredRides = filteredRides.filter(
+        (ride) =>
+          new Date(ride.start_time).toISOString().split("T")[0] === date,
+      );
+    if (passengers)
+      filteredRides = filteredRides.filter(
+        (ride) => ride.available_seats >= passengers,
+      );
+
     if (timeFilters.length > 0) {
-      finalFilteredRides = filteredRides.filter((ride) => {
-        const rideStartTime = new Date(ride.start_time).getHours();
+      filteredRides = filteredRides.filter((ride) => {
+        const hour = new Date(ride.start_time).getHours();
         return timeFilters.some((filter) => {
-          if (filter === "before_5") return rideStartTime < 5;
-          if (filter === "5_to_12")
-            return rideStartTime >= 5 && rideStartTime < 12;
-          if (filter === "12_to_17")
-            return rideStartTime >= 12 && rideStartTime < 17;
-          if (filter === "after_17") return rideStartTime >= 17;
+          if (filter === "before_5") return hour < 5;
+          if (filter === "5_to_12") return hour >= 5 && hour < 12;
+          if (filter === "12_to_17") return hour >= 12 && hour < 17;
+          if (filter === "after_17") return hour >= 17;
           return false;
         });
       });
     }
 
-    setRides(finalFilteredRides);
+    setRides(filteredRides);
   };
-
-  const toggleTimeFilter = (filter: string) => {
-    setTimeFilters((prev) =>
-      prev.includes(filter)
-        ? prev.filter((item) => item !== filter)
-        : [...prev, filter],
-    );
-  };
-
-  useEffect(() => {
-    filterRidesByDate(allRides, activeDate);
-  }, [activeDate, timeFilters]);
 
   useEffect(() => {
     getRides();
   }, []);
 
+  useEffect(() => {
+    filterRides(allRides);
+  }, [searchParams, activeDate, timeFilters]);
+
   return (
     <Layout>
       <TripSearch />
-      <div className="w-10/12 mx-auto flex justify-between mt-6">
+      <div className="w-10/12 mx-auto flex justify-between mt-6 min-h-[50vh]">
         <div className="w-4/12">
           <p className="text-lg font-bold mb-4">Abfahrtszeit</p>
           <div className="flex flex-col space-y-2">
@@ -194,7 +219,11 @@ const FindRide = () => {
           </div>
         </div>
         <div className="w-8/12">
-          <div className="flex justify-around items-center mb-4 text-lg font-bold">
+          {/* Даты */}
+          <div className="flex justify-between items-center mb-4 text-lg font-bold">
+            <button onClick={handlePreviousDates} disabled={startIndex === 0}>
+              <ChevronLeft size={24} />
+            </button>
             {visibleDates.map((dateObj, index) => (
               <p
                 key={index}
@@ -208,21 +237,33 @@ const FindRide = () => {
                 {formatDate(dateObj)}
               </p>
             ))}
+            <button
+              onClick={handleNextDates}
+              disabled={startIndex + 3 >= dates.length}
+            >
+              <ChevronRight size={24} />
+            </button>
           </div>
-          {rides.map((ride) => (
-            <DestinationCard
-              key={ride.id}
-              id={ride.id}
-              startDate={ride.start_time}
-              endDate={ride.end_time}
-              intermediateStopsAmount={ride.intermediate_stops}
-              from={ride.start_location}
-              to={ride.end_location}
-              driverFirstName={ride.driver.first_name}
-              driverLastName={ride.driver.last_name}
-              driverImage={ride.driver.image}
-            />
-          ))}
+          {loading ? (
+            <p className="text-center">Lade Fahrten...</p>
+          ) : rides.length > 0 ? (
+            rides.map((ride) => (
+              <DestinationCard
+                key={ride.id}
+                id={ride.id}
+                startDate={ride.start_time}
+                endDate={ride.end_time}
+                from={ride.start_location}
+                to={ride.end_location}
+                intermediateStopsAmount={ride.intermediate_stops}
+                driverFirstName={ride.driver.first_name}
+                driverLastName={ride.driver.last_name}
+                driverImage={ride.driver.image}
+              />
+            ))
+          ) : (
+            <p className="text-center">Leider wurden keine Fahrten gefunden</p>
+          )}
         </div>
       </div>
     </Layout>

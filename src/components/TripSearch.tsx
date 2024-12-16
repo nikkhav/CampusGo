@@ -1,27 +1,66 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MapPin, Users, Minus, Plus } from "lucide-react";
 import { DatePicker } from "@/components/DatePicker";
 import Select from "@/components/Select";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { supabase } from "@/supabaseClient";
 
 export default function TripSearch() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [passengers, setPassengers] = useState(1);
+  const [locations, setLocations] = useState<string[]>([]);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams(); // Hook to get query params
+
+  // Increment and decrement passenger count
+  const incrementPassengers = () => setPassengers((prev) => prev + 1);
+  const decrementPassengers = () =>
+    setPassengers((prev) => Math.max(prev - 1, 1));
+
+  // Fetch locations from Supabase
+  const fetchLocations = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("locations")
+        .select("name")
+        .order("name", { ascending: true });
+
+      if (error) throw error;
+
+      setLocations(data.map((location: { name: string }) => location.name));
+    } catch (err) {
+      console.error("Error fetching locations:", err);
+    }
+  };
+
+  // Pre-fill state with query parameters
+  useEffect(() => {
+    fetchLocations();
+
+    const queryFrom = searchParams.get("from");
+    const queryTo = searchParams.get("to");
+    const queryDate = searchParams.get("date");
+    const queryPassengers = searchParams.get("passengers");
+
+    if (queryFrom) setFrom(queryFrom);
+    if (queryTo) setTo(queryTo);
+    if (queryDate) setDate(new Date(queryDate));
+    if (queryPassengers) setPassengers(parseInt(queryPassengers, 10));
+  }, [searchParams]);
 
   const handleSubmit = () => {
-    console.log({ from, to, date: date?.toISOString(), passengers });
-    // Further processing or navigation logic
-  };
+    const query = new URLSearchParams({
+      ...(from && { from }),
+      ...(to && { to }),
+      ...(date && {
+        date: date.toLocaleDateString("de-DE").split(".").reverse().join("-"),
+      }),
+      passengers: passengers.toString(),
+    }).toString();
 
-  const locations = ["Bayreuth", "München", "Hamburg", "Frankfurt", "Köln"];
-
-  const incrementPassengers = () => {
-    setPassengers((prev) => prev + 1);
-  };
-
-  const decrementPassengers = () => {
-    setPassengers((prev) => Math.max(prev - 1, 1)); // Не меньше 1
+    navigate(`/find-ride?${query}`);
   };
 
   return (
@@ -73,7 +112,7 @@ export default function TripSearch() {
 
       <button
         onClick={handleSubmit}
-        className="rounded-full bg-emerald-600 px-6 py-2 text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+        className="rounded-full bg-emerald-600 px-6 py-2 text-white hover:bg-emerald-700"
       >
         Suchen
       </button>

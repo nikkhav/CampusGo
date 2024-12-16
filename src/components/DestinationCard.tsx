@@ -99,7 +99,7 @@ export const DestinationCard = ({
             {initials}
           </AvatarFallback>
         </Avatar>
-        <div className="font-medium">{displayName}</div>
+        <div className="font-medium mt-2">{displayName}</div>
       </div>
     </Card>
   );

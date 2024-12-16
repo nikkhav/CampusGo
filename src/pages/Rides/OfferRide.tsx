@@ -500,24 +500,39 @@ const OfferRide = () => {
                   .length > 0 && (
                   <div className="mt-6">
                     <p className="text-sm text-gray-500">Zwischenstopps</p>
-                    <p className="text-lg font-semibold text-gray-800">
-                      {stops
-                        .filter((stop) => stop.stop_type === "intermediate")
-                        .map((stop, index) => {
-                          const locationName =
-                            locations.find(
-                              (location) => location.id === stop.location_id,
-                            )?.name || "Nicht angegeben";
-                          const stopTime = stop.stop_time
-                            ? ` (${new Date(stop.stop_time).toLocaleTimeString(
-                                [],
-                                { hour: "2-digit", minute: "2-digit" },
-                              )})`
-                            : "";
-                          return `${index + 1}. ${locationName}${stopTime}`;
-                        })
-                        .join(", ")}
-                    </p>
+                    {stops
+                      .filter((stop) => stop.stop_type === "intermediate")
+                      .map((stop, index) => {
+                        const locationName =
+                          locations.find(
+                            (location) => location.id === stop.location_id,
+                          )?.name || "Nicht angegeben";
+
+                        const stopDateTime = stop.stop_time
+                          ? new Date(
+                              `${date?.toISOString().split("T")[0]}T${
+                                stop.stop_time
+                              }`,
+                            )
+                          : null;
+
+                        const formattedStopTime = stopDateTime
+                          ? stopDateTime.toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : "Nicht angegeben";
+
+                        return (
+                          <p
+                            key={index}
+                            className="text-lg font-semibold text-gray-800"
+                          >
+                            {index + 1}. {locationName}{" "}
+                            {formattedStopTime ? `(${formattedStopTime})` : ""}
+                          </p>
+                        );
+                      })}
                   </div>
                 )}
                 <div className="border-t border-gray-300 my-6"></div>
