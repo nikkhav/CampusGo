@@ -1,6 +1,82 @@
 import Layout from "@/layout/Layout.tsx";
+import { useEffect, useState } from "react";
+import { supabase } from "@/supabaseClient.ts";
 
 const BookRide = () => {
+  const [rideData, setRideData] = useState({
+    id: "",
+    start_time: "",
+    end_time: "",
+    available_seats: 0,
+    users: {
+      first_name: "",
+      last_name: "",
+      image: "",
+    },
+    stops: [
+      {
+        stop_type: "start",
+        locations: { name: "" },
+      },
+      {
+        stop_type: "end",
+        locations: { name: "" },
+      },
+    ],
+  });
+
+  const rideId = window.location.pathname.split("/").pop();
+  const formatDateTime = (isoString: string): [string, string] => {
+    const date = new Date(isoString);
+
+    // German month names
+    const months = [
+      "Januar",
+      "Februar",
+      "März",
+      "April",
+      "Mai",
+      "Juni",
+      "Juli",
+      "August",
+      "September",
+      "Oktober",
+      "November",
+      "Dezember",
+    ];
+
+    const month = months[date.getMonth()];
+    const day = date.getDate();
+    const dateString = `${day} ${month}`;
+
+    const timeString = date.toLocaleTimeString("de-DE", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    return [dateString, timeString];
+  };
+
+  const fetchRideData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("rides")
+        .select()
+        .eq("id", rideId)
+        .single();
+
+      if (error) throw error;
+
+      setRideData(data);
+      console.log("Ride data:", data);
+    } catch (err) {
+      console.error("Error fetching rides:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchRideData();
+  }, []);
   return (
     <Layout>
       <div className="w-8/12 mx-auto my-10">
@@ -13,7 +89,12 @@ const BookRide = () => {
         <div className="mt-10 border p-8 bg-white shadow-lg rounded-xl">
           <div className="flex justify-between items-center w-full mx-auto">
             <div className="text-center">
-              <p className="text-lg font-semibold">12:00</p>
+              <p className="text-sm font-semibold text-gray-500">
+                {formatDateTime(rideData.start_time)[0]}
+              </p>
+              <p className="text-lg font-bold mt-2">
+                {formatDateTime(rideData.start_time)[1]}
+              </p>
               <p className="text-xl font-bold mt-2">Bayreuth</p>
               <p className="text-sm text-gray-500">Universitätstr. 1</p>
               <div className="mt-4">
@@ -32,7 +113,12 @@ const BookRide = () => {
             </div>
 
             <div className="text-center">
-              <p className="text-lg font-semibold">13:00</p>
+              <p className="text-sm font-semibold text-gray-500">
+                {formatDateTime(rideData.end_time)[0]}
+              </p>
+              <p className="text-lg font-bold mt-2">
+                {formatDateTime(rideData.end_time)[1]}
+              </p>
               <p className="text-xl font-bold mt-2">Kulmbach</p>
               <p className="text-sm text-gray-500">Universitätstr. 2</p>
               <div className="mt-4">
