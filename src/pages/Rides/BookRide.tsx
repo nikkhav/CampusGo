@@ -1,6 +1,9 @@
 import Layout from "@/layout/Layout.tsx";
 import { useEffect, useState } from "react";
 import { supabase } from "@/supabaseClient.ts";
+import { Stop } from "@/types.ts";
+import Mapbox from "@/components/Map.tsx";
+import { calculateDuration } from "@/lib/utils.ts";
 
 const BookRide = () => {
   const [rideData, setRideData] = useState({
@@ -24,12 +27,66 @@ const BookRide = () => {
       },
     ],
   });
+  const [startStop, setStartStop] = useState<Stop>({
+    id: "",
+    ride_id: "",
+    location_id: "",
+    stop_type: "start",
+    stop_order: 0,
+    created_at: "",
+    updated_at: "",
+    locations: {
+      id: "",
+      name: "",
+      latitude: 0,
+      longitude: 0,
+      created_at: "",
+      updated_at: "",
+    },
+  });
+  const [endStop, setEndStop] = useState<Stop>({
+    id: "",
+    ride_id: "",
+    location_id: "",
+    stop_type: "end",
+    stop_order: 0,
+    created_at: "",
+    updated_at: "",
+    locations: {
+      id: "",
+      name: "",
+      latitude: 0,
+      longitude: 0,
+      created_at: "",
+      updated_at: "",
+    },
+  });
+
+  const [intermediateStops, setIntermediateStops] = useState([
+    {
+      id: "",
+      ride_id: "",
+      location_id: "",
+      stop_type: "intermediate",
+      stop_order: 0,
+      created_at: "",
+      updated_at: "",
+      locations: {
+        id: "",
+        name: "",
+        latitude: 0,
+        longitude: 0,
+        created_at: "",
+        updated_at: "",
+      },
+    },
+  ]);
+  const [duration, setDuration] = useState<string>("");
 
   const rideId = window.location.pathname.split("/").pop();
   const formatDateTime = (isoString: string): [string, string] => {
     const date = new Date(isoString);
 
-    // German month names
     const months = [
       "Januar",
       "Februar",
@@ -61,14 +118,35 @@ const BookRide = () => {
     try {
       const { data, error } = await supabase
         .from("rides")
-        .select()
+        .select(
+          `
+        *,
+        stops (
+          *,
+          locations (*)
+        )
+      `,
+        )
         .eq("id", rideId)
         .single();
 
       if (error) throw error;
 
       setRideData(data);
-      console.log("Ride data:", data);
+      console.log("Ride data with stops and locations:", data);
+
+      const startStop = data.stops.find(
+        (stop: Stop) => stop.stop_type === "start",
+      );
+      const endStop = data.stops.find((stop: Stop) => stop.stop_type === "end");
+      const intermediateStops = data.stops.filter(
+        (stop: Stop) => stop.stop_type === "intermediate",
+      );
+
+      setStartStop(startStop);
+      setEndStop(endStop);
+      setIntermediateStops(intermediateStops);
+      setDuration(calculateDuration(data.start_time, data.end_time));
     } catch (err) {
       console.error("Error fetching rides:", err);
     }
@@ -88,49 +166,84 @@ const BookRide = () => {
 
         <div className="mt-10 border p-8 bg-white shadow-lg rounded-xl">
           <div className="flex justify-between items-center w-full mx-auto">
-            <div className="text-center">
+            <div className="flex flex-col justify-center items-center text-center">
               <p className="text-sm font-semibold text-gray-500">
                 {formatDateTime(rideData.start_time)[0]}
               </p>
-              <p className="text-lg font-bold mt-2">
+              <p className="text-xl font-bold mt-2">
+                {startStop.locations && startStop.locations.name}
+              </p>
+              <p className="mt-1 text-gray-500">
                 {formatDateTime(rideData.start_time)[1]}
               </p>
-              <p className="text-xl font-bold mt-2">Bayreuth</p>
-              <p className="text-sm text-gray-500">Universitätstr. 1</p>
               <div className="mt-4">
-                <img
-                  src="https://via.placeholder.com/150"
-                  alt="Start location"
-                  className="w-40 h-40 rounded-lg border-2 border-green-600"
-                />
+                {startStop?.locations && startStop.locations.longitude && (
+                  <Mapbox
+                    longitude={startStop.locations.longitude}
+                    latitude={startStop.locations.latitude}
+                  />
+                )}
               </div>
             </div>
 
             <div className="flex items-center justify-center flex-grow mx-4 relative">
               <div className="h-px bg-green-600 flex-grow"></div>
-              <p className="mx-4 text-green-600 font-semibold">1:00 Std.</p>
+              <p className="mx-4 text-green-600 font-semibold">{duration}</p>
               <div className="h-px bg-green-600 flex-grow" />
             </div>
 
-            <div className="text-center">
+            <div className="flex flex-col justify-center items-center text-center">
               <p className="text-sm font-semibold text-gray-500">
                 {formatDateTime(rideData.end_time)[0]}
               </p>
-              <p className="text-lg font-bold mt-2">
+              <p className="text-xl font-bold mt-2">
+                {endStop.locations && endStop.locations.name}
+              </p>
+              <p className="mt-1 text-gray-500">
                 {formatDateTime(rideData.end_time)[1]}
               </p>
-              <p className="text-xl font-bold mt-2">Kulmbach</p>
-              <p className="text-sm text-gray-500">Universitätstr. 2</p>
               <div className="mt-4">
-                <img
-                  src="https://via.placeholder.com/150"
-                  alt="End location"
-                  className="w-40 h-40 rounded-lg border-2 border-green-600"
-                />
+                {endStop?.locations && endStop.locations.longitude && (
+                  <Mapbox
+                    longitude={endStop.locations.longitude}
+                    latitude={endStop.locations.latitude}
+                  />
+                )}
               </div>
             </div>
           </div>
         </div>
+
+        {intermediateStops.length > 0 && (
+          <div className="mt-10">
+            <h3 className="text-2xl font-semibold text-center mb-6">
+              Zwischenstopps
+            </h3>
+            <div className="flex justify-center gap-6">
+              {/*TODO: Test with more than one intermediate stop*/}
+              {intermediateStops.map((stop, index) => (
+                <div key={stop.id} className="flex flex-col items-center">
+                  <div className="text-center">
+                    <p className="text-sm font-semibold text-gray-500">
+                      Stopp {index + 1}
+                    </p>
+                    <p className="text-lg font-bold text-gray-800 mt-2">
+                      {stop.locations.name}
+                    </p>
+                  </div>
+                  <div className="mt-4">
+                    {stop.locations.longitude && stop.locations.latitude && (
+                      <Mapbox
+                        longitude={stop.locations.longitude}
+                        latitude={stop.locations.latitude}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="mt-10 border bg-white shadow-lg rounded-xl p-8">
           <div className="flex items-center">
