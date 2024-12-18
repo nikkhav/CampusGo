@@ -5,6 +5,7 @@ import {
   AvatarFallback,
 } from "@/components/ui/avatar.tsx";
 import { useNavigate } from "react-router-dom";
+import { calculateDuration } from "@/lib/utils.ts";
 
 interface DestinationCardProps {
   id: string;
@@ -45,17 +46,6 @@ export const DestinationCard = ({
     minute: "2-digit",
   });
 
-  const totalMinutes = Math.floor(
-    (new Date(endDate).getTime() - new Date(startDate).getTime()) / 60000,
-  );
-
-  const duration =
-    totalMinutes < 60
-      ? `${totalMinutes} Min.`
-      : `${Math.floor(totalMinutes / 60)} Std. ${
-          totalMinutes % 60 > 0 ? `${totalMinutes % 60} Min.` : ""
-        }`;
-
   const displayName = `${driverFirstName} ${driverLastName.charAt(0)}.`;
   const initials = `${driverFirstName.charAt(0)}${driverLastName.charAt(0)}`;
 
@@ -73,7 +63,7 @@ export const DestinationCard = ({
           <div className="flex items-center gap-2 w-6/12">
             <div className="h-[2px] flex-1 bg-border" />
             <div className="text-sm text-center text-muted-foreground whitespace-nowrap">
-              {duration}
+              {calculateDuration(startDate, endDate)}
               <br />
               {intermediateStopsAmount > 0 &&
                 `${intermediateStopsAmount} Zwischenstop${
