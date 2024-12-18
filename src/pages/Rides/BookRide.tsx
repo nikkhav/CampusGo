@@ -214,6 +214,37 @@ const BookRide = () => {
           </div>
         </div>
 
+        {intermediateStops.length > 0 && (
+          <div className="mt-10">
+            <h3 className="text-2xl font-semibold text-center mb-6">
+              Zwischenstopps
+            </h3>
+            <div className="flex justify-center gap-6">
+              {/*TODO: Test with more than one intermediate stop*/}
+              {intermediateStops.map((stop, index) => (
+                <div key={stop.id} className="flex flex-col items-center">
+                  <div className="text-center">
+                    <p className="text-sm font-semibold text-gray-500">
+                      Stopp {index + 1}
+                    </p>
+                    <p className="text-lg font-bold text-gray-800 mt-2">
+                      {stop.locations.name}
+                    </p>
+                  </div>
+                  <div className="mt-4">
+                    {stop.locations.longitude && stop.locations.latitude && (
+                      <Mapbox
+                        longitude={stop.locations.longitude}
+                        latitude={stop.locations.latitude}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="mt-10 border bg-white shadow-lg rounded-xl p-8">
           <div className="flex items-center">
             <div className="w-16 h-16 rounded-full border-2 border-gray-300 flex items-center justify-center mr-4">
