@@ -8,6 +8,7 @@ import constants from "@/assets/data/constants.ts";
 import Input from "@/components/Input.tsx";
 import { Pencil, Trash2Icon } from "lucide-react";
 import { toast } from "react-toastify";
+import PreferenceTag from "@/components/PreferenceTag.tsx";
 
 export const PublicProfile = ({
   user,
@@ -779,17 +780,14 @@ export const PublicProfile = ({
         {/* Preferences */}
         <div className="mt-4 flex flex-wrap gap-2">
           {user.preferences.map((preference) => (
-            <span
-              key={preference}
-              className="border border-green-600 text-green-600 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-green-50"
+            <PreferenceTag
+              text={preference}
               onClick={() => {
                 setDeleteType("preference");
                 setDeleteItem(preference);
                 setIsDeleteModalOpen(true);
               }}
-            >
-              {preference}
-            </span>
+            />
           ))}
           <button
             className="text-green-600 text-sm hover:underline"
@@ -841,17 +839,14 @@ export const PublicProfile = ({
         <h3 className="mt-6 text-lg font-semibold">Sprachen</h3>
         <div className="mt-4 flex flex-wrap gap-2">
           {user.languages.map((language) => (
-            <span
-              key={language}
-              className="border border-green-600 text-green-600 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-green-50"
+            <PreferenceTag
+              text={language}
               onClick={() => {
                 setDeleteType("language");
                 setDeleteItem(language);
                 setIsDeleteModalOpen(true);
               }}
-            >
-              {language}
-            </span>
+            />
           ))}
           <button
             className="text-green-600 text-sm hover:underline"

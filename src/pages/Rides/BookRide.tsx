@@ -4,8 +4,22 @@ import { supabase } from "@/supabaseClient.ts";
 import { Stop } from "@/types.ts";
 import Mapbox from "@/components/Map.tsx";
 import { calculateDuration } from "@/lib/utils.ts";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar.tsx";
+import PreferenceTag from "@/components/PreferenceTag.tsx";
+import { useSupabaseSession } from "@/hooks/useSupabaseSession.tsx";
+import AccountRequired from "@/pages/AccountRequired.tsx";
+import { toast } from "react-toastify";
 
 const BookRide = () => {
+  const {
+    session,
+    loading: sessionLoading,
+    error: sessionError,
+  } = useSupabaseSession();
   const [rideData, setRideData] = useState({
     id: "",
     start_time: "",
@@ -15,6 +29,8 @@ const BookRide = () => {
       first_name: "",
       last_name: "",
       image: "",
+      preferences: [],
+      languages: [],
     },
     stops: [
       {
@@ -26,6 +42,12 @@ const BookRide = () => {
         locations: { name: "" },
       },
     ],
+    vehicles: {
+      brand: "",
+      model: "",
+      color: "",
+      license_plate: "",
+    },
   });
   const [startStop, setStartStop] = useState<Stop>({
     id: "",
@@ -71,6 +93,7 @@ const BookRide = () => {
       stop_order: 0,
       created_at: "",
       updated_at: "",
+      stop_time: "",
       locations: {
         id: "",
         name: "",
@@ -121,6 +144,8 @@ const BookRide = () => {
         .select(
           `
         *,
+        users (first_name, last_name, image, preferences, languages),
+        vehicles (brand, model, color, license_plate),
         stops (
           *,
           locations (*)
@@ -133,7 +158,6 @@ const BookRide = () => {
       if (error) throw error;
 
       setRideData(data);
-      console.log("Ride data with stops and locations:", data);
 
       const startStop = data.stops.find(
         (stop: Stop) => stop.stop_type === "start",
@@ -151,6 +175,52 @@ const BookRide = () => {
       console.error("Error fetching rides:", err);
     }
   };
+
+  const createBooking = async (rideId: string) => {
+    if (!session || !session.user) {
+      console.error("User session is not available.");
+      return;
+    }
+
+    if (!rideId) {
+      console.error("Ride ID is not available.");
+      return;
+    }
+
+    const passengerId = session.user.id;
+
+    try {
+      const { data, error } = await supabase.from("bookings").insert([
+        {
+          ride_id: rideId,
+          passenger_id: passengerId,
+          seats_reserved: 1, // Default to 1 seat for now. Should be calculated?
+          status: "pending", // Default status can be changed as needed
+        },
+      ]);
+
+      if (error) {
+        console.error("Error creating booking:", error);
+        return;
+      }
+
+      toast.success("Buchung erfolgreich erstellt!");
+      console.log("Booking created:", data);
+    } catch (err) {
+      console.error("Error creating booking:", err);
+    }
+  };
+
+  if (sessionLoading) {
+    return <div>Loading...</div>;
+  }
+  if (sessionError) {
+    return <div>Error: {sessionError}</div>;
+  }
+
+  if (!session) {
+    return <AccountRequired />;
+  }
 
   useEffect(() => {
     fetchRideData();
@@ -188,7 +258,9 @@ const BookRide = () => {
 
             <div className="flex items-center justify-center flex-grow mx-4 relative">
               <div className="h-px bg-green-600 flex-grow"></div>
-              <p className="mx-4 text-green-600 font-semibold">{duration}</p>
+              <p className="mx-4 text-green-600 font-semibold">
+                Fahrtzeit: {duration}
+              </p>
               <div className="h-px bg-green-600 flex-grow" />
             </div>
 
@@ -219,8 +291,7 @@ const BookRide = () => {
             <h3 className="text-2xl font-semibold text-center mb-6">
               Zwischenstopps
             </h3>
-            <div className="flex justify-center gap-6">
-              {/*TODO: Test with more than one intermediate stop*/}
+            <div className="flex justify-center gap-8 bg-white py-5 border shadow-lg rounded-xl">
               {intermediateStops.map((stop, index) => (
                 <div key={stop.id} className="flex flex-col items-center">
                   <div className="text-center">
@@ -229,6 +300,9 @@ const BookRide = () => {
                     </p>
                     <p className="text-lg font-bold text-gray-800 mt-2">
                       {stop.locations.name}
+                    </p>
+                    <p className="text-gray-500">
+                      {formatDateTime(stop.stop_time)[1]}
                     </p>
                   </div>
                   <div className="mt-4">
@@ -246,40 +320,78 @@ const BookRide = () => {
         )}
 
         <div className="mt-10 border bg-white shadow-lg rounded-xl p-8">
-          <div className="flex items-center">
-            <div className="w-16 h-16 rounded-full border-2 border-gray-300 flex items-center justify-center mr-4">
-              <p className="text-gray-500">Foto</p>
+          {/* User Info Section */}
+          <div className="flex items-center mb-6">
+            <Avatar className="w-16 h-16 rounded-full overflow-hidden shadow-lg">
+              <AvatarImage
+                src={rideData.users.image}
+                alt={`${rideData.users.first_name} ${rideData.users.last_name}'s image`}
+                className="object-cover h-full w-full"
+              />
+              <AvatarFallback className="bg-gray-300 text-lg text-gray-700 font-bold">
+                {rideData.users.first_name.charAt(0)}
+                {rideData.users.last_name.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="ml-4">
+              <p className="text-lg font-bold">
+                {rideData.users.first_name} {rideData.users.last_name}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">Über mich:</p>
             </div>
-            <p className="text-lg font-bold">Vorname Nachname</p>
           </div>
 
-          <ul className="mt-6 space-y-3 text-gray-600">
-            <li>Bitte nicht rauchen / Ich rauche auch gerne!</li>
-            <li>Bitte ohne Haustiere / Ich liebe Tiere!</li>
-            <li>Fahre gerne ohne Musik / Ich liebe Musik im Auto!</li>
-            <li>Mache Zwischenstopps / Fahre lieber ohne Stopps!</li>
-          </ul>
+          {/* Preferences Section */}
+          {rideData.users.preferences.length > 0 && (
+            <div className="mb-6">
+              <p className="text-gray-500 font-semibold">Präferenzen:</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {rideData.users.preferences.map((preference) => (
+                  <PreferenceTag text={preference} key={preference} />
+                ))}
+              </div>
+            </div>
+          )}
 
-          <p className="mt-6 font-semibold">
-            Kommentar über mich und über unsere Reise
-          </p>
+          {/* Languages Section */}
+          {rideData.users.languages.length > 0 && (
+            <div className="mb-6">
+              <p className="text-gray-500 font-semibold">Sprachen:</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {rideData.users.languages.map((language) => (
+                  <PreferenceTag text={language} key={language} />
+                ))}
+              </div>
+            </div>
+          )}
 
-          <p className="mt-6 text-gray-700 font-semibold">
-            BMW M5 Competition - Gold
-          </p>
+          {/* Vehicle Section */}
+          <div className="mb-6">
+            <p className="text-gray-700 font-semibold">
+              Fahrzeug: {rideData.vehicles.brand} {rideData.vehicles.model} -{" "}
+              {rideData.vehicles.color} ({rideData.vehicles.license_plate})
+            </p>
+            <p className="text-gray-500 text-sm mt-2">
+              {rideData.available_seats} freie Plätze
+            </p>
+          </div>
 
-          <div className="mt-10 flex gap-4">
-            <button className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700">
-              “Vorname” kontaktieren
+          {/* Action Buttons */}
+          <div className="mt-8 flex justify-start gap-4">
+            <button className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 shadow-md">
+              {`${rideData.users.first_name} kontaktieren`}
             </button>
-            <button className="border border-gray-400 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-200">
+            <button className="border border-gray-400 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-200 shadow-md">
               Fahrt melden
             </button>
           </div>
         </div>
 
         <div className="flex justify-center mt-10">
-          <button className="rounded-3xl bg-green-600 text-white px-6 py-3 text-lg hover:bg-green-700">
+          <button
+            className="rounded-3xl bg-green-600 text-white px-6 py-3 text-lg hover:bg-green-700"
+            onClick={() => createBooking(rideId || "")}
+          >
             Buchung bestätigen
           </button>
         </div>
