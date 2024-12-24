@@ -83,14 +83,15 @@ const FindRide = () => {
         .from("rides")
         .select(
           `
-          id,
-          start_time,
-          end_time,
-          available_seats,
-          users(first_name, last_name, image),
-          stops(stop_type, locations(name))
-        `,
+        id,
+        start_time,
+        end_time,
+        available_seats,
+        users(first_name, last_name, image),
+        stops(stop_type, locations(name))
+      `,
         )
+        .gt("available_seats", 0)
         .order("start_time", { ascending: true });
 
       if (error) throw error;

@@ -13,6 +13,7 @@ import PreferenceTag from "@/components/PreferenceTag.tsx";
 import { useSupabaseSession } from "@/hooks/useSupabaseSession.tsx";
 import AccountRequired from "@/pages/AccountRequired.tsx";
 import { toast } from "react-toastify";
+import Select from "@/components/Select.tsx";
 
 const BookRide = () => {
   const {
@@ -105,6 +106,7 @@ const BookRide = () => {
     },
   ]);
   const [duration, setDuration] = useState<string>("");
+  const [selectedPlaces, setSelectedPlaces] = useState<string>("1");
 
   const rideId = window.location.pathname.split("/").pop();
   const formatDateTime = (isoString: string): [string, string] => {
@@ -154,11 +156,9 @@ const BookRide = () => {
         )
         .eq("id", rideId)
         .single();
-
       if (error) throw error;
 
       setRideData(data);
-
       const startStop = data.stops.find(
         (stop: Stop) => stop.stop_type === "start",
       );
@@ -176,39 +176,70 @@ const BookRide = () => {
     }
   };
 
+  useEffect(() => {
+    fetchRideData();
+  }, []);
+
   const createBooking = async (rideId: string) => {
     if (!session || !session.user) {
-      console.error("User session is not available.");
-      return;
-    }
-
-    if (!rideId) {
-      console.error("Ride ID is not available.");
+      toast.error("You need to log in to make a booking.");
       return;
     }
 
     const passengerId = session.user.id;
+    const selectedSeats = parseInt(selectedPlaces);
+
+    if (!selectedSeats || selectedSeats < 1) {
+      toast.error("Please select a valid number of seats.");
+      return;
+    }
+
+    if (rideData.available_seats < selectedSeats) {
+      toast.error("Not enough seats available.");
+      return;
+    }
 
     try {
-      const { data, error } = await supabase.from("bookings").insert([
-        {
-          ride_id: rideId,
-          passenger_id: passengerId,
-          seats_reserved: 1, // Default to 1 seat for now. Should be calculated?
-          status: "pending", // Default status can be changed as needed
-        },
-      ]);
+      const { error: bookingError } = await supabase
+        .from("bookings")
+        .insert([
+          {
+            ride_id: rideId,
+            passenger_id: passengerId,
+            seats_reserved: selectedSeats,
+          },
+        ])
+        .select();
 
-      if (error) {
-        console.error("Error creating booking:", error);
-        return;
-      }
+      if (bookingError) throw bookingError;
 
-      toast.success("Buchung erfolgreich erstellt!");
-      console.log("Booking created:", data);
+      const updatedAvailableSeats = rideData.available_seats - selectedSeats;
+      const { error: updateError } = await supabase
+        .from("rides")
+        .update({ available_seats: updatedAvailableSeats })
+        .eq("id", rideId);
+
+      if (updateError) throw updateError;
+
+      setRideData((prevState) => ({
+        ...prevState,
+        available_seats: updatedAvailableSeats,
+      }));
+
+      toast.success("Booking successfully created!");
     } catch (err) {
-      console.error("Error creating booking:", err);
+      console.error("Error during booking process:", err);
+      toast.error("An error occurred while creating the booking.");
     }
+  };
+
+  const generateSeatOptions = (availableSeats: string): string[] => {
+    const availableSeatsInt = parseInt(availableSeats);
+    if (!availableSeatsInt || availableSeatsInt < 1) return [];
+    return Array.from(
+      { length: availableSeatsInt },
+      (_, index) => `${index + 1}`,
+    );
   };
 
   if (sessionLoading) {
@@ -222,9 +253,6 @@ const BookRide = () => {
     return <AccountRequired />;
   }
 
-  useEffect(() => {
-    fetchRideData();
-  }, []);
   return (
     <Layout>
       <div className="w-8/12 mx-auto my-10">
@@ -236,7 +264,7 @@ const BookRide = () => {
 
         <div className="mt-10 border p-8 bg-white shadow-lg rounded-xl">
           <div className="flex justify-between items-center w-full mx-auto">
-            <div className="flex flex-col justify-center items-center text-center">
+            <div className="flex flex-col justify-center items-center text-center w-1/3">
               <p className="text-sm font-semibold text-gray-500">
                 {formatDateTime(rideData.start_time)[0]}
               </p>
@@ -256,7 +284,7 @@ const BookRide = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-center flex-grow mx-4 relative">
+            <div className="flex items-center justify-center flex-grow mx-4 relative w-1/3">
               <div className="h-px bg-green-600 flex-grow"></div>
               <p className="mx-4 text-green-600 font-semibold">
                 Fahrtzeit: {duration}
@@ -264,7 +292,7 @@ const BookRide = () => {
               <div className="h-px bg-green-600 flex-grow" />
             </div>
 
-            <div className="flex flex-col justify-center items-center text-center">
+            <div className="flex flex-col justify-center items-center text-center w-1/3">
               <p className="text-sm font-semibold text-gray-500">
                 {formatDateTime(rideData.end_time)[0]}
               </p>
@@ -375,6 +403,16 @@ const BookRide = () => {
               {rideData.available_seats} freie Plätze
             </p>
           </div>
+          <label className="block text-gray-700 font-semibold">
+            Anzahl der gebuchten Plätze
+          </label>
+          <Select
+            placeholder="Anzahl der Plätze auswählen"
+            className="w-1/3 mt-4 border border-gray-300 rounded-lg p-2"
+            value={selectedPlaces}
+            onChange={(place) => setSelectedPlaces(place)}
+            options={generateSeatOptions(String(rideData.available_seats))}
+          />
 
           {/* Action Buttons */}
           <div className="mt-8 flex justify-start gap-4">
