@@ -20,6 +20,7 @@ import RateDriver from "@/pages/Ratings/RateDriver.tsx";
 import RatePassenger from "@/pages/Ratings/RatePassenger.tsx";
 import { ToastContainer } from "react-toastify";
 import EmailConfirmed from "@/pages/Auth/EmailConfirmed.tsx";
+import ResetPassword from "@/pages/Auth/ResetPassword.tsx";
 
 const router = createBrowserRouter([
   {
@@ -81,6 +82,10 @@ const router = createBrowserRouter([
   {
     path: "/email-confirmed",
     element: <EmailConfirmed />,
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPassword />,
   },
   {
     path: "*",

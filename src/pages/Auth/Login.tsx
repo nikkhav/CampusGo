@@ -111,7 +111,7 @@ const Login = () => {
             />
             <div className="text-right mt-2">
               <Link
-                to="/new-password"
+                to="/reset-password"
                 className="text-sm font-medium text-green-600 hover:text-green-700"
               >
                 Passwort vergessen?
