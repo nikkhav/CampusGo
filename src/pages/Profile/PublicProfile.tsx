@@ -444,21 +444,6 @@ export const PublicProfile = ({
           Dein Profil verifizieren
         </h3>
         <ul className="mt-4 space-y-3 text-gray-700">
-          {user.is_id_verified ? (
-            <li className="flex items-center gap-2 text-green-600">
-              <span>✔</span> ID verifiziert
-            </li>
-          ) : (
-            <li className="flex items-center gap-2 text-red-600">
-              <span>✘</span> ID nicht verifiziert.{" "}
-              <Link
-                to={"/verification"}
-                className="text-green-600 hover:underline"
-              >
-                Jetzt verifizieren
-              </Link>
-            </li>
-          )}
           {user.is_license_verified ? (
             <li className="flex items-center gap-2 text-green-600">
               <span>✔</span> Führerschein verifiziert

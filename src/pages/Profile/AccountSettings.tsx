@@ -241,9 +241,8 @@ export const AccountSettings = ({
             <Input
               type="email"
               value={updatedUser.email}
-              onChange={(e) =>
-                setUpdatedUser({ ...updatedUser, email: e.target.value })
-              }
+              onChange={() => {}}
+              className={`bg-gray-100 ${"pointer-events-none opacity-70"}`}
             />
           </div>
           <div>
