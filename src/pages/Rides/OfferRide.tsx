@@ -9,6 +9,8 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Input from "@/components/Input.tsx";
 import AccountRequired from "@/pages/AccountRequired.tsx";
+import Lottie from "lottie-react";
+import success_animation from "@/assets/animations/success.json";
 
 export interface NewStop {
   ride_id: string | null;
@@ -61,7 +63,21 @@ const OfferRide = () => {
         .eq("user_id", session.user.id);
 
       if (error) throw error;
+
       setVehicles(vehiclesData || []);
+      if (!vehiclesData || vehiclesData.length === 0) {
+        toast.error(
+          <>
+            Sie können Fahrzeuge im Profil hinzufügen.{" "}
+            <a
+              href={`/profile/${session.user.id}`}
+              className="text-blue-500 underline"
+            >
+              Gehe zu deinem Profil
+            </a>
+          </>,
+        );
+      }
     } catch (error) {
       console.error("Error fetching user vehicles:", error);
     }
@@ -106,7 +122,18 @@ const OfferRide = () => {
   };
 
   const nextStep = () => {
-    if (currentStep < 3) setCurrentStep(currentStep + 1);
+    if (currentStep === 1) {
+      if (!isStep1Valid()) {
+        toast.error(
+          "Bitte wählen Sie alle Standorte aus, bevor Sie fortfahren.",
+        );
+        return;
+      }
+    }
+
+    if (currentStep < 3) {
+      setCurrentStep(currentStep + 1);
+    }
   };
 
   const prevStep = () => {
@@ -229,9 +256,7 @@ const OfferRide = () => {
       if (stopsError) throw stopsError;
 
       toast.success("Angebot erfolgreich erstellt!");
-      setTimeout(() => {
-        navigate("/find-ride");
-      }, 5000);
+      setCurrentStep(4);
     } catch (error) {
       console.error("Error creating offer:", error);
       toast.error("Fehler beim Erstellen des Angebots.");
@@ -301,7 +326,9 @@ const OfferRide = () => {
             <div className="flex flex-col items-center w-28">
               <div
                 className={`w-10 h-10 flex items-center justify-center rounded-full text-white font-bold ${
-                  currentStep === 3 ? "bg-green-600" : "bg-gray-300"
+                  currentStep === 3 || currentStep === 4
+                    ? "bg-green-600"
+                    : "bg-gray-300"
                 }`}
               >
                 3
@@ -578,32 +605,58 @@ const OfferRide = () => {
             </div>
           )}
 
-          <div className="mt-10 flex justify-between">
-            <button
-              onClick={prevStep}
-              className={`px-6 py-2 bg-gray-300 text-gray-800 rounded-md shadow hover:bg-gray-400 ${
-                currentStep > 1 ? "" : "opacity-0"
-              }`}
-            >
-              Zurück
-            </button>
+          {currentStep === 4 && (
+            <div className="flex flex-col items-center justify-center mt-16">
+              <h2 className="text-3xl font-bold text-center mb-6">
+                Angebot erfolgreich erstellt!
+              </h2>
+              <Lottie
+                animationData={success_animation}
+                style={{ width: 300, height: 300 }}
+              />
+              <p className="text-gray-700 text-center mt-6">
+                Ihr Angebot wurde erfolgreich gespeichert. Vielen Dank, dass Sie
+                Ihre Fahrt anbieten!
+              </p>
+              <div className="mt-6">
+                <button
+                  onClick={() => navigate("/find-ride")}
+                  className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700"
+                >
+                  Zur Übersicht aller Fahrten
+                </button>
+              </div>
+            </div>
+          )}
 
-            <button
-              onClick={currentStep < 3 ? nextStep : createOffer}
-              disabled={
-                (currentStep === 1 && !isStep1Valid()) ||
-                (currentStep === 2 && !isStep2Valid())
-              }
-              className={`px-6 py-2 text-white rounded-md shadow ${
-                (currentStep === 1 && !isStep1Valid()) ||
-                (currentStep === 2 && !isStep2Valid())
-                  ? "bg-gray-300 cursor-not-allowed"
-                  : "bg-green-600 hover:bg-green-700"
-              }`}
-            >
-              {currentStep < 3 ? "Weiter" : "Bestätigen"}
-            </button>
-          </div>
+          {currentStep < 4 && (
+            <div className="mt-10 flex justify-between">
+              <button
+                onClick={prevStep}
+                className={`px-6 py-2 bg-gray-300 text-gray-800 rounded-md shadow hover:bg-gray-400 ${
+                  currentStep > 1 ? "" : "opacity-0"
+                }`}
+              >
+                Zurück
+              </button>
+
+              <button
+                onClick={currentStep < 3 ? nextStep : createOffer}
+                disabled={
+                  (currentStep === 1 && !isStep1Valid()) ||
+                  (currentStep === 2 && !isStep2Valid())
+                }
+                className={`px-6 py-2 text-white rounded-md shadow ${
+                  (currentStep === 1 && !isStep1Valid()) ||
+                  (currentStep === 2 && !isStep2Valid())
+                    ? "bg-gray-300 cursor-not-allowed"
+                    : "bg-green-600 hover:bg-green-700"
+                }`}
+              >
+                {currentStep < 3 ? "Weiter" : "Bestätigen"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </Layout>
