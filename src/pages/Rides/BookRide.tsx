@@ -26,6 +26,7 @@ const BookRide = () => {
     start_time: "",
     end_time: "",
     available_seats: 0,
+    driver_id: "",
     users: {
       first_name: "",
       last_name: "",
@@ -187,6 +188,12 @@ const BookRide = () => {
     }
 
     const passengerId = session.user.id;
+
+    if (passengerId === rideData.driver_id) {
+      toast.error("You cannot book your own ride.");
+      return;
+    }
+
     const selectedSeats = parseInt(selectedPlaces);
 
     if (!selectedSeats || selectedSeats < 1) {
@@ -365,7 +372,7 @@ const BookRide = () => {
               <p className="text-lg font-bold">
                 {rideData.users.first_name} {rideData.users.last_name}
               </p>
-              <p className="text-sm text-gray-500 mt-1">Über mich:</p>
+              {/*<p className="text-sm text-gray-500 mt-1">Über mich:</p>*/}
             </div>
           </div>
 
