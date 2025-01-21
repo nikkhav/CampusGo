@@ -21,6 +21,7 @@ import RatePassenger from "@/pages/Ratings/RatePassenger.tsx";
 import { ToastContainer } from "react-toastify";
 import EmailConfirmed from "@/pages/Auth/EmailConfirmed.tsx";
 import ResetPassword from "@/pages/Auth/ResetPassword.tsx";
+import YourRides from "@/pages/Rides/YourRides.tsx";
 
 const router = createBrowserRouter([
   {
@@ -50,6 +51,10 @@ const router = createBrowserRouter([
   {
     path: "/profile/:id",
     element: <Profile />,
+  },
+  {
+    path: "/your-rides",
+    element: <YourRides />,
   },
   {
     path: "/new-password",

@@ -118,7 +118,7 @@ export default function Header() {
                     <ul className="flex flex-col">
                       <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
                         <Inbox className="w-5 h-5 text-gray-700" />
-                        <Link to="/deine-fahrten" className="text-gray-700">
+                        <Link to="/your-rides" className="text-gray-700">
                           Deine Fahrten
                         </Link>
                       </li>

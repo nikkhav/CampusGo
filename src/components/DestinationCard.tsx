@@ -17,6 +17,7 @@ interface DestinationCardProps {
   driverFirstName: string;
   driverLastName: string;
   driverImage?: string;
+  disabled?: boolean;
 }
 
 export const DestinationCard = ({
@@ -29,10 +30,12 @@ export const DestinationCard = ({
   driverFirstName,
   driverLastName,
   driverImage,
+  disabled = false,
 }: DestinationCardProps) => {
   const navigate = useNavigate();
 
   const navigateToBookRide = () => {
+    if (disabled) return;
     navigate(`/book/${id}`);
   };
 
@@ -51,7 +54,7 @@ export const DestinationCard = ({
 
   return (
     <Card
-      className="flex items-center mt-6 cursor-pointer"
+      className={`flex items-center mt-6 ${disabled ? "" : "cursor-pointer"}`}
       onClick={navigateToBookRide}
     >
       <div className="flex-1 grid p-5 w-8/12">
