@@ -249,6 +249,57 @@ const BookRide = () => {
     );
   };
 
+  const handleContact = async () => {
+    if (!session || !session.user) {
+      toast.error("You need to log in to contact the driver.");
+      return;
+    }
+
+    const userId = session.user.id;
+    const driverId = rideData.driver_id;
+
+    try {
+      // Check if a conversation already exists
+      const { data: existingConversations, error: conversationError } =
+        await supabase
+          .from("conversations")
+          .select("*")
+          .or(`user1_id.eq.${userId},user2_id.eq.${userId}`)
+          .or(`user1_id.eq.${driverId},user2_id.eq.${driverId}`)
+          .limit(1);
+
+      if (conversationError) throw conversationError;
+
+      let conversationId;
+
+      if (existingConversations && existingConversations.length > 0) {
+        // Conversation already exists
+        conversationId = existingConversations[0].id;
+      } else {
+        // Create a new conversation
+        const { data: newConversation, error: newConversationError } =
+          await supabase
+            .from("conversations")
+            .insert([
+              {
+                user1_id: userId,
+                user2_id: driverId,
+              },
+            ])
+            .select();
+
+        if (newConversationError) throw newConversationError;
+        conversationId = newConversation[0].id;
+      }
+
+      // Redirect to the chats page with the conversation ID as a query parameter
+      window.location.href = `/chats?id=${conversationId}`;
+    } catch (err) {
+      console.error("Error handling contact:", err);
+      toast.error("An error occurred while trying to contact the driver.");
+    }
+  };
+
   if (sessionLoading) {
     return <div>Loading...</div>;
   }
@@ -423,7 +474,10 @@ const BookRide = () => {
 
           {/* Action Buttons */}
           <div className="mt-8 flex justify-start gap-4">
-            <button className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 shadow-md">
+            <button
+              onClick={handleContact}
+              className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 shadow-md"
+            >
               {`${rideData.users.first_name} kontaktieren`}
             </button>
             <button className="border border-gray-400 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-200 shadow-md">
