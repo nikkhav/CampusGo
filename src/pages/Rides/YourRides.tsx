@@ -29,6 +29,13 @@ const groupRidesByDate = (rides: Ride[]) => {
   return grouped;
 };
 
+const sortRidesByDate = (rides: Ride[]) => {
+  return rides.sort(
+    (a, b) =>
+      new Date(b.start_time).getTime() - new Date(a.start_time).getTime(),
+  );
+};
+
 const YourRides = () => {
   const {
     session,
@@ -70,29 +77,31 @@ const YourRides = () => {
 
       if (bookedError) throw bookedError;
 
-      const formattedBookedRides = booked.map((booking: any) => {
-        const ride = booking.rides;
-        const startStop = ride.stops.find(
-          (stop: any) => stop.stop_type === "start",
-        );
-        const endStop = ride.stops.find(
-          (stop: any) => stop.stop_type === "end",
-        );
-        const intermediateStops = ride.stops.filter(
-          (stop: any) => stop.stop_type === "intermediate",
-        );
+      const formattedBookedRides = sortRidesByDate(
+        booked.map((booking: any) => {
+          const ride = booking.rides;
+          const startStop = ride.stops.find(
+            (stop: any) => stop.stop_type === "start",
+          );
+          const endStop = ride.stops.find(
+            (stop: any) => stop.stop_type === "end",
+          );
+          const intermediateStops = ride.stops.filter(
+            (stop: any) => stop.stop_type === "intermediate",
+          );
 
-        return {
-          id: ride.id,
-          start_time: ride.start_time,
-          end_time: ride.end_time,
-          start_location: startStop?.location?.name || "Unknown",
-          end_location: endStop?.location?.name || "Unknown",
-          intermediate_stops: intermediateStops.length,
-          available_seats: ride.available_seats,
-          driver: ride.driver,
-        };
-      });
+          return {
+            id: ride.id,
+            start_time: ride.start_time,
+            end_time: ride.end_time,
+            start_location: startStop?.location?.name || "Unknown",
+            end_location: endStop?.location?.name || "Unknown",
+            intermediate_stops: intermediateStops.length,
+            available_seats: ride.available_seats,
+            driver: ride.driver,
+          };
+        }),
+      );
 
       setBookedRides(formattedBookedRides);
 
@@ -116,28 +125,30 @@ const YourRides = () => {
 
       if (publishedError) throw publishedError;
 
-      const formattedPublishedRides = published.map((ride: any) => {
-        const startStop = ride.stops.find(
-          (stop: any) => stop.stop_type === "start",
-        );
-        const endStop = ride.stops.find(
-          (stop: any) => stop.stop_type === "end",
-        );
-        const intermediateStops = ride.stops.filter(
-          (stop: any) => stop.stop_type === "intermediate",
-        );
+      const formattedPublishedRides = sortRidesByDate(
+        published.map((ride: any) => {
+          const startStop = ride.stops.find(
+            (stop: any) => stop.stop_type === "start",
+          );
+          const endStop = ride.stops.find(
+            (stop: any) => stop.stop_type === "end",
+          );
+          const intermediateStops = ride.stops.filter(
+            (stop: any) => stop.stop_type === "intermediate",
+          );
 
-        return {
-          id: ride.id,
-          start_time: ride.start_time,
-          end_time: ride.end_time,
-          start_location: startStop?.location?.name || "Unknown",
-          end_location: endStop?.location?.name || "Unknown",
-          intermediate_stops: intermediateStops.length,
-          available_seats: ride.available_seats,
-          driver: ride.driver,
-        };
-      });
+          return {
+            id: ride.id,
+            start_time: ride.start_time,
+            end_time: ride.end_time,
+            start_location: startStop?.location?.name || "Unknown",
+            end_location: endStop?.location?.name || "Unknown",
+            intermediate_stops: intermediateStops.length,
+            available_seats: ride.available_seats,
+            driver: ride.driver,
+          };
+        }),
+      );
 
       setPublishedRides(formattedPublishedRides);
     } catch (err) {
@@ -184,7 +195,7 @@ const YourRides = () => {
           </button>
         </div>
 
-        <div className="mt-8">
+        <div className="mt-8 w-10/12 mx-auto">
           {loading ? (
             <p className="text-center">Laden...</p>
           ) : activeTab === "booked" ? (
@@ -204,7 +215,7 @@ const YourRides = () => {
                       driverFirstName={ride.driver.first_name}
                       driverLastName={ride.driver.last_name}
                       driverImage={ride.driver.image}
-                      disabled={true}
+                      rideId={ride.id}
                     />
                   ))}
                 </div>
@@ -228,7 +239,7 @@ const YourRides = () => {
                     driverFirstName={ride.driver.first_name}
                     driverLastName={ride.driver.last_name}
                     driverImage={ride.driver.image}
-                    disabled={true}
+                    rideId={ride.id}
                   />
                 ))}
               </div>

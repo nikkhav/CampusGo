@@ -17,7 +17,7 @@ interface DestinationCardProps {
   driverFirstName: string;
   driverLastName: string;
   driverImage?: string;
-  disabled?: boolean;
+  rideId?: string;
 }
 
 export const DestinationCard = ({
@@ -30,13 +30,16 @@ export const DestinationCard = ({
   driverFirstName,
   driverLastName,
   driverImage,
-  disabled = false,
+  rideId,
 }: DestinationCardProps) => {
   const navigate = useNavigate();
 
   const navigateToBookRide = () => {
-    if (disabled) return;
-    navigate(`/book/${id}`);
+    if (rideId) {
+      return navigate(`/track/${rideId}`);
+    } else {
+      return navigate(`/book/${id}`);
+    }
   };
 
   const formattedStartTime = new Date(startDate).toLocaleTimeString("de-DE", {
@@ -54,7 +57,7 @@ export const DestinationCard = ({
 
   return (
     <Card
-      className={`flex items-center mt-6 ${disabled ? "" : "cursor-pointer"}`}
+      className="flex items-center mt-6 cursor-pointer"
       onClick={navigateToBookRide}
     >
       <div className="flex-1 grid p-5 w-8/12">

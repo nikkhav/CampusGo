@@ -374,25 +374,26 @@ const BookRide = () => {
 
         {intermediateStops.length > 0 && (
           <div className="mt-10">
-            <h3 className="text-2xl font-semibold text-center mb-6">
-              Zwischenstopps
-            </h3>
-            <div className="flex justify-center gap-8 bg-white py-5 border shadow-lg rounded-xl">
+            <h3 className="text-2xl font-semibold mb-6">Zwischenstopps</h3>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
               {intermediateStops.map((stop, index) => (
-                <div key={stop.id} className="flex flex-col items-center">
-                  <div className="text-center">
-                    <p className="text-sm font-semibold text-gray-500">
-                      Stopp {index + 1}
-                    </p>
-                    <p className="text-lg font-bold text-gray-800 mt-2">
-                      {stop.locations.name}
-                    </p>
-                    <p className="text-gray-500">
-                      {formatDateTime(stop.stop_time)[1]}
-                    </p>
-                  </div>
-                  <div className="mt-4">
-                    {stop.locations.longitude && stop.locations.latitude && (
+                <div
+                  key={stop.id}
+                  className="border p-4 shadow-lg rounded-xl flex flex-col"
+                >
+                  <p className="text-sm font-semibold text-gray-500">
+                    Stopp {index + 1}
+                  </p>
+                  <p className="text-lg font-bold text-gray-800 mt-2">
+                    {stop.locations.name}
+                  </p>
+                  <p className="text-gray-500 mb-4">
+                    {stop.stop_time
+                      ? formatDateTime(stop.stop_time)[1]
+                      : "Keine Zeit verfügbar"}
+                  </p>
+                  <div className="mt-auto w-full">
+                    {stop.locations.latitude && stop.locations.longitude && (
                       <Mapbox
                         longitude={stop.locations.longitude}
                         latitude={stop.locations.latitude}

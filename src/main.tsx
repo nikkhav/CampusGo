@@ -22,6 +22,7 @@ import { ToastContainer } from "react-toastify";
 import EmailConfirmed from "@/pages/Auth/EmailConfirmed.tsx";
 import ResetPassword from "@/pages/Auth/ResetPassword.tsx";
 import YourRides from "@/pages/Rides/YourRides.tsx";
+import TrackRide from "@/pages/Rides/TrackRide.tsx";
 
 const router = createBrowserRouter([
   {
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
   {
     path: "/book/:id",
     element: <BookRide />,
+  },
+  {
+    path: "/track/:id",
+    element: <TrackRide />,
   },
   {
     path: "/login",
