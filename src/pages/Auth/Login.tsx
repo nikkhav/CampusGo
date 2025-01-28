@@ -22,7 +22,8 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@(myubt\.de|uni-bayreuth\.de)$/;
+    const emailRegex =
+      /^[a-zA-Z0-9._%+-]+@(myubt\.de|uni-bayreuth\.de|campusgo\.live)$/;
 
     if (!formData.email || !formData.password) {
       toast.error("Bitte geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein.");

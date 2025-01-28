@@ -1,15 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useSupabaseSession } from "@/hooks/useSupabaseSession";
-import {
-  Send,
-  Inbox,
-  FileText,
-  User,
-  MapPin,
-  MoreHorizontal,
-  LogIn,
-} from "lucide-react";
+import { Send, Inbox, User, LogIn } from "lucide-react";
 import logo from "@/assets/images/logo.png";
 import { supabase } from "@/supabaseClient.ts";
 
@@ -80,12 +72,12 @@ export default function Header() {
             >
               Fahrt veröffentlichen
             </Link>
-            <Link
-              to="/fahrt-verfolgen"
-              className="text-gray-600 hover:text-gray-900"
-            >
-              Fahrt verfolgen
-            </Link>
+            {/*<Link*/}
+            {/*  to="/fahrt-verfolgen"*/}
+            {/*  className="text-gray-600 hover:text-gray-900"*/}
+            {/*>*/}
+            {/*  Fahrt verfolgen*/}
+            {/*</Link>*/}
             <Link
               to="/contact-us"
               className="text-gray-600 hover:text-gray-900"
@@ -104,7 +96,7 @@ export default function Header() {
                     <img
                       src={userPhoto}
                       alt="Profilbild"
-                      className="w-12 h-12 rounded-full border-2 border-green-600 cursor-pointer"
+                      className="w-12 h-12 rounded-full border-2 border-green-600 cursor-pointer object-cover"
                     />
                   ) : (
                     <div className="w-12 h-12 rounded-full border-2 border-green-600 bg-gray-200 flex items-center justify-center text-lg font-bold text-green-700 cursor-pointer">
@@ -129,30 +121,12 @@ export default function Header() {
                         </Link>
                       </li>
                       <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
-                        <FileText className="w-5 h-5 text-gray-700" />
-                        <Link to="/zahlungen" className="text-gray-700">
-                          Zahlungen
-                        </Link>
-                      </li>
-                      <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
                         <User className="w-5 h-5 text-gray-700" />
                         <Link
                           to={`/profile/${session.user.id}`}
                           className="text-gray-700"
                         >
                           Profil
-                        </Link>
-                      </li>
-                      <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
-                        <MapPin className="w-5 h-5 text-gray-700" />
-                        <Link to="/fahrt-verfolgen" className="text-gray-700">
-                          Fahrt verfolgen
-                        </Link>
-                      </li>
-                      <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
-                        <MoreHorizontal className="w-5 h-5 text-gray-700" />
-                        <Link to="/bla-bla" className="text-gray-700">
-                          BlaBla
                         </Link>
                       </li>
                     </ul>

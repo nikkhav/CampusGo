@@ -13,6 +13,8 @@ import PreferenceTag from "@/components/PreferenceTag.tsx";
 import { useSupabaseSession } from "@/hooks/useSupabaseSession.tsx";
 import AccountRequired from "@/pages/AccountRequired.tsx";
 import { toast } from "react-toastify";
+import { handleContactSupport } from "../../../helpers.ts";
+import { useNavigate } from "react-router-dom";
 
 interface PassengerBooking {
   id: string;
@@ -104,6 +106,7 @@ const TrackRide = () => {
   const [intermediateStops, setIntermediateStops] = useState<Stop[]>([]);
   const [duration, setDuration] = useState<string>("");
   const [bookings, setBookings] = useState<PassengerBooking[]>([]);
+  const navigate = useNavigate();
 
   const rideId = window.location.pathname.split("/").pop();
 
@@ -463,7 +466,10 @@ const TrackRide = () => {
                 >
                   {`${rideData.users.first_name} kontaktieren`}
                 </button>
-                <button className="border border-gray-400 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-200 shadow-md">
+                <button
+                  onClick={() => handleContactSupport(session, navigate)}
+                  className="border border-gray-400 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-200 shadow-md"
+                >
                   Fahrt melden
                 </button>
               </div>
@@ -522,7 +528,10 @@ const TrackRide = () => {
               {/* Action button: Report Ride */}
               {!isDriver && (
                 <div className="mt-8">
-                  <button className="border border-gray-400 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-200 shadow-md">
+                  <button
+                    onClick={() => handleContactSupport(session, navigate)}
+                    className="border border-gray-400 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-200 shadow-md"
+                  >
                     Fahrt melden
                   </button>
                 </div>

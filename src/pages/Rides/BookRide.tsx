@@ -14,6 +14,8 @@ import { useSupabaseSession } from "@/hooks/useSupabaseSession.tsx";
 import AccountRequired from "@/pages/AccountRequired.tsx";
 import { toast } from "react-toastify";
 import Select from "@/components/Select.tsx";
+import { useNavigate } from "react-router-dom";
+import { handleContactSupport } from "../../../helpers.ts";
 
 const BookRide = () => {
   const {
@@ -108,6 +110,7 @@ const BookRide = () => {
   ]);
   const [duration, setDuration] = useState<string>("");
   const [selectedPlaces, setSelectedPlaces] = useState<string>("1");
+  const navigate = useNavigate();
 
   const rideId = window.location.pathname.split("/").pop();
   const formatDateTime = (isoString: string): [string, string] => {
@@ -234,6 +237,7 @@ const BookRide = () => {
       }));
 
       toast.success("Booking successfully created!");
+      navigate("/your-rides");
     } catch (err) {
       console.error("Error during booking process:", err);
       toast.error("An error occurred while creating the booking.");
@@ -292,8 +296,7 @@ const BookRide = () => {
         conversationId = newConversation[0].id;
       }
 
-      // Redirect to the chats page with the conversation ID as a query parameter
-      window.location.href = `/chats?id=${conversationId}`;
+      navigate(`/chats?id=${conversationId}`);
     } catch (err) {
       console.error("Error handling contact:", err);
       toast.error("An error occurred while trying to contact the driver.");
@@ -481,7 +484,10 @@ const BookRide = () => {
             >
               {`${rideData.users.first_name} kontaktieren`}
             </button>
-            <button className="border border-gray-400 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-200 shadow-md">
+            <button
+              onClick={() => handleContactSupport(session, navigate)}
+              className="border border-gray-400 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-200 shadow-md"
+            >
               Fahrt melden
             </button>
           </div>

@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import Layout from "@/layout/Layout.tsx";
 import { supabase } from "@/supabaseClient.ts";
 import { useSupabaseSession } from "@/hooks/useSupabaseSession.tsx";
+import { supportUserId } from "../../helpers.ts";
 
 interface Message {
   id: string;
@@ -40,7 +41,14 @@ const Chats = () => {
     useState<boolean>(false);
   const [searchParams] = useSearchParams();
 
-  // Fetch User Details
+  const isValidDate = (date: Date): boolean => {
+    return !isNaN(date.getTime());
+  };
+
+  const isValidTime = (timeStr: string): boolean => {
+    return timeStr !== "Invalid Date" && timeStr.trim() !== "";
+  };
+
   const fetchUserDetails = async (userId: string) => {
     try {
       const { data, error } = await supabase
@@ -63,7 +71,6 @@ const Chats = () => {
     }
   };
 
-  // Fetch Conversations
   const fetchConversations = async () => {
     if (!session?.user) return;
 
@@ -89,10 +96,8 @@ const Chats = () => {
 
       if (error) throw error;
 
-      // Fetch details for each other user in parallel
       // @ts-ignore
       const formattedConversations: Conversation[] = await Promise.all(
-        // @ts-ignore
         data.map(async (conversation: any) => {
           const otherUserId =
             conversation.user1_id === session.user.id
@@ -101,29 +106,41 @@ const Chats = () => {
 
           const { name, avatar } = await fetchUserDetails(otherUserId);
 
+          const lastMessageObj =
+            conversation.messages && conversation.messages.length > 0
+              ? conversation.messages[conversation.messages.length - 1]
+              : null;
+
+          let formattedTime = "";
+          if (lastMessageObj && lastMessageObj.created_at) {
+            const date = new Date(lastMessageObj.created_at);
+            if (isValidDate(date)) {
+              formattedTime = date.toLocaleTimeString("de-DE", {
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+            }
+          }
+
           return {
             id: conversation.id,
             name,
             avatar,
-            lastMessage:
-              conversation.messages[conversation.messages.length - 1]
-                ?.message || "",
-            time:
-              new Date(
-                conversation.messages[conversation.messages.length - 1]
-                  ?.created_at,
-              ).toLocaleTimeString("de-DE", {
-                hour: "2-digit",
-                minute: "2-digit",
-              }) || "",
-            unread: 0, // Add unread count logic
+            lastMessage: lastMessageObj ? lastMessageObj.message : "",
+            time: formattedTime,
+            unread: 0,
             messages: conversation.messages.map((msg: Message) => ({
               from: msg.sender_id === session.user.id ? "Du" : name,
               text: msg.message,
-              timestamp: new Date(msg.created_at).toLocaleTimeString("de-DE", {
-                hour: "2-digit",
-                minute: "2-digit",
-              }),
+              timestamp: (() => {
+                const msgDate = new Date(msg.created_at);
+                return isValidDate(msgDate)
+                  ? msgDate.toLocaleTimeString("de-DE", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "";
+              })(),
             })),
           };
         }),
@@ -131,7 +148,6 @@ const Chats = () => {
 
       setConversations(formattedConversations);
 
-      // Automatically set the active chat if an `id` is provided in the query params
       const queryConversationId = searchParams.get("id");
       if (queryConversationId) {
         const targetConversation = formattedConversations.find(
@@ -148,7 +164,6 @@ const Chats = () => {
     }
   };
 
-  // Send a Message
   const sendMessage = async (messageText: string) => {
     if (!activeChat || !session?.user) return;
 
@@ -163,19 +178,26 @@ const Chats = () => {
 
       if (error) throw error;
 
+      const currentTime = new Date();
+      const formattedTime = isValidDate(currentTime)
+        ? currentTime.toLocaleTimeString("de-DE", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "";
+
       setActiveChat((prevChat) =>
         prevChat
           ? {
               ...prevChat,
+              lastMessage: messageText,
+              time: formattedTime,
               messages: [
                 ...prevChat.messages,
                 {
                   from: "Du",
                   text: messageText,
-                  timestamp: new Date().toLocaleTimeString("de-DE", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }),
+                  timestamp: formattedTime,
                 },
               ],
             }
@@ -186,40 +208,48 @@ const Chats = () => {
     }
   };
 
-  // Real-Time Updates for Messages
   useEffect(() => {
     if (!activeChat) return;
 
     const channel = supabase
-      .channel("realtime:messages")
+      .channel(`realtime-messages-${activeChat.id}`)
       .on(
         "postgres_changes",
         {
           event: "INSERT",
           schema: "public",
           table: "messages",
-          filter: `conversation_id=eq.${activeChat?.id}`,
+          filter: `conversation_id=eq.${activeChat.id}`,
         },
         (payload) => {
           const newMessage = payload.new;
+          const messageDate = new Date(newMessage.created_at);
+
           setActiveChat((prevChat) =>
             prevChat
               ? {
                   ...prevChat,
+                  lastMessage: newMessage.message,
+                  time: isValidDate(messageDate)
+                    ? messageDate.toLocaleTimeString("de-DE", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : prevChat.time,
                   messages: [
                     ...prevChat.messages,
                     {
                       from:
                         newMessage.sender_id === session.user.id
                           ? "Du"
-                          : activeChat.name,
+                          : prevChat.name,
                       text: newMessage.message,
-                      timestamp: new Date(
-                        newMessage.created_at,
-                      ).toLocaleTimeString("de-DE", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      }),
+                      timestamp: isValidDate(messageDate)
+                        ? messageDate.toLocaleTimeString("de-DE", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "",
                     },
                   ],
                 }
@@ -235,8 +265,68 @@ const Chats = () => {
   }, [activeChat, session?.user?.id]);
 
   useEffect(() => {
-    if (session) fetchConversations();
+    if (session) {
+      ensureSupportChatExists().then(() => {
+        fetchConversations();
+      });
+    }
   }, [session]);
+
+  const ensureSupportChatExists = async () => {
+    if (!session?.user || session.user.id === supportUserId) return;
+
+    try {
+      const userId = session.user.id;
+
+      const filter = `and(user1_id.eq.${userId},user2_id.eq.${supportUserId}),and(user1_id.eq.${supportUserId},user2_id.eq.${userId})`;
+
+      const { data: existingConversations, error: fetchError } = await supabase
+        .from("conversations")
+        .select("id")
+        .or(filter);
+
+      if (fetchError) throw fetchError;
+
+      if (existingConversations && existingConversations.length > 0) {
+        const existingChat = existingConversations[0];
+        const targetConversation = conversations.find(
+          (conv) => conv.id === existingChat.id,
+        );
+        if (targetConversation && !activeChat)
+          setActiveChat(targetConversation);
+      } else {
+        const { data: newConversation, error: createError } = await supabase
+          .from("conversations")
+          .insert([
+            {
+              user1_id: userId,
+              user2_id: supportUserId,
+            },
+          ])
+          .select()
+          .single();
+
+        if (createError) throw createError;
+
+        const { name, avatar } = await fetchUserDetails(supportUserId);
+
+        const formattedConversation: Conversation = {
+          id: newConversation.id,
+          user1_id: userId,
+          user2_id: supportUserId,
+          name,
+          avatar,
+          lastMessage: "",
+          time: "",
+          unread: 0,
+          messages: [],
+        };
+        setActiveChat(formattedConversation);
+      }
+    } catch (err) {
+      console.error("Error ensuring support chat exists:", err);
+    }
+  };
 
   if (sessionLoading) return <div className="text-center mt-20">Laden...</div>;
   if (sessionError)
@@ -245,7 +335,6 @@ const Chats = () => {
   return (
     <Layout>
       <div className="w-10/12 mx-auto mt-10 flex bg-white border-2 border-green-600 rounded-2xl shadow-lg h-[80vh]">
-        {/* Chat List (Left Side) */}
         <div className="w-4/12 border-r-2 border-gray-200 h-full">
           <h2 className="text-2xl font-bold p-5 border-b-2 border-gray-200">
             Chats
@@ -277,7 +366,6 @@ const Chats = () => {
                         .toUpperCase()}
                     </div>
                   )}
-
                   <div className="ml-4 flex-1">
                     <h3 className="font-semibold text-lg">
                       {conversation.name}
@@ -287,7 +375,11 @@ const Chats = () => {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-gray-500">{conversation.time}</p>
+                    {isValidTime(conversation.time) && (
+                      <p className="text-xs text-gray-500">
+                        {conversation.time}
+                      </p>
+                    )}
                     {conversation.unread > 0 && (
                       <span className="bg-green-600 text-white text-xs rounded-full px-2 py-1">
                         {conversation.unread}
@@ -299,12 +391,9 @@ const Chats = () => {
             )}
           </div>
         </div>
-
-        {/* Chat Window (Right Side) */}
         <div className="w-8/12 flex flex-col h-full">
           {activeChat ? (
             <>
-              {/* Chat Header */}
               <div className="p-4 border-b-2 border-gray-200 flex items-center justify-between">
                 <div className="flex items-center">
                   {activeChat.avatar ? (
@@ -322,17 +411,11 @@ const Chats = () => {
                         .toUpperCase()}
                     </div>
                   )}
-
                   <h3 className="ml-4 text-lg font-semibold">
                     {activeChat.name}
                   </h3>
                 </div>
-                <button className="text-green-600 font-semibold">
-                  Optionen
-                </button>
               </div>
-
-              {/* Chat Messages */}
               <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
                 {activeChat.messages.map((message, index) => (
                   <div
@@ -368,15 +451,15 @@ const Chats = () => {
                       } max-w-xs`}
                     >
                       <p className="text-sm">{message.text}</p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {message.timestamp}
-                      </p>
+                      {isValidTime(message.timestamp) && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {message.timestamp}
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
-
-              {/* Chat Input */}
               <div className="p-4 bg-white border-t-2 border-gray-200">
                 <div className="flex items-center">
                   <input
