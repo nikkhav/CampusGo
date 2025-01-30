@@ -23,6 +23,9 @@ import EmailConfirmed from "@/pages/Auth/EmailConfirmed.tsx";
 import ResetPassword from "@/pages/Auth/ResetPassword.tsx";
 import YourRides from "@/pages/Rides/YourRides.tsx";
 import TrackRide from "@/pages/Rides/TrackRide.tsx";
+import Impressum from "@/pages/legal/Impressum.tsx";
+import Datenschutz from "@/pages/legal/Datenschutz.tsx";
+import Agb from "@/pages/legal/Agb.tsx";
 
 const router = createBrowserRouter([
   {
@@ -96,6 +99,18 @@ const router = createBrowserRouter([
   {
     path: "/reset-password",
     element: <ResetPassword />,
+  },
+  {
+    path: "/impressum",
+    element: <Impressum />,
+  },
+  {
+    path: "/datenschutz",
+    element: <Datenschutz />,
+  },
+  {
+    path: "/agb",
+    element: <Agb />,
   },
   {
     path: "*",
