@@ -23,9 +23,9 @@ import EmailConfirmed from "@/pages/Auth/EmailConfirmed.tsx";
 import ResetPassword from "@/pages/Auth/ResetPassword.tsx";
 import YourRides from "@/pages/Rides/YourRides.tsx";
 import TrackRide from "@/pages/Rides/TrackRide.tsx";
-import Impressum from "@/pages/legal/Impressum.tsx";
-import Datenschutz from "@/pages/legal/Datenschutz.tsx";
-import Agb from "@/pages/legal/Agb.tsx";
+import Impressum from "@/pages/Legal/Impressum.tsx";
+import Datenschutz from "@/pages/Legal/Datenschutz.tsx";
+import Agb from "@/pages/Legal/Agb.tsx";
 
 const router = createBrowserRouter([
   {

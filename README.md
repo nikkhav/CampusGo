@@ -41,8 +41,17 @@ Das langfristige Ziel ist die **Integration in die bestehende UBT-App** (über U
    ```bash
    yarn install
    ```
+   
+2. **Konfiguration**: Erstellen Sie eine `.env`-Datei im Hauptverzeichnis des Projekts und fügen Sie die folgenden Umgebungsvariablen hinzu:
+   ```bash
+   VITE_SUPABASE_URL=supabase-url
+   VITE_SUPABASE_KEY=supabase-key
+   VITE_REACT_APP_MAPBOX_TOKEN=mapbox-token
+   ```
+    Ersetzen Sie `supabase-url`, `supabase-key` und `mapbox-token` durch die entsprechenden Werte.
+    Bitte uns kontaktieren, um die Werte zu erhalten.
 
-2. **App starten**: Nutzen Sie den folgenden Befehl, um die App im Entwicklungsmodus zu starten:
+3. **App starten**: Nutzen Sie den folgenden Befehl, um die App im Entwicklungsmodus zu starten:
    ```bash
    yarn dev
    ```

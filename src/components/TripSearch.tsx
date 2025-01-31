@@ -46,17 +46,29 @@ export default function TripSearch() {
 
     if (queryFrom) setFrom(queryFrom);
     if (queryTo) setTo(queryTo);
-    if (queryDate) setDate(new Date(queryDate));
+    if (queryDate) {
+      // Safely parse the date param
+      const parsedDate = new Date(queryDate);
+      if (!isNaN(parsedDate.getTime())) {
+        setDate(parsedDate);
+      }
+    }
     if (queryPassengers) setPassengers(parseInt(queryPassengers, 10));
   }, [searchParams]);
+
+  // Helper to format date as YYYY-MM-DD with zero padding
+  const formatToISODate = (d: Date) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   const handleSubmit = () => {
     const query = new URLSearchParams({
       ...(from && { from }),
       ...(to && { to }),
-      ...(date && {
-        date: date.toLocaleDateString("de-DE").split(".").reverse().join("-"),
-      }),
+      ...(date && { date: formatToISODate(date) }),
       passengers: passengers.toString(),
     }).toString();
 

@@ -83,13 +83,13 @@ const FindRide = () => {
         .from("rides")
         .select(
           `
-        id,
-        start_time,
-        end_time,
-        available_seats,
-        users(first_name, last_name, image),
-        stops(stop_type, locations(name))
-      `,
+          id,
+          start_time,
+          end_time,
+          available_seats,
+          users(first_name, last_name, image),
+          stops(stop_type, locations(name))
+        `,
         )
         .gt("available_seats", 0)
         .order("start_time", { ascending: true });
@@ -178,6 +178,26 @@ const FindRide = () => {
     filterRides(allRides);
   }, [searchParams, activeDate, timeFilters]);
 
+  useEffect(() => {
+    const paramDate = searchParams.get("date");
+    if (paramDate) {
+      const parsedDate = new Date(paramDate);
+      if (!isNaN(parsedDate.getTime())) {
+        setActiveDate(parsedDate);
+        const foundIndex = dates.findIndex(
+          (d) => d.fullDate.toDateString() === parsedDate.toDateString(),
+        );
+        if (foundIndex !== -1) {
+          let newStartIndex = foundIndex;
+          if (newStartIndex > dates.length - 3) {
+            newStartIndex = dates.length - 3;
+          }
+          setStartIndex(newStartIndex);
+        }
+      }
+    }
+  }, [searchParams]);
+
   return (
     <Layout>
       <TripSearch />
@@ -220,7 +240,6 @@ const FindRide = () => {
           </div>
         </div>
         <div className="w-8/12">
-          {/* Даты */}
           <div className="flex justify-between items-center mb-4 text-lg font-bold">
             <button onClick={handlePreviousDates} disabled={startIndex === 0}>
               <ChevronLeft size={24} />
