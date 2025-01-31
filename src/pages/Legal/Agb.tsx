@@ -170,7 +170,9 @@ const AGB = () => {
             des Dokuments gültig.
             <br />
             Bei Fragen oder Anliegen können Nutzer uns unter{" "}
-            <a href="mailto:support@campusgo.com">support@campusgo.com</a>{" "}
+            <a href="mailto:support@campusgo.live">
+              support@campusgo.live
+            </a>{" "}
             kontaktieren.
           </p>
         </section>

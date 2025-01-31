@@ -83,7 +83,7 @@ const ContactUs = () => {
             </div>
             <div className="flex items-center mb-4">
               <Mail className="w-6 h-6 text-green-600" />
-              <p className="ml-4 text-gray-700">support@campusgo.com</p>
+              <p className="ml-4 text-gray-700">support@campusgo.live</p>
             </div>
             <div className="flex items-center mb-4">
               <MapPin className="w-6 h-6 text-green-600" />

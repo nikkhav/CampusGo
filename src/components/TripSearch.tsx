@@ -12,14 +12,12 @@ export default function TripSearch() {
   const [passengers, setPassengers] = useState(1);
   const [locations, setLocations] = useState<string[]>([]);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams(); // Hook to get query params
+  const [searchParams] = useSearchParams();
 
-  // Increment and decrement passenger count
   const incrementPassengers = () => setPassengers((prev) => prev + 1);
   const decrementPassengers = () =>
     setPassengers((prev) => Math.max(prev - 1, 1));
 
-  // Fetch locations from Supabase
   const fetchLocations = async () => {
     try {
       const { data, error } = await supabase
@@ -35,7 +33,6 @@ export default function TripSearch() {
     }
   };
 
-  // Pre-fill state with query parameters
   useEffect(() => {
     fetchLocations();
 
@@ -47,7 +44,6 @@ export default function TripSearch() {
     if (queryFrom) setFrom(queryFrom);
     if (queryTo) setTo(queryTo);
     if (queryDate) {
-      // Safely parse the date param
       const parsedDate = new Date(queryDate);
       if (!isNaN(parsedDate.getTime())) {
         setDate(parsedDate);
@@ -56,7 +52,6 @@ export default function TripSearch() {
     if (queryPassengers) setPassengers(parseInt(queryPassengers, 10));
   }, [searchParams]);
 
-  // Helper to format date as YYYY-MM-DD with zero padding
   const formatToISODate = (d: Date) => {
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -76,9 +71,9 @@ export default function TripSearch() {
   };
 
   return (
-    <div className="flex w-full max-w-4xl items-center gap-2 rounded-full border bg-white p-2 shadow-md mx-auto my-10">
-      <div className="flex w-3/12 items-center gap-2 px-2">
-        <MapPin className="h-4 w-4 text-gray-400" />
+    <div className="flex flex-col sm:flex-row w-full max-w-4xl items-center gap-4 sm:gap-2 rounded-xl sm:rounded-full border bg-white p-4 sm:p-2 shadow-md mx-auto my-6">
+      <div className="flex w-full sm:w-3/12 items-center gap-2 lg:px-2">
+        <MapPin className="h-5 w-5 text-gray-400" />
         <Select
           options={locations}
           value={from}
@@ -88,8 +83,8 @@ export default function TripSearch() {
         />
       </div>
 
-      <div className="flex w-3/12 items-center gap-2 border-l px-4">
-        <MapPin className="h-4 w-4 text-gray-400" />
+      <div className="flex w-full sm:w-3/12 items-center gap-2 border-t sm:border-t-0 sm:border-l lg:px-2 pt-4 sm:pt-0">
+        <MapPin className="h-5 w-5 text-gray-400" />
         <Select
           options={locations}
           value={to}
@@ -99,23 +94,23 @@ export default function TripSearch() {
         />
       </div>
 
-      <div className="flex w-3/12 items-center border-l px-2">
+      <div className="flex w-full sm:w-3/12 items-center border-t sm:border-t-0 sm:border-l px-2 pt-4 sm:pt-0">
         <DatePicker date={date} setDate={setDate} />
       </div>
 
-      <div className="flex w-3/12 justify-between items-center gap-3 border-l px-4">
+      <div className="flex w-full sm:w-3/12 justify-between items-center gap-3 border-t sm:border-t-0 sm:border-l px-2 sm:px-4 pt-2 sm:pt-0">
         <Users className="h-5 w-5 text-gray-400" />
-        <div className="flex items-center justify-between w-10/12">
+        <div className="flex items-center justify-between w-full sm:w-10/12">
           <button
             onClick={decrementPassengers}
-            className="flex items-center justify-center text-gray-600 hover:text-gray-800 focus:outline-none w-8 h-8 border rounded-full"
+            className="flex items-center justify-center text-gray-600 hover:text-gray-800 focus:outline-none w-10 h-10 sm:w-8 sm:h-8 border rounded-full"
           >
             <Minus className="h-4 w-4" />
           </button>
           <span className="text-center text-lg">{passengers}</span>
           <button
             onClick={incrementPassengers}
-            className="flex items-center justify-center text-gray-600 hover:text-gray-800 focus:outline-none w-8 h-8 border rounded-full"
+            className="flex items-center justify-center text-gray-600 hover:text-gray-800 focus:outline-none w-10 h-10 sm:w-8 sm:h-8 border rounded-full"
           >
             <Plus className="h-4 w-4" />
           </button>
@@ -124,7 +119,7 @@ export default function TripSearch() {
 
       <button
         onClick={handleSubmit}
-        className="rounded-full bg-emerald-600 px-6 py-2 text-white hover:bg-emerald-700"
+        className="w-full sm:w-auto rounded-full bg-emerald-600 px-6 py-3 sm:py-2 text-white hover:bg-emerald-700 mt-2 sm:mt-0"
       >
         Suchen
       </button>

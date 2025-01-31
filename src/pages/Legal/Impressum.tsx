@@ -27,8 +27,8 @@ const Impressum = () => {
           <strong className="font-semibold">Kontakt:</strong> <br />
           Telefon: +49 123 456 7890 <br />
           E-Mail:{" "}
-          <a href="mailto:support@campusgo.com" className="text-blue-500">
-            support@campusgo.com
+          <a href="mailto:support@campusgo.live" className="text-blue-500">
+            support@campusgo.live
           </a>
         </p>
         <p className="space-y-1">

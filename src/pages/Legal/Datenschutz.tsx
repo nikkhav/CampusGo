@@ -20,7 +20,7 @@ const Datenschutz = () => {
             <br />
             Universität Bayreuth, Universitätsstraße 30, 95447 Bayreuth
             <br />
-            <a href="mailto:support@campusgo.com">support@campusgo.com</a>
+            <a href="mailto:support@campusgo.live">support@campusgo.live</a>
             <br />
             Telefon: +49 123 456 7890
           </p>
@@ -201,7 +201,7 @@ const Datenschutz = () => {
             <br />
             Universität Bayreuth, Universitätsstraße 30, 95447 Bayreuth
             <br />
-            <a href="mailto:support@campusgo.com">support@campusgo.com</a>
+            <a href="mailto:support@campusgo.live">support@campusgo.live</a>
             <br />
             Telefon: +49 123 456 7890
           </p>
