@@ -279,15 +279,15 @@ const OfferRide = () => {
 
   return (
     <Layout>
-      <div className="w-10/12 mx-auto">
+      <div className="lg:w-10/12 w-11/12 mx-auto">
         <h2 className="text-5xl text-center mt-16">Dein Angebot erstellen</h2>
         <p className="text-xl text-center font-light mt-4 text-gray-600">
           Fülle die folgenden Schritte aus, um eine Mitfahrgelegenheit
           anzubieten. Es dauert nur wenige Minuten!
         </p>
-        <div className="mt-10 border rounded-xl shadow-lg bg-white p-8">
+        <div className="mt-10 border rounded-xl shadow-lg bg-white lg:p-8 p-4">
           <div className="flex items-center justify-center relative mb-8">
-            <div className="flex flex-col items-center w-28">
+            <div className="flex flex-col items-center lg:w-28 w-10">
               <div
                 className={`w-10 h-10 flex items-center justify-center rounded-full text-white font-bold ${
                   currentStep >= 1 ? "bg-green-600" : "bg-gray-300"
@@ -295,14 +295,16 @@ const OfferRide = () => {
               >
                 1
               </div>
-              <p className="mt-2 font-medium text-gray-800">Details</p>
+              <p className="lg:block hidden mt-2 font-medium text-gray-800">
+                Details
+              </p>
             </div>
             <div
               className={`flex-1 h-1 mx-4 ${
                 currentStep >= 2 ? "bg-green-600" : "bg-gray-300"
               }`}
             />
-            <div className="flex flex-col items-center w-28">
+            <div className="flex flex-col items-center lg:w-28 w-10">
               <div
                 className={`w-10 h-10 flex items-center justify-center rounded-full text-white font-bold ${
                   currentStep >= 2 ? "bg-green-600" : "bg-gray-300"
@@ -310,7 +312,7 @@ const OfferRide = () => {
               >
                 2
               </div>
-              <p className="mt-2 font-medium text-gray-800 text-center">
+              <p className="lg:block hidden mt-2 font-medium text-gray-800 text-center">
                 Zeit & Plätze
               </p>
             </div>
@@ -319,7 +321,7 @@ const OfferRide = () => {
                 currentStep === 3 ? "bg-green-600" : "bg-gray-300"
               }`}
             />
-            <div className="flex flex-col items-center w-28">
+            <div className="flex flex-col items-center lg:w-28 w-10">
               <div
                 className={`w-10 h-10 flex items-center justify-center rounded-full text-white font-bold ${
                   currentStep === 3 || currentStep === 4
@@ -329,7 +331,9 @@ const OfferRide = () => {
               >
                 3
               </div>
-              <p className="mt-2 font-medium text-gray-800">Überprüfen</p>
+              <p className="lg:block hidden mt-2 font-medium text-gray-800">
+                Überprüfen
+              </p>
             </div>
           </div>
 
@@ -497,15 +501,15 @@ const OfferRide = () => {
               <p className="text-lg text-gray-600 text-center">
                 Bitte überprüfe die eingegebenen Informationen:
               </p>
-              <div className="mt-8 bg-gray-50 p-6 rounded-xl shadow-lg">
-                <div className="flex justify-between">
+              <div className="lg:mt-8 mt-4 bg-gray-50 p-6 rounded-xl shadow-lg">
+                <div className="flex lg:flex-row flex-col justify-between">
                   {stops
                     .filter(
                       (stop) =>
                         stop.stop_type === "start" || stop.stop_type === "end",
                     )
                     .map((stop, index) => (
-                      <div key={index} className="w-1/2">
+                      <div key={index} className="lg:w-1/2 lg:mt-0 mt-4">
                         <p className="text-sm text-gray-500">
                           {stop.stop_type === "start" ? "Startort" : "Zielort"}
                         </p>

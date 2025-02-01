@@ -4,7 +4,7 @@ import { Phone, Mail, MapPin } from "lucide-react";
 const ContactUs = () => {
   return (
     <Layout>
-      <div className="w-10/12 mx-auto mt-10">
+      <div className="lg:w-10/12 w-11/12 mx-auto mt-10">
         <h1 className="text-4xl font-semibold text-center text-green-700 mb-6">
           Kontaktiere Uns
         </h1>
@@ -14,11 +14,11 @@ const ContactUs = () => {
         </p>
 
         <div className="flex flex-col lg:flex-row items-center lg:space-x-8 gap-8">
-          <div className="lg:w-7/12">
-            <h2 className="text-2xl font-semibold mb-4">
+          <div className="lg:w-7/12 w-full">
+            <h2 className="text-2xl text-center lg:text-left font-semibold mb-4">
               Schick uns eine Nachricht
             </h2>
-            <form className="bg-white p-8 rounded-md shadow-lg border-2 border-green-600">
+            <form className="bg-white lg:p-8 p-4 rounded-md shadow-lg border-2 border-green-600">
               <div className="mb-6">
                 <label
                   htmlFor="name"

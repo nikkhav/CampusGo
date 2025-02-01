@@ -171,7 +171,7 @@ const YourRides = () => {
 
   return (
     <Layout>
-      <div className="w-10/12 mx-auto my-16">
+      <div className="lg:w-10/12 w-11/12 mx-auto my-16">
         <div className="flex justify-center gap-10 border-b-2 border-gray-200 pb-4">
           <button
             className={`text-lg font-medium ${
@@ -195,7 +195,7 @@ const YourRides = () => {
           </button>
         </div>
 
-        <div className="mt-8 w-10/12 mx-auto">
+        <div className="mt-8 lg:w-10/12 w-11/12 mx-auto">
           {loading ? (
             <p className="text-center">Laden...</p>
           ) : activeTab === "booked" ? (

@@ -301,7 +301,7 @@ const TrackRide = () => {
 
   return (
     <Layout>
-      <div className="w-8/12 mx-auto my-10">
+      <div className="lg:w-8/12 w-11/12 mx-auto my-10">
         <h2 className="text-4xl text-center font-semibold">{pageTitle}</h2>
         <p className="mt-4 text-center text-gray-600">
           Hier können Sie alle Details zu dieser Fahrt einsehen.
@@ -309,7 +309,7 @@ const TrackRide = () => {
 
         {/* Main Ride Info */}
         <div className="mt-10 border p-8 bg-white shadow-lg rounded-xl">
-          <div className="flex justify-between items-center w-full mx-auto">
+          <div className="flex lg:flex-row flex-col justify-between items-center w-full mx-auto lg:text-left text-center">
             {/* Start Stop */}
             <div className="flex flex-col justify-center items-center text-center w-1/3">
               <p className="text-sm font-semibold text-gray-500">
@@ -332,7 +332,7 @@ const TrackRide = () => {
             </div>
 
             {/* Duration */}
-            <div className="flex items-center justify-center flex-grow mx-4 relative w-1/3">
+            <div className="flex items-center justify-center flex-grow mx-4 lg:my-0 my-8 relative w-1/3">
               <div className="h-px bg-green-600 flex-grow"></div>
               <p className="mx-4 text-green-600 font-semibold">
                 Fahrtzeit: {duration}
@@ -459,7 +459,7 @@ const TrackRide = () => {
               </div>
 
               {/* Action Buttons (Contact Driver, Report Ride) */}
-              <div className="mt-8 flex justify-start gap-4">
+              <div className="mt-8 flex lg:flex-row flex-col justify-start gap-4">
                 <button
                   onClick={() => handleContact(rideData.driver_id)}
                   className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 shadow-md"

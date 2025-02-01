@@ -207,9 +207,11 @@ const FindRide = () => {
 
   return (
     <Layout>
-      <TripSearch />
-      <div className="w-10/12 mx-auto flex justify-between mt-6 min-h-[50vh]">
-        <div className="w-4/12">
+      <div className="lg:w-full w-11/12 mx-auto">
+        <TripSearch />
+      </div>
+      <div className="lg:w-10/12 w-full mx-auto flex lg:flex-row flex-col justify-between lg:mt-6 lg:min-h-[50vh]">
+        <div className="lg:w-4/12 w-11/12 mx-auto">
           <p className="text-lg font-bold mb-4">Abfahrtszeit</p>
           <div className="flex flex-col space-y-2">
             <label className="flex items-center">
@@ -246,8 +248,8 @@ const FindRide = () => {
             </label>
           </div>
         </div>
-        <div className="w-8/12">
-          <div className="flex justify-between items-center mb-4 text-lg font-bold">
+        <div className="lg:w-8/12 w-11/12 mx-auto mt-5 lg:mt-0">
+          <div className="flex justify-between items-center lg:mt-0 my-4 text-lg font-bold">
             <button onClick={handlePreviousDates} disabled={startIndex === 0}>
               <ChevronLeft size={24} />
             </button>

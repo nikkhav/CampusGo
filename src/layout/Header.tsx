@@ -114,6 +114,15 @@ export default function Header() {
                   <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
                     <ul className="flex flex-col">
                       <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
+                        <User className="w-5 h-5 text-gray-700" />
+                        <Link
+                          to={`/profile/${session.user.id}`}
+                          className="text-gray-700"
+                        >
+                          Profil
+                        </Link>
+                      </li>
+                      <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
                         <Inbox className="w-5 h-5 text-gray-700" />
                         <Link to="/your-rides" className="text-gray-700">
                           Deine Fahrten
@@ -123,15 +132,6 @@ export default function Header() {
                         <Send className="w-5 h-5 text-gray-700" />
                         <Link to="/chats" className="text-gray-700">
                           Chats
-                        </Link>
-                      </li>
-                      <li className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
-                        <User className="w-5 h-5 text-gray-700" />
-                        <Link
-                          to={`/profile/${session.user.id}`}
-                          className="text-gray-700"
-                        >
-                          Profil
                         </Link>
                       </li>
                     </ul>

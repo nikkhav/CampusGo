@@ -27,7 +27,7 @@ const Modal = ({
         className,
       )}
     >
-      <div className="w-6/12 bg-white rounded-2xl shadow-lg p-10 relative">
+      <div className="lg:w-6/12 w-11/12 bg-white rounded-2xl shadow-lg p-10 relative">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-600 hover:text-gray-800"

@@ -50,7 +50,7 @@ const TeamMember = ({ name, course, image }: TeamMemberProps) => (
     <img
       src={image}
       alt={name}
-      className="w-40 h-40 rounded-full border-2 border-green-600"
+      className="w-40 h-40 rounded-full border-2 border-green-600 object-cover"
     />
     <h5 className="text-xl font-semibold mt-5">{name}</h5>
     <p className="text-gray-700 mt-3">{course}</p>
