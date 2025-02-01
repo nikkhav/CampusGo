@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 const EmailConfirmed = () => {
   return (
     <Layout>
-      <div className="bg-white w-8/12 border-2 border-green-600 rounded-2xl shadow-lg p-8 mx-auto my-20">
+      <div className="bg-white lg:w-8/12 w-11/12 border-2 border-green-600 rounded-2xl shadow-lg p-8 mx-auto my-20">
         <h1 className="text-center text-2xl font-bold">E-Mail bestätigt</h1>
         <div className="flex justify-center mt-6">
           <Lottie

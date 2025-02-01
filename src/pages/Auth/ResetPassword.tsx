@@ -46,7 +46,7 @@ const ResetPassword = () => {
 
   return (
     <div
-      className="relative flex items-center justify-center min-h-screen bg-gray-100"
+      className="relative flex items-center justify-center min-h-screen bg-gray-100 lg:px-0 px-5"
       style={{
         backgroundImage: `url(${newpass_bg})`,
         backgroundSize: "cover",
@@ -55,7 +55,7 @@ const ResetPassword = () => {
     >
       <div className="absolute inset-0 bg-black opacity-40"></div>
 
-      <Link to="/" className="absolute top-20 left-40 z-10">
+      <Link to="/" className="absolute lg:block hidden top-20 left-40 z-10">
         <button className="flex items-center p-2 rounded-full bg-gray-100 hover:bg-gray-200 focus:outline-none">
           <ArrowLeft />
         </button>

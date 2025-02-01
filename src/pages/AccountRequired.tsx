@@ -4,7 +4,7 @@ import Layout from "@/layout/Layout.tsx";
 const AccountRequired = () => {
   return (
     <Layout>
-      <div className="flex flex-col my-40 text-center w-10/12 mx-auto">
+      <div className="flex flex-col my-40 text-center lg:w-10/12 w-11/12 mx-auto">
         <h1 className="text-6xl font-bold text-green-600 mt-10">
           Anmeldung erforderlich
         </h1>

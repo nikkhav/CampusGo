@@ -38,17 +38,14 @@ const NewPassword = () => {
 
   return (
     <div
-      className="relative flex items-center justify-center min-h-screen bg-gray-100"
+      className="relative flex items-center justify-center min-h-screen bg-gray-100 lg:px-0 px-5"
       style={{
         backgroundImage: `url(${newpass_bg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      {/* Overlay */}
       <div className="absolute inset-0 bg-black opacity-40"></div>
-
-      {/* Form Container */}
       <div className="relative w-full max-w-md p-6 bg-white rounded-lg shadow-md z-10">
         <h2 className="text-2xl font-semibold text-center text-gray-900 mb-6">
           Neues Passwort setzen

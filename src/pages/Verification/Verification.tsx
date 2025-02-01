@@ -63,7 +63,7 @@ const Verification = () => {
   };
   return (
     <Layout>
-      <div className="bg-white w-8/12 border-2 border-green-600 rounded-2xl shadow-lg p-8 mx-auto mt-10">
+      <div className="bg-white lg:w-8/12 w-11/12 border-2 border-green-600 rounded-2xl shadow-lg p-8 mx-auto mt-10">
         <h1 className="text-center text-2xl font-bold">
           Verifiziere Deine Dokumente
         </h1>
