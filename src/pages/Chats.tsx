@@ -40,6 +40,8 @@ const Chats = () => {
   const [loadingConversations, setLoadingConversations] =
     useState<boolean>(false);
   const [searchParams] = useSearchParams();
+  // Управление отображением списка чатов на мобильных устройствах:
+  const [showChatList, setShowChatList] = useState<boolean>(true);
 
   const isValidDate = (date: Date): boolean => {
     return !isNaN(date.getTime());
@@ -153,7 +155,10 @@ const Chats = () => {
         const targetConversation = formattedConversations.find(
           (conv) => conv.id === queryConversationId,
         );
-        if (targetConversation) setActiveChat(targetConversation);
+        if (targetConversation) {
+          setActiveChat(targetConversation);
+          setShowChatList(false);
+        }
       } else if (formattedConversations.length > 0) {
         setActiveChat(formattedConversations[0]);
       }
@@ -206,6 +211,11 @@ const Chats = () => {
     } catch (err) {
       console.error("Error sending message:", err);
     }
+  };
+
+  const truncateText = (text: string, maxLength: number): string => {
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength).trim() + "...";
   };
 
   useEffect(() => {
@@ -334,8 +344,12 @@ const Chats = () => {
 
   return (
     <Layout>
-      <div className="w-10/12 mx-auto mt-10 flex bg-white border-2 border-green-600 rounded-2xl shadow-lg h-[80vh]">
-        <div className="w-4/12 border-r-2 border-gray-200 h-full">
+      <div className="lg:w-10/12 w-11/12 mx-auto mt-10 flex bg-white border-2 lg:border-green-600 rounded-2xl lg:shadow-lg h-[80vh]">
+        <div
+          className={`lg:block ${
+            showChatList ? "block" : "hidden"
+          } w-full lg:w-4/12 border-r-2 border-gray-200 h-full`}
+        >
           <h2 className="text-2xl font-bold p-5 border-b-2 border-gray-200">
             Chats
           </h2>
@@ -346,7 +360,10 @@ const Chats = () => {
               conversations.map((conversation) => (
                 <div
                   key={conversation.id}
-                  onClick={() => setActiveChat(conversation)}
+                  onClick={() => {
+                    setActiveChat(conversation);
+                    setShowChatList(false);
+                  }}
                   className={`flex items-center p-4 hover:bg-gray-100 transition cursor-pointer ${
                     activeChat?.id === conversation.id ? "bg-green-50" : ""
                   }`}
@@ -358,7 +375,7 @@ const Chats = () => {
                       className="w-12 h-12 rounded-full border-2 border-green-600 object-cover"
                     />
                   ) : (
-                    <div className="w-12 h-12 rounded-full border-2 border-green-600 bg-gray-200 flex items-center justify-center text-lg font-bold text-green-700 cursor-pointer">
+                    <div className="w-12 h-12 rounded-full border-2 border-green-600 bg-gray-200 flex items-center justify-center text-lg font-bold text-green-700">
                       {conversation.name
                         .split(" ")
                         .map((word) => word.charAt(0))
@@ -371,7 +388,7 @@ const Chats = () => {
                       {conversation.name}
                     </h3>
                     <p className="text-sm text-gray-600 truncate">
-                      {conversation.lastMessage}
+                      {truncateText(conversation.lastMessage, 30)}
                     </p>
                   </div>
                   <div className="text-right">
@@ -391,11 +408,22 @@ const Chats = () => {
             )}
           </div>
         </div>
-        <div className="w-8/12 flex flex-col h-full">
+
+        <div
+          className={`lg:w-8/12 w-full flex ${
+            showChatList ? "hidden" : ""
+          } flex-col h-full`}
+        >
           {activeChat ? (
             <>
               <div className="p-4 border-b-2 border-gray-200 flex items-center justify-between">
                 <div className="flex items-center">
+                  <button
+                    className="lg:hidden mr-4 text-green-600 focus:outline-none"
+                    onClick={() => setShowChatList(true)}
+                  >
+                    &#8592;
+                  </button>
                   {activeChat.avatar ? (
                     <img
                       src={activeChat.avatar}
@@ -403,7 +431,7 @@ const Chats = () => {
                       className="w-10 h-10 rounded-full border-2 border-green-600 object-cover"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full border-2 border-green-600 bg-gray-200 flex items-center justify-center text-lg font-bold text-green-700 cursor-pointer">
+                    <div className="w-10 h-10 rounded-full border-2 border-green-600 bg-gray-200 flex items-center justify-center text-lg font-bold text-green-700">
                       {activeChat.name
                         .split(" ")
                         .map((word) => word.charAt(0))
@@ -425,7 +453,7 @@ const Chats = () => {
                     }`}
                   >
                     {message.from !== "Du" && (
-                      <div>
+                      <div className="mr-2">
                         {activeChat.avatar ? (
                           <img
                             src={activeChat.avatar}
@@ -433,7 +461,7 @@ const Chats = () => {
                             className="w-8 h-8 rounded-full border-2 border-green-600 object-cover"
                           />
                         ) : (
-                          <div className="w-8 h-8 rounded-full border-2 border-green-600 bg-gray-200 flex items-center justify-center font-bold text-green-700 cursor-pointer">
+                          <div className="w-8 h-8 rounded-full border-2 border-green-600 bg-gray-200 flex items-center justify-center font-bold text-green-700">
                             {message.from
                               .split(" ")
                               .map((word) => word.charAt(0))
