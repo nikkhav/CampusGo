@@ -49,6 +49,14 @@ const dates = Array.from({ length: 7 }, (_, i) => {
 const formatDate = (dateObj: { day: string; date: number; month: string }) =>
   `${dateObj.day}, ${dateObj.date} ${dateObj.month}`;
 
+// Helper to return a local date string (YYYY-MM-DD)
+const getLocalDateString = (d: Date): string => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 const FindRide = () => {
   const [allRides, setAllRides] = useState<FullRide[]>([]);
   const [rides, setRides] = useState<FullRide[]>([]);
@@ -132,8 +140,8 @@ const FindRide = () => {
   const filterRides = (data: FullRide[]) => {
     const from = searchParams.get("from");
     const to = searchParams.get("to");
-    const date =
-      searchParams.get("date") || activeDate.toISOString().split("T")[0];
+    const dateFilter =
+      searchParams.get("date") || getLocalDateString(activeDate);
     const passengers = parseInt(searchParams.get("passengers") || "1", 10);
 
     let filteredRides = data;
@@ -144,10 +152,9 @@ const FindRide = () => {
       );
     if (to)
       filteredRides = filteredRides.filter((ride) => ride.end_location === to);
-    if (date)
+    if (dateFilter)
       filteredRides = filteredRides.filter(
-        (ride) =>
-          new Date(ride.start_time).toISOString().split("T")[0] === date,
+        (ride) => getLocalDateString(new Date(ride.start_time)) === dateFilter,
       );
     if (passengers)
       filteredRides = filteredRides.filter(

@@ -53,6 +53,27 @@ const OfferRide = () => {
 
   const navigate = useNavigate();
 
+  // Helper function that constructs an ISO string from the selected date and time,
+  // appending the local timezone offset (e.g. "+01:00").
+  const formatTimestamp = (selectedDate: Date, timeStr: string): string => {
+    const [hourStr, minuteStr] = timeStr.split(":");
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+    const day = String(selectedDate.getDate()).padStart(2, "0");
+    const hours = String(hourStr).padStart(2, "0");
+    const minutes = String(minuteStr).padStart(2, "0");
+
+    // Get local timezone offset in minutes (note: getTimezoneOffset returns minutes behind UTC)
+    const offsetMinutes = -selectedDate.getTimezoneOffset();
+    const sign = offsetMinutes >= 0 ? "+" : "-";
+    const offsetHours = String(
+      Math.floor(Math.abs(offsetMinutes) / 60),
+    ).padStart(2, "0");
+    const offsetMins = String(Math.abs(offsetMinutes) % 60).padStart(2, "0");
+
+    return `${year}-${month}-${day}T${hours}:${minutes}:00${sign}${offsetHours}:${offsetMins}`;
+  };
+
   const getVehicles = async () => {
     if (!session?.user?.id) return;
 
@@ -166,37 +187,24 @@ const OfferRide = () => {
         return;
       }
 
-      const startDateTime = new Date(
-        date.getFullYear(),
-        date.getMonth(),
-        date.getDate(),
-        parseInt(startTime.split(":")[0], 10),
-        parseInt(startTime.split(":")[1], 10),
-      );
+      // Construct ISO timestamps using the helper function.
+      const startTimestamp = formatTimestamp(date, startTime);
+      const endTimestamp = formatTimestamp(date, endTime);
 
-      const endDateTime = new Date(
-        date.getFullYear(),
-        date.getMonth(),
-        date.getDate(),
-        parseInt(endTime.split(":")[0], 10),
-        parseInt(endTime.split(":")[1], 10),
-      );
+      // Create Date objects from the formatted strings for validation.
+      const startDateTime = new Date(startTimestamp);
+      const endDateTime = new Date(endTimestamp);
 
       if (endDateTime <= startDateTime) {
         toast.error("Endzeit muss nach der Startzeit liegen.");
         return;
       }
 
+      // Validate intermediate stops.
       for (const stop of stops) {
         if (stop.stop_type === "intermediate" && stop.stop_time) {
-          const [hours, minutes] = stop.stop_time.split(":").map(Number);
-          const stopDateTime = new Date(
-            date.getFullYear(),
-            date.getMonth(),
-            date.getDate(),
-            hours,
-            minutes,
-          );
+          const stopTimestamp = formatTimestamp(date, stop.stop_time);
+          const stopDateTime = new Date(stopTimestamp);
 
           if (stopDateTime < startDateTime || stopDateTime > endDateTime) {
             toast.error(
@@ -206,9 +214,6 @@ const OfferRide = () => {
           }
         }
       }
-
-      const startTimestamp = startDateTime.toISOString();
-      const endTimestamp = endDateTime.toISOString();
 
       const { data: rideData, error: rideError } = await supabase
         .from("rides")
@@ -230,22 +235,13 @@ const OfferRide = () => {
 
       const stopsWithRideId = stops.map((stop) => {
         if (stop.stop_type === "intermediate" && stop.stop_time) {
-          const [hours, minutes] = stop.stop_time.split(":").map(Number);
-          const stopTimestamp = new Date(
-            date.getFullYear(),
-            date.getMonth(),
-            date.getDate(),
-            hours,
-            minutes,
-          ).toISOString();
-
+          const stopTimestamp = formatTimestamp(date, stop.stop_time);
           return {
             ...stop,
             ride_id: rideId,
             stop_time: stopTimestamp,
           };
         }
-
         return { ...stop, ride_id: rideId };
       });
 
@@ -426,7 +422,6 @@ const OfferRide = () => {
                       />
                     </div>
                   ))}
-
                 <div>
                   <label className="block text-gray-700">Endzeit</label>
                   <Input
@@ -522,7 +517,6 @@ const OfferRide = () => {
                       </div>
                     ))}
                 </div>
-
                 {stops.filter((stop) => stop.stop_type === "intermediate")
                   .length > 0 && (
                   <div className="mt-6">
@@ -539,7 +533,7 @@ const OfferRide = () => {
                           ? new Date(
                               `${date?.toISOString().split("T")[0]}T${
                                 stop.stop_time
-                              }`,
+                              }:00`,
                             )
                           : null;
 
@@ -563,7 +557,6 @@ const OfferRide = () => {
                   </div>
                 )}
                 <div className="border-t border-gray-300 my-6"></div>
-
                 <div className="flex justify-between mt-5">
                   <div className="w-1/2">
                     <div>
@@ -580,7 +573,6 @@ const OfferRide = () => {
                       </p>
                     </div>
                   </div>
-
                   <div className="w-1/2">
                     <div>
                       <p className="text-sm text-gray-500">Fahrzeug</p>
@@ -590,7 +582,6 @@ const OfferRide = () => {
                           : "Nicht angegeben"}
                       </p>
                     </div>
-
                     <div className="mt-4">
                       <p className="text-sm text-gray-500">
                         Anzahl der verfügbaren Plätze
@@ -639,7 +630,6 @@ const OfferRide = () => {
               >
                 Zurück
               </button>
-
               <button
                 onClick={currentStep < 3 ? nextStep : createOffer}
                 disabled={
