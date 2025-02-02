@@ -4,7 +4,7 @@ import {
   AvatarImage,
   AvatarFallback,
 } from "@/components/ui/avatar.tsx";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { calculateDuration } from "@/lib/utils.ts";
 
 interface DestinationCardProps {
@@ -18,6 +18,8 @@ interface DestinationCardProps {
   driverLastName: string;
   driverImage?: string;
   rideId?: string;
+  rateEnabled?: boolean;
+  createdByUser?: boolean;
 }
 
 export const DestinationCard = ({
@@ -31,8 +33,11 @@ export const DestinationCard = ({
   driverLastName,
   driverImage,
   rideId,
+  rateEnabled = false,
+  createdByUser = false,
 }: DestinationCardProps) => {
   const navigate = useNavigate();
+
   const navigateToBookRide = () => {
     if (rideId) {
       return navigate(`/track/${rideId}`);
@@ -40,6 +45,7 @@ export const DestinationCard = ({
       return navigate(`/book/${id}`);
     }
   };
+
   const formattedStartTime = new Date(startDate).toLocaleTimeString("de-DE", {
     hour: "2-digit",
     minute: "2-digit",
@@ -52,47 +58,68 @@ export const DestinationCard = ({
   const initials = `${driverFirstName.charAt(0)}${driverLastName.charAt(0)}`;
 
   return (
-    <Card
-      className="flex flex-col md:flex-row items-center mt-6 cursor-pointer w-full"
-      onClick={navigateToBookRide}
-    >
-      <div className="flex-1 grid p-5 w-full md:w-8/12">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="grid gap-1 w-full md:w-3/12 text-center md:text-left">
-            <div className="text-xl font-bold">{formattedStartTime}</div>
-            <div className="text-lg">{from}</div>
-          </div>
-          <div className="flex items-center gap-2 w-full md:w-6/12">
-            <div className="h-[2px] flex-1 bg-border" />
-            <div className="text-sm text-center text-muted-foreground whitespace-nowrap">
-              {calculateDuration(startDate, endDate)}
-              <br />
-              {intermediateStopsAmount > 0 &&
-                `${intermediateStopsAmount} Zwischenstop${
-                  intermediateStopsAmount > 1 ? "s" : ""
-                }`}
+    <>
+      {rateEnabled && rideId && (
+        <div className="mb-3 mt-5">
+          {createdByUser ? (
+            <Link
+              to={`/rate-passenger/${rideId}`}
+              className="text-blue-600 hover:underline"
+            >
+              Bewerte Mitfahrer
+            </Link>
+          ) : (
+            <Link
+              to={`/rate-driver/${rideId}`}
+              className="text-blue-600 hover:underline"
+            >
+              Bewerte Fahrer
+            </Link>
+          )}
+        </div>
+      )}
+      <Card
+        className="flex flex-col md:flex-row items-center cursor-pointer w-full"
+        onClick={navigateToBookRide}
+      >
+        <div className="flex-1 grid p-5 w-full md:w-8/12">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="grid gap-1 w-full md:w-3/12 text-center md:text-left">
+              <div className="text-xl font-bold">{formattedStartTime}</div>
+              <div className="text-lg">{from}</div>
             </div>
-            <div className="h-[2px] flex-1 bg-border" />
-          </div>
-          <div className="grid gap-1 w-full md:w-3/12 text-center md:text-right">
-            <div className="text-xl font-bold">{formattedEndTime}</div>
-            <div className="text-lg">{to}</div>
+            <div className="flex items-center gap-2 w-full md:w-6/12">
+              <div className="h-[2px] flex-1 bg-border" />
+              <div className="text-sm text-center text-muted-foreground whitespace-nowrap">
+                {calculateDuration(startDate, endDate)}
+                <br />
+                {intermediateStopsAmount > 0 &&
+                  `${intermediateStopsAmount} Zwischenstop${
+                    intermediateStopsAmount > 1 ? "s" : ""
+                  }`}
+              </div>
+              <div className="h-[2px] flex-1 bg-border" />
+            </div>
+            <div className="grid gap-1 w-full md:w-3/12 text-center md:text-right">
+              <div className="text-xl font-bold">{formattedEndTime}</div>
+              <div className="text-lg">{to}</div>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="flex flex-col items-center justify-center w-full md:w-2/12 p-3 border-t md:border-t-0 md:border-l mt-4 md:mt-0">
-        <Avatar className="w-16 h-16 rounded-full overflow-hidden">
-          <AvatarImage
-            src={driverImage}
-            alt={`${displayName}'s image`}
-            className="object-cover h-full w-full"
-          />
-          <AvatarFallback className="bg-gray-300 text-lg text-gray-700 font-bold">
-            {initials}
-          </AvatarFallback>
-        </Avatar>
-        <div className="font-medium mt-2">{displayName}</div>
-      </div>
-    </Card>
+        <div className="flex flex-col items-center justify-center w-full md:w-2/12 p-3 border-t md:border-t-0 md:border-l mt-4 md:mt-0">
+          <Avatar className="w-16 h-16 rounded-full overflow-hidden">
+            <AvatarImage
+              src={driverImage}
+              alt={`${displayName}'s image`}
+              className="object-cover h-full w-full"
+            />
+            <AvatarFallback className="bg-gray-300 text-lg text-gray-700 font-bold">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <div className="font-medium mt-2">{displayName}</div>
+        </div>
+      </Card>
+    </>
   );
 };

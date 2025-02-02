@@ -216,6 +216,8 @@ const YourRides = () => {
                       driverLastName={ride.driver.last_name}
                       driverImage={ride.driver.image}
                       rideId={ride.id}
+                      rateEnabled={new Date(ride.end_time) < new Date()}
+                      createdByUser={false}
                     />
                   ))}
                 </div>
@@ -240,6 +242,8 @@ const YourRides = () => {
                     driverLastName={ride.driver.last_name}
                     driverImage={ride.driver.image}
                     rideId={ride.id}
+                    rateEnabled={new Date(ride.end_time) < new Date()}
+                    createdByUser={true}
                   />
                 ))}
               </div>

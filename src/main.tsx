@@ -17,7 +17,7 @@ import VerificationProcessing from "@/pages/Verification/VerificationProcessing.
 import Chats from "@/pages/Chats.tsx";
 import ContactUs from "@/pages/ContactUs.tsx";
 import RateDriver from "@/pages/Ratings/RateDriver.tsx";
-import RatePassenger from "@/pages/Ratings/RatePassenger.tsx";
+// import RatePassenger from "@/pages/Ratings/RatePassenger.tsx";
 import { ToastContainer } from "react-toastify";
 import EmailConfirmed from "@/pages/Auth/EmailConfirmed.tsx";
 import ResetPassword from "@/pages/Auth/ResetPassword.tsx";
@@ -88,10 +88,10 @@ const router = createBrowserRouter([
     path: "/rate-driver/:rideId",
     element: <RateDriver />,
   },
-  {
-    path: "/rate-passenger/:rideId",
-    element: <RatePassenger />,
-  },
+  // {
+  //   path: "/rate-passenger/:rideId",
+  //   element: <RatePassenger />,
+  // },
   {
     path: "/email-confirmed",
     element: <EmailConfirmed />,
