@@ -107,7 +107,9 @@ const TrackRide = () => {
   const [intermediateStops, setIntermediateStops] = useState<Stop[]>([]);
   const [duration, setDuration] = useState<string>("");
   const [bookings, setBookings] = useState<PassengerBooking[]>([]);
-  const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
+  const [deleteRideModalIsOpen, setDeleteRideModalIsOpen] = useState(false);
+  const [deleteBookingModalIsOpen, setDeleteBookingModalIsOpen] =
+    useState(false);
   const navigate = useNavigate();
 
   const rideId = window.location.pathname.split("/").pop();
@@ -292,6 +294,29 @@ const TrackRide = () => {
     } catch (err) {
       console.error("Fehler beim Löschen der Fahrt:", err);
       toast.error("Ein Fehler ist beim Löschen der Fahrt aufgetreten.");
+    }
+  };
+
+  const deleteBooking = async () => {
+    if (!session || !session.user) {
+      toast.error("Sie müssen sich anmelden, um eine Buchung zu löschen.");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("bookings")
+        .delete()
+        .eq("ride_id", rideData.id)
+        .eq("passenger_id", session.user.id);
+
+      if (error) throw error;
+
+      toast.success("Buchung erfolgreich gelöscht.");
+      navigate("/your-rides");
+    } catch (err) {
+      console.error("Fehler beim Löschen der Fahrt:", err);
+      toast.error("Ein Fehler ist beim Löschen der Buchung aufgetreten.");
     }
   };
 
@@ -500,6 +525,17 @@ const TrackRide = () => {
                 >
                   Fahrt melden
                 </button>
+
+                {!isDriver && (
+                  <button
+                    className={
+                      "border border-red-500 text-red-500 px-6 py-3 rounded-md hover:bg-red-100 shadow-md"
+                    }
+                    onClick={() => setDeleteBookingModalIsOpen(true)}
+                  >
+                    Fahrt Stornieren
+                  </button>
+                )}
               </div>
             </>
           )}
@@ -571,7 +607,7 @@ const TrackRide = () => {
                   className={
                     "border border-red-500 text-red-500 px-6 py-3 rounded-md hover:bg-red-100 shadow-md mt-10"
                   }
-                  onClick={() => setDeleteModalIsOpen(true)}
+                  onClick={() => setDeleteRideModalIsOpen(true)}
                 >
                   Fahrt Stornieren
                 </button>
@@ -581,8 +617,36 @@ const TrackRide = () => {
         </div>
       </div>
       <Modal
-        isOpen={deleteModalIsOpen}
-        onClose={() => setDeleteModalIsOpen(false)}
+        isOpen={deleteBookingModalIsOpen}
+        onClose={() => setDeleteBookingModalIsOpen(false)}
+      >
+        <div className="p-4 bg-white rounded-xl">
+          <h2 className="text-2xl font-semibold mb-4">
+            Sind Sie sicher, dass Sie diese Buchung löschen möchten?
+          </h2>
+          <p className="text-gray-600">
+            Diese Aktion kann nicht rückgängig gemacht werden. Die Buchung wird
+            gelöscht und Sie verlieren Ihren Platz in dieser Fahrt.
+          </p>
+          <div className="flex justify-end mt-8">
+            <button
+              onClick={() => setDeleteRideModalIsOpen(false)}
+              className="border border-gray-400 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-200 shadow-md mr-4"
+            >
+              Abbrechen
+            </button>
+            <button
+              onClick={deleteBooking}
+              className="border border-red-500 text-red-500 px-6 py-3 rounded-md hover:bg-red-100 shadow-md"
+            >
+              Buchung löschen
+            </button>
+          </div>
+        </div>
+      </Modal>
+      <Modal
+        isOpen={deleteRideModalIsOpen}
+        onClose={() => setDeleteRideModalIsOpen(false)}
       >
         <div className="p-4 bg-white rounded-xl">
           <h2 className="text-2xl font-semibold mb-4">
@@ -594,7 +658,7 @@ const TrackRide = () => {
           </p>
           <div className="flex justify-end mt-8">
             <button
-              onClick={() => setDeleteModalIsOpen(false)}
+              onClick={() => setDeleteRideModalIsOpen(false)}
               className="border border-gray-400 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-200 shadow-md mr-4"
             >
               Abbrechen
