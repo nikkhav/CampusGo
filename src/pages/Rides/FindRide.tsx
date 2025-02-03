@@ -64,16 +64,31 @@ const FindRide = () => {
   const [startIndex, setStartIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [timeFilters, setTimeFilters] = useState<string[]>([]);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const visibleDates = dates.slice(startIndex, startIndex + 3);
 
+  const updateQueryParams = (newDate: Date) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("date", getLocalDateString(newDate));
+    setSearchParams(params);
+  };
+
   const handleNextDates = () => {
-    if (startIndex + 3 < dates.length) setStartIndex((prev) => prev + 1);
+    if (startIndex + 3 < dates.length) {
+      setStartIndex((prev) => prev + 1);
+    }
   };
 
   const handlePreviousDates = () => {
-    if (startIndex > 0) setStartIndex((prev) => prev - 1);
+    if (startIndex > 0) {
+      setStartIndex((prev) => prev - 1);
+    }
+  };
+
+  const handleDateClick = (selectedDate: Date) => {
+    setActiveDate(selectedDate);
+    updateQueryParams(selectedDate);
   };
 
   const toggleTimeFilter = (filter: string) => {
@@ -212,6 +227,17 @@ const FindRide = () => {
       </div>
       <div className="lg:w-10/12 w-full mx-auto flex lg:flex-row flex-col justify-between lg:mt-6 lg:min-h-[50vh]">
         <div className="lg:w-4/12 w-11/12 mx-auto">
+          <button
+            className={"w-1/2 mb-4 text-left"}
+            onClick={() => {
+              setSearchParams("");
+              setActiveDate(today);
+              setStartIndex(0);
+              setTimeFilters([]);
+            }}
+          >
+            Suche zurücksetzen
+          </button>
           <p className="text-lg font-bold mb-4">Abfahrtszeit</p>
           <div className="flex flex-col space-y-2">
             <label className="flex items-center">
@@ -256,7 +282,7 @@ const FindRide = () => {
             {visibleDates.map((dateObj, index) => (
               <p
                 key={index}
-                onClick={() => setActiveDate(dateObj.fullDate)}
+                onClick={() => handleDateClick(dateObj.fullDate)}
                 className={`cursor-pointer ${
                   dateObj.fullDate.toDateString() === activeDate.toDateString()
                     ? "border-b-2 border-b-green-600"

@@ -19,7 +19,6 @@ interface DestinationCardProps {
   driverImage?: string;
   rideId?: string;
   rateEnabled?: boolean;
-  createdByUser?: boolean;
 }
 
 export const DestinationCard = ({
@@ -34,7 +33,6 @@ export const DestinationCard = ({
   driverImage,
   rideId,
   rateEnabled = false,
-  createdByUser = false,
 }: DestinationCardProps) => {
   const navigate = useNavigate();
 
@@ -61,14 +59,7 @@ export const DestinationCard = ({
     <>
       {rateEnabled && rideId && (
         <div className="mb-3 mt-5">
-          {createdByUser ? (
-            <Link
-              to={`/rate-passenger/${rideId}`}
-              className="text-blue-600 hover:underline"
-            >
-              Bewerte Mitfahrer
-            </Link>
-          ) : (
+          {rateEnabled && (
             <Link
               to={`/rate-driver/${rideId}`}
               className="text-blue-600 hover:underline"
@@ -79,7 +70,7 @@ export const DestinationCard = ({
         </div>
       )}
       <Card
-        className="flex flex-col md:flex-row items-center cursor-pointer w-full"
+        className="flex flex-col md:flex-row items-center cursor-pointer w-full mb-5"
         onClick={navigateToBookRide}
       >
         <div className="flex-1 grid p-5 w-full md:w-8/12">

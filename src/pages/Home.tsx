@@ -8,10 +8,10 @@ import auto_icon from "@/assets/icons/auto-icon.svg";
 import smile_icon from "@/assets/icons/smile-icon.svg";
 import filter_icon from "@/assets/icons/filter-icon.svg";
 import path_icon from "@/assets/icons/path-icon.svg";
-import mariia from "@/assets/avatars/Mariia.webp";
-import eduard from "@/assets/avatars/Eduard.webp";
-import nikita from "@/assets/avatars/Nikita.webp";
-import sasha from "@/assets/avatars/Sasha.webp";
+// import mariia from "@/assets/avatars/Mariia.webp";
+// import eduard from "@/assets/avatars/Eduard.webp";
+// import nikita from "@/assets/avatars/Nikita.webp";
+// import sasha from "@/assets/avatars/Sasha.webp";
 
 const features = [
   [
@@ -30,11 +30,11 @@ const features = [
   ],
 ];
 
-interface TeamMemberProps {
-  name: string;
-  course: string;
-  image: string;
-}
+// interface TeamMemberProps {
+//   name: string;
+//   course: string;
+//   image: string;
+// }
 
 const FeatureItem = ({ icon, text }: { icon: string; text: string }) => (
   <div className="flex items-center gap-4 mt-7 first:mt-0">
@@ -45,17 +45,17 @@ const FeatureItem = ({ icon, text }: { icon: string; text: string }) => (
   </div>
 );
 
-const TeamMember = ({ name, course, image }: TeamMemberProps) => (
-  <div className="flex flex-col items-center">
-    <img
-      src={image}
-      alt={name}
-      className="w-40 h-40 rounded-full border-2 border-green-600 object-cover"
-    />
-    <h5 className="text-xl font-semibold mt-5">{name}</h5>
-    <p className="text-gray-700 mt-3">{course}</p>
-  </div>
-);
+// const TeamMember = ({ name, course, image }: TeamMemberProps) => (
+//   <div className="flex flex-col items-center">
+//     <img
+//       src={image}
+//       alt={name}
+//       className="w-40 h-40 rounded-full border-2 border-green-600 object-cover"
+//     />
+//     <h5 className="text-xl font-semibold mt-5">{name}</h5>
+//     <p className="text-gray-700 mt-3">{course}</p>
+//   </div>
+// );
 
 const Home = () => (
   <Layout>
@@ -130,31 +130,31 @@ const Home = () => (
           </div>
         ))}
       </div>
-      <h3 className="text-3xl sm:text-4xl text-center mt-10 sm:mt-20 underline decoration-green-600">
-        Our Team
-      </h3>
-      <div className="flex flex-wrap justify-center sm:justify-between w-full mt-10 sm:mt-16 text-center gap-6">
-        <TeamMember
-          name="Mariia Mankovska"
-          course="2 Semester Wirtschaftsinformatik"
-          image={mariia}
-        />
-        <TeamMember
-          name="Eduard Rusakov"
-          course="4 Semester Wirtschaftsinformatik"
-          image={eduard}
-        />
-        <TeamMember
-          name="Nikita Khavkin"
-          course="4 Semester Wirtschaftsinformatik"
-          image={nikita}
-        />
-        <TeamMember
-          name="Oleksandra Shortova"
-          course="5 Semester Wirtschaftsinformatik"
-          image={sasha}
-        />
-      </div>
+      {/*<h3 className="text-3xl sm:text-4xl text-center mt-10 sm:mt-20 underline decoration-green-600">*/}
+      {/*  Our Team*/}
+      {/*</h3>*/}
+      {/*<div className="flex flex-wrap justify-center sm:justify-between w-full mt-10 sm:mt-16 text-center gap-6">*/}
+      {/*  <TeamMember*/}
+      {/*    name="Mariia Mankovska"*/}
+      {/*    course="2 Semester Wirtschaftsinformatik"*/}
+      {/*    image={mariia}*/}
+      {/*  />*/}
+      {/*  <TeamMember*/}
+      {/*    name="Eduard Rusakov"*/}
+      {/*    course="4 Semester Wirtschaftsinformatik"*/}
+      {/*    image={eduard}*/}
+      {/*  />*/}
+      {/*  <TeamMember*/}
+      {/*    name="Nikita Khavkin"*/}
+      {/*    course="4 Semester Wirtschaftsinformatik"*/}
+      {/*    image={nikita}*/}
+      {/*  />*/}
+      {/*  <TeamMember*/}
+      {/*    name="Oleksandra Shortova"*/}
+      {/*    course="5 Semester Wirtschaftsinformatik"*/}
+      {/*    image={sasha}*/}
+      {/*  />*/}
+      {/*</div>*/}
     </div>
   </Layout>
 );

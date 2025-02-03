@@ -75,7 +75,16 @@ const Register = () => {
       ]);
 
       if (dbError) {
-        toast.error(dbError.message);
+        if (
+          dbError.message.includes("duplicate key value") ||
+          dbError.message.includes("violates unique constraint")
+        ) {
+          toast.error(
+            "Ein Benutzer mit dieser E-Mail-Adresse existiert bereits.",
+          );
+        } else {
+          toast.error(dbError.message);
+        }
         setLoading(false);
         return;
       }

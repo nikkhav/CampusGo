@@ -12,7 +12,12 @@ interface Ride {
   end_location: string;
   available_seats: number;
   intermediate_stops: number;
-  driver: { first_name: string; last_name: string; image?: string };
+  driver: {
+    id?: string;
+    first_name: string;
+    last_name: string;
+    image?: string;
+  };
 }
 
 const groupRidesByDate = (rides: Ride[]) => {
@@ -65,7 +70,7 @@ const YourRides = () => {
               start_time,
               end_time,
               available_seats,
-              driver:users(first_name, last_name, image),
+              driver:users(id, first_name, last_name, image),
               stops (
                 stop_type,
                 location:locations(name)
@@ -216,8 +221,10 @@ const YourRides = () => {
                       driverLastName={ride.driver.last_name}
                       driverImage={ride.driver.image}
                       rideId={ride.id}
-                      rateEnabled={new Date(ride.end_time) < new Date()}
-                      createdByUser={false}
+                      rateEnabled={
+                        new Date(ride.end_time) < new Date() &&
+                        ride.driver.id !== session?.user?.id
+                      }
                     />
                   ))}
                 </div>
@@ -242,8 +249,6 @@ const YourRides = () => {
                     driverLastName={ride.driver.last_name}
                     driverImage={ride.driver.image}
                     rideId={ride.id}
-                    rateEnabled={new Date(ride.end_time) < new Date()}
-                    createdByUser={true}
                   />
                 ))}
               </div>
