@@ -15,6 +15,7 @@ import AccountRequired from "@/pages/AccountRequired.tsx";
 import { toast } from "react-toastify";
 import { handleContactSupport } from "../../../helpers.ts";
 import { useNavigate } from "react-router-dom";
+import Modal from "@/components/Modal.tsx";
 
 interface PassengerBooking {
   id: string;
@@ -106,6 +107,7 @@ const TrackRide = () => {
   const [intermediateStops, setIntermediateStops] = useState<Stop[]>([]);
   const [duration, setDuration] = useState<string>("");
   const [bookings, setBookings] = useState<PassengerBooking[]>([]);
+  const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
   const navigate = useNavigate();
 
   const rideId = window.location.pathname.split("/").pop();
@@ -266,6 +268,33 @@ const TrackRide = () => {
     }
   };
 
+  const deleteRide = async () => {
+    if (!session || !session.user) {
+      toast.error("Sie müssen sich anmelden, um eine Fahrt zu löschen.");
+      return;
+    }
+
+    if (session.user.id !== rideData.driver_id) {
+      toast.error("Sie können nur Fahrten löschen, die Sie erstellt haben.");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("rides")
+        .delete()
+        .eq("id", rideData.id);
+
+      if (error) throw error;
+
+      toast.success("Fahrt erfolgreich gelöscht.");
+      navigate("/your-rides");
+    } catch (err) {
+      console.error("Fehler beim Löschen der Fahrt:", err);
+      toast.error("Ein Fehler ist beim Löschen der Fahrt aufgetreten.");
+    }
+  };
+
   useEffect(() => {
     fetchRideData();
     fetchBookings();
@@ -291,7 +320,6 @@ const TrackRide = () => {
     (booking) => booking.passenger_id === session.user.id,
   );
 
-  // Decide heading
   let pageTitle = "Fahrt verfolgen";
   if (isDriver) {
     pageTitle = "Ihre veröffentlichte Fahrt";
@@ -478,10 +506,11 @@ const TrackRide = () => {
 
           {isDriver && (
             <>
-              {/* If the user IS the driver, show passengers list instead of driver info */}
-              <h3 className="text-xl font-bold mb-4">Passengers</h3>
+              <h3 className="text-xl font-bold mb-4">Gebuchte Passagiere</h3>
               {bookings.length === 0 && (
-                <p className="text-gray-500">No passengers booked yet.</p>
+                <p className="text-gray-500">
+                  Es gibt noch keine gebuchten Passagiere für diese Fahrt.
+                </p>
               )}
               <div className="space-y-4">
                 {bookings.map((booking) => (
@@ -536,10 +565,49 @@ const TrackRide = () => {
                   </button>
                 </div>
               )}
+
+              {isDriver && (
+                <button
+                  className={
+                    "border border-red-500 text-red-500 px-6 py-3 rounded-md hover:bg-red-100 shadow-md mt-10"
+                  }
+                  onClick={() => setDeleteModalIsOpen(true)}
+                >
+                  Fahrt Stornieren
+                </button>
+              )}
             </>
           )}
         </div>
       </div>
+      <Modal
+        isOpen={deleteModalIsOpen}
+        onClose={() => setDeleteModalIsOpen(false)}
+      >
+        <div className="p-4 bg-white rounded-xl">
+          <h2 className="text-2xl font-semibold mb-4">
+            Sind Sie sicher, dass Sie diese Fahrt löschen möchten?
+          </h2>
+          <p className="text-gray-600">
+            Diese Aktion kann nicht rückgängig gemacht werden. Die Fahrt wird
+            aus der Liste entfernt.
+          </p>
+          <div className="flex justify-end mt-8">
+            <button
+              onClick={() => setDeleteModalIsOpen(false)}
+              className="border border-gray-400 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-200 shadow-md mr-4"
+            >
+              Abbrechen
+            </button>
+            <button
+              onClick={deleteRide}
+              className="border border-red-500 text-red-500 px-6 py-3 rounded-md hover:bg-red-100 shadow-md"
+            >
+              Fahrt löschen
+            </button>
+          </div>
+        </div>
+      </Modal>
     </Layout>
   );
 };

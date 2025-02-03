@@ -1,4 +1,5 @@
 import Layout from "@/layout/Layout.tsx";
+import { Link } from "react-router-dom";
 
 const AGB = () => {
   return (
@@ -128,11 +129,13 @@ const AGB = () => {
 
         <section>
           <h2 className="text-xl font-semibold">10. Datenschutz</h2>
-          <p>
+          <p className="mb-2">
             Die Verarbeitung personenbezogener Daten der Nutzer richtet sich
-            nach unserer Datenschutzerklärung, die unter [Link zur
-            Datenschutzerklärung] verfügbar ist.
-          </p>
+            nach unserer Datenschutzerklärung.
+          </p>{" "}
+          <Link className={"text-blue-500 hover:underline"} to="/datenschutz">
+            Unsere Datenschutzerklärung
+          </Link>
         </section>
 
         <section>
