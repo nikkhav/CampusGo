@@ -88,11 +88,16 @@ const Home = () => (
         <div className="flex flex-col sm:flex-row justify-between mt-10 gap-6">
           <div className="flex flex-col w-full sm:w-5/12">
             <h3 className="border-b-4 border-b-green-600 text-xl sm:text-2xl font-semibold">
-              Our story
+              Unsere Geschichte
             </h3>
             <p className="text-sm sm:text-base font-light mt-3 text-gray-700">
-              CampusGo wurde entwickelt, um eine der zentralen Herausforderungen
-              der Region zu lösen.
+              CampusGo wurde aus dem Bedürfnis heraus geboren, die täglichen
+              Pendelprobleme vieler Studierender zu lösen. Unser Ziel ist es,
+              eine nachhaltige und effiziente Möglichkeit zu bieten,
+              Fahrgemeinschaften zu organisieren. Wir glauben, dass die
+              gemeinsame Nutzung von Fahrten nicht nur Zeit und Geld spart,
+              sondern auch die Umwelt schont und den sozialen Austausch unter
+              Studierenden fördert.
             </p>
           </div>
           <div className="flex flex-col w-full sm:w-5/12">
@@ -105,8 +110,12 @@ const Home = () => (
               Ideologie und Ziele
             </h3>
             <p className="text-sm sm:text-base font-light mt-3 text-gray-700">
-              CampusGo basiert auf den Prinzipien der Nachhaltigkeit, Inklusion
-              und Benutzerfreundlichkeit.
+              Unsere Ideologie basiert auf den Werten der Nachhaltigkeit, der
+              Inklusion und der Gemeinschaft. Wir möchten eine Plattform
+              schaffen, die nicht nur umweltfreundliche Fahrten ermöglicht,
+              sondern auch für alle zugänglich ist. Dabei legen wir Wert auf
+              Benutzerfreundlichkeit und eine starke Gemeinschaft, die sich
+              gegenseitig unterstützt und neue Freundschaften entstehen lässt.
             </p>
           </div>
           <div className="flex flex-col w-full sm:w-5/12">
@@ -119,7 +128,7 @@ const Home = () => (
         </div>
       </div>
       <h3 className="text-3xl sm:text-4xl text-center mt-10 sm:mt-20 underline decoration-green-600">
-        Key Features of CampusGo
+        Schlüsselmerkmale von CampusGo
       </h3>
       <div className="flex flex-col sm:flex-row justify-between w-full mt-6 sm:mt-12 gap-6">
         {features.map((feature, index) => (
