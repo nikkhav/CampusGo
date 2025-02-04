@@ -117,6 +117,7 @@ const constants: Constants = {
     "Türkisch 🇹🇷",
     "Polnisch 🇵🇱",
     "Russisch 🇷🇺",
+    "Ukrainisch 🇺🇦",
     "Italienisch 🇮🇹",
     "Arabisch 🇸🇦",
     "Französisch 🇫🇷",
