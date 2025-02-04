@@ -401,7 +401,7 @@ export const PublicProfile = ({
               <img
                 src={tempPhoto}
                 alt="Vorschau"
-                className="w-full h-auto object-cover rounded-lg"
+                className="w-[200px] h-[200px] object-cover rounded-full mx-auto lg:mt-10 mt-5"
               />
             ) : (
               <p className="text-center text-gray-500">

@@ -1,8 +1,12 @@
 import Layout from "@/layout/Layout.tsx";
 import { Phone, Mail, MapPin } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { handleContactSupport } from "../../helpers.ts";
+import { useSupabaseSession } from "@/hooks/useSupabaseSession.tsx";
 
 const ContactUs = () => {
+  const { session } = useSupabaseSession();
+  const navigate = useNavigate();
   return (
     <Layout>
       <div className="lg:w-8/12 w-11/12 mx-auto my-16">
@@ -15,12 +19,12 @@ const ContactUs = () => {
         </p>
 
         <div className="flex justify-center">
-          <Link
-            to={`/chats`}
+          <button
+            onClick={() => handleContactSupport(session, navigate)}
             className="text-lg text-white bg-green-600 p-5 rounded-full shadow-md hover:bg-green-700 transition-colors"
           >
             Schick uns eine Nachricht
-          </Link>
+          </button>
         </div>
 
         <div className="mt-10 bg-gray-50 p-8 rounded-lg shadow-md border border-gray-200">
