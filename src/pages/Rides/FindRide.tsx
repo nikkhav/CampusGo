@@ -136,9 +136,9 @@ const FindRide = () => {
           intermediate_stops: intermediateStops.length,
           available_seats: ride.available_seats,
           driver: {
-            first_name: ride.users.first_name,
-            last_name: ride.users.last_name,
-            image: ride.users.image,
+            first_name: ride.users?.first_name || "Unknown",
+            last_name: ride.users?.last_name || "Unknown",
+            image: ride.users?.image,
           },
         };
       });
